@@ -1,0 +1,79 @@
+** collabIRCate **
+
+HA!
+
+irc
+
+o users log into irc, authenticate via some mechanism
+o channels created are automatically setup and logged into irc_log
+o initial version, report is automatically setup, hourly for that channel
+
+web
+
+o /log/#channel (most recent)
+o /log/#channel/day/20080924
+o /log/#channel/hour/20080924/09
+o /log/#channel/month/200809
+o /log/#channel/week/2008/51
+o /user/freddo (recent activity, control panel for that user)
+o /tag/ircdev    (recent activity for that tag)
+o /tag/cloud     (show the cloud)
+
+
+daemon
+
+o daemon runs reports to users at regular intervals
+
+bot
+
+o command to change report frequency
+o command to mail say the last 10 lines/minutes of conversation to someone
+o command to go OffTR or OnTR
+
+
+
+= log =
+
+log_id  SERIAL
+ts TIMESTAMP
+channel_id  REFERENCES
+user_id       REFERENCES
+type           (topic, emote, message)
+entry          TEXT
+
+= tag =
+name TEXT
+log_id REFERENCES
+
+
+= channel =
+
+channel_id  SERIAL
+
+
+= users =
+
+user_id    SERIAL
+email      TEXT
+some_other_metadata
+
+
+= channel_report =
+
+user_id   REFERENCES
+channel_id REFERENCES
+report_expires TIMESTAMP
+report_frequency   hourly|daily|weekly
+report_last TIMSTAMP
+
+
+CollabIRCate  version
+CollabIRCate::Data   
+CollabIRCate::IRC
+CollabIRCate::IRC::Log  Catalyst model
+CollabIRCate::Mail
+
+
+
+
+
