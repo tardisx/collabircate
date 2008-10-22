@@ -19,7 +19,7 @@ CREATE TABLE users (
 
 CREATE TABLE log (
   log_id      SERIAL NOT NULL PRIMARY KEY,
-  ts          TIMESTAMP NOT NULL,
+  ts          TIMESTAMP NOT NULL DEFAULT NOW(),
   channel_id  INT NOT NULL REFERENCES channel(channel_id),
   user_id     INT NOT NULL REFERENCES users(user_id),
   type        TEXT NOT NULL,
