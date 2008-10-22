@@ -1,0 +1,7 @@
+elements:
+
+* username (provided at login)
+* password (provided at login)
+* domain   (client ip address, then changed by irc server)
+* nickname (provided at login, can change)
+
