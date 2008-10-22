@@ -18,7 +18,7 @@ __PACKAGE__->add_columns(
   "ts",
   {
     data_type => "timestamp without time zone",
-    default_value => undef,
+    default_value => "now()",
     is_nullable => 0,
     size => 8,
   },
@@ -60,8 +60,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.04005 @ 2008-10-16 07:24:27
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dAAkruvuTRyrDhAi1qJn3g
+# Created by DBIx::Class::Schema::Loader v0.04005 @ 2008-10-21 11:43:42
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XSu4W/frc2NbR6VkKKbcmA
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

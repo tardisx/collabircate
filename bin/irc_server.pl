@@ -19,10 +19,11 @@ use CollabIRCate::Schema::Channel;
 my $schema = CollabIRCate::Schema->connect('dbi:Pg:dbname=collabircate')
   || die $!;
 
-my $mail_delay = 3600;
-my $super      = 'justin';
+my $MAIL_DELAY = 3600;
+my $SUPER_USER = 'justin';
+my $PORT       = 6668;
 
-my @to = ('people@hawkins.id.au');
+my @TO = ('justin@hawkins.id.au');
 
 my %config = (
     servername => 'romana.hawkins.id.au',
@@ -42,7 +43,7 @@ POE::Session->create(
         'main' => [
             qw(_start _default
               ircd_daemon_public ircd_daemon_join ircd_daemon_quit ircd_daemon_privmsg
-              mail_logs)
+              )
         ],
     ],
     heap => { ircd => $pocosi },
@@ -56,8 +57,8 @@ sub ircd_daemon_privmsg {
       @_[ KERNEL, HEAP, ARG0, ARG1, ARG2 ];
     $from =~ s/!.*//;
 
-    warn "giving ops to $super because $from wrote to $to ($what)";
-    $heap->{ircd}->yield( 'daemon_cmd_mode', $super, '#people', '+o' );
+    warn "giving ops to $SUPER_USER because $from wrote to $to ($what)";
+    $heap->{ircd}->yield( 'daemon_cmd_mode', $SUPER_USER, '#people', '+o' );
     $heap->{ircd}->yield(
         'daemon_cmd_privmsg', 'peoplebot',
         '#people',            "$from said to me, \"$what\""
@@ -66,43 +67,14 @@ sub ircd_daemon_privmsg {
 
 sub ircd_daemon_join {
     my ( $kernel, $heap, $who, $where ) = @_[ KERNEL, HEAP, ARG0, ARG1 ];
-    $who =~ s/!.*//;
+#    $who =~ s/!.*//;
     push @{ $heap->{log}->{$where} }, [ time(), "$who joined the channel" ];
 }
 
 sub ircd_daemon_quit {
     my ( $kernel, $heap, $who, $why ) = @_[ KERNEL, HEAP, ARG0, ARG1 ];
-    $who =~ s/!.*//;
+#    $who =~ s/!.*//;
     warn "$who quit but I don't yet know where they were\n";
-
-}
-
-sub mail_logs {
-    my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
-
-    # queue the next one
-    $kernel->delay( mail_logs => $mail_delay );
-
-    use Data::Dumper;
-
-    return unless defined $heap->{log};
-    return unless defined $heap->{log}->{'#people'};
-    return unless scalar @{ $heap->{log}->{'#people'} };
-
-    return unless $heap->{interesting_log};
-
-    my $mail = Mail::Send->new;
-    $mail->to(@to);
-    $mail->subject("What happened in the last $mail_delay seconds");
-    my $fh = $mail->open;
-
-    print $fh join ( "\n",
-        map { ts_to_hhmm( $_->[0] ) . ": " . $_->[1] }
-          @{ $heap->{log}->{'#people'} } );
-    $fh->close;
-
-    delete $heap->{log}->{'#people'};
-    $heap->{interesting_log} = 0;
 
 }
 
@@ -114,7 +86,20 @@ sub ts_to_hhmm {
 sub ircd_daemon_public {
     my ( $kernel, $heap, $who, $where, $what ) =
       @_[ KERNEL, HEAP, ARG0, ARG1, ARG2 ];
-    $who =~ s/!.*//;
+#    $who =~ s/!.*//;
+
+    my $user = $schema->resultset('Users')->find_or_create( { email => $who } );
+    my $channel =
+      $schema->resultset('Channel')->find_or_create( { name => $where } );
+    my $log = $schema->resultset('Log')->create(
+        {
+            channel_id => $channel,
+            user_id    => $user,
+#            ts         => '1980-01-01 12:00',
+            entry      => $what,
+            type       => 'log'
+        }
+    );
 
     push @{ $heap->{log}->{$where} }, [ time(), "$who: $what" ]
       unless $what =~ /ACTION /;
@@ -132,10 +117,12 @@ sub _start {
       ->add_auth( mask => '*@localhost', spoof => 'm33p.com', no_tilde => 1 );
 
     # We have to add an auth as we have specified one above.
+#    $heap->{ircd}->add_auth( mask => '~justin@hawkins.id.au@*', password => 'fungula', no_tilde => 1 );
+
     $heap->{ircd}->add_auth( mask => '*@*' );
 
     # Start a listener on the 'standard' IRC port.
-    $heap->{ircd}->add_listener( port => 6668 );
+    $heap->{ircd}->add_listener( port => $PORT );
 
     # Add an operator who can connect from localhost
     $heap->{ircd}
@@ -152,8 +139,6 @@ sub _start {
         }
     );
     $heap->{ircd}->yield( 'daemon_cmd_join', 'peoplebot', '#people' );
-
-    $kernel->delay( mail_logs => $mail_delay );
 
     undef;
 }
