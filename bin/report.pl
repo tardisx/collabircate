@@ -16,9 +16,17 @@ use CollabIRCate::Schema::Channel;
 my $schema = CollabIRCate::Schema->connect('dbi:Pg:dbname=collabircate')
   || die $!;
 
-my $interval = "> now() - '1 hour'::INTERVAL";
-my $log = $schema->resultset('Log')->search({ts => \$interval});
+my $channel = shift;
+my $dest = shift;
 
+my $interval = "> now() - '1 hour'::INTERVAL";
+
+my $chan = $schema->resultset('Channel')->search({name => $channel})->next;
+if (! $chan) {
+    die "No such channel $channel";
+}
+
+my $log = $schema->resultset('Log')->search({ts => \$interval, channel_id => $chan->channel_id});
 
 my @entries = ();
 
@@ -34,8 +42,8 @@ while (my $entry = $log->next) {
 if (@entries) {
 
   my $mail = Mail::Send->new;
-  $mail->to('people@hawkins.id.au');
-  $mail->subject("What happened in the last hour");
+  $mail->to($dest);
+  $mail->subject("What happened in the last hour on $channel");
   my $fh = $mail->open;
  
   foreach (@entries) {
