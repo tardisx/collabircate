@@ -42,7 +42,7 @@ POE::Session->create(
     package_states => [
         'main' => [
             qw(_start _default
-              ircd_daemon_public ircd_daemon_join ircd_daemon_quit ircd_daemon_privmsg
+              ircd_daemon_public ircd_daemon_join ircd_daemon_quit ircd_daemon_privmsg ircd_daemon_nick
               )
         ],
     ],
@@ -51,6 +51,12 @@ POE::Session->create(
 
 $poe_kernel->run();
 exit 0;
+
+sub ircd_daemon_nick {
+  my ( $kernel, $heap, $nick, $umode, $hostname, $realname) = 
+      @_[ KERNEL, HEAP, ARG0, ARG3, ARG5, ARG7];
+  warn "Hello to $nick ($umode) from $hostname, he is called $realname";
+}
 
 sub ircd_daemon_privmsg {
     my ( $kernel, $heap, $from, $to, $what ) =
@@ -68,6 +74,8 @@ sub ircd_daemon_privmsg {
 sub ircd_daemon_join {
     my ( $kernel, $heap, $who, $where ) = @_[ KERNEL, HEAP, ARG0, ARG1 ];
 #    $who =~ s/!.*//;
+    $heap->{ircd}->yield( 'daemon_cmd_sjoin', 'peoplebot', $where );
+
     push @{ $heap->{log}->{$where} }, [ time(), "$who joined the channel" ];
 }
 
@@ -138,7 +146,6 @@ sub _start {
             umode   => 'i'
         }
     );
-    $heap->{ircd}->yield( 'daemon_cmd_join', 'peoplebot', '#people' );
 
     undef;
 }
