@@ -5,6 +5,9 @@ use Mail::Send;
 use FindBin qw/$Bin/;
 use Path::Class;
 use lib dir( $Bin, '..', 'lib' )->stringify;
+use DateTime;
+
+
 
 # use YAML qw/LoadFile/;
 
@@ -26,7 +29,10 @@ if (! $chan) {
     die "No such channel $channel";
 }
 
-my $log = $schema->resultset('Log')->search({ts => \$interval, channel_id => $chan->channel_id});
+my $log = $schema->resultset('Log')->search(
+					    {ts => \$interval, channel_id => $chan->channel_id},
+					    {order_by => 'ts'},
+					    );
 
 my @entries = ();
 
@@ -35,9 +41,13 @@ while (my $entry = $log->next) {
   $nick =~ s/!.*//;
   my $line  = $entry->entry;
   my $ts = $entry->ts;
+  my $epoch = epoch($ts);
+
   ($ts) = $ts =~ /\d\d\d\d\-\d\d\-\d\d\s+(.*):\d\d\./;
-  push @entries, [$ts, $nick, $line];
+  push @entries, [$ts, $nick, $line, $epoch];
 }
+
+my ($last_epoch, $this_epoch);
 
 if (@entries) {
 
@@ -47,8 +57,33 @@ if (@entries) {
   my $fh = $mail->open;
  
   foreach (@entries) {
-    print $fh join (': ', @$_) . "\n";
+      $this_epoch = $$_[3];
+      if ($last_epoch) {
+	  if ($last_epoch + 300 < $this_epoch) {
+	      print $fh "\n";
+	  }
+      }
+      $last_epoch = $this_epoch;
+      print $fh  join (': ', @$_[0..2]) . "\n";
   }
   $fh->close;
 
 }
+
+sub epoch {
+    my $ts = shift;
+
+    $ts =~ /^(\d\d\d\d)\-(\d\d)\-(\d\d) (\d\d):(\d\d):(\d\d)/;
+
+    die if (! $6);
+    my $dt = DateTime->new( year   => $1,
+			    month  => $2,
+			    day    => $3,
+			    hour   => $4,
+			    minute => $5,
+			    second => $6,
+			    );
+
+    return $dt->epoch;
+}
+
