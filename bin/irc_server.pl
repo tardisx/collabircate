@@ -11,13 +11,10 @@ use lib dir( $Bin, '..', 'lib' )->stringify;
 use POE qw(Component::Server::IRC);
 use Mail::Send;
 
-use CollabIRCate::Schema;
-use CollabIRCate::Schema::Channel;
+use CollabIRCate::Log qw/add_log/;
 
 # my $config = LoadFile(file($Bin, '..', 'collabircate.conf'));
 
-my $schema = CollabIRCate::Schema->connect('dbi:Pg:dbname=collabircate')
-  || die $!;
 
 my $MAIL_DELAY = 3600;
 my $SUPER_USER = 'justin';
@@ -63,12 +60,18 @@ sub ircd_daemon_privmsg {
       @_[ KERNEL, HEAP, ARG0, ARG1, ARG2 ];
     $from =~ s/!.*//;
 
-    warn "giving ops to $SUPER_USER because $from wrote to $to ($what)";
-    $heap->{ircd}->yield( 'daemon_cmd_mode', $SUPER_USER, '#people', '+o' );
-    $heap->{ircd}->yield(
-        'daemon_cmd_privmsg', 'peoplebot',
-        '#people',            "$from said to me, \"$what\""
-    );
+#    warn "giving ops to $SUPER_USER because $from wrote to $to ($what)";
+#    $heap->{ircd}->yield( 'daemon_cmd_mode', $SUPER_USER, '#people', '+o' );
+#    $heap->{ircd}->yield(
+#        'daemon_cmd_privmsg', 'peoplebot',
+#        '#people',            "$from said to me, \"$what\""
+#    );
+    if ($what =~ /^topic\s+(#\S+)\s+(.*)/) {
+			    $heap->{ircd}->yield(
+						 'daemon_cmd_topic', 'peoplebot', $1, $2 );
+			    $heap->{ircd}->yield( 'daemon_cmd_mode', 'justin', '#people', '+o' );
+			}
+
 }
 
 sub ircd_daemon_join {
@@ -76,7 +79,8 @@ sub ircd_daemon_join {
 #    $who =~ s/!.*//;
     $heap->{ircd}->yield( 'daemon_cmd_sjoin', 'peoplebot', $where );
 
-    push @{ $heap->{log}->{$where} }, [ time(), "$who joined the channel" ];
+    add_log($who, $where, 'join', 'joined');
+
 }
 
 sub ircd_daemon_quit {
@@ -96,18 +100,7 @@ sub ircd_daemon_public {
       @_[ KERNEL, HEAP, ARG0, ARG1, ARG2 ];
 #    $who =~ s/!.*//;
 
-    my $user = $schema->resultset('Users')->find_or_create( { email => $who } );
-    my $channel =
-      $schema->resultset('Channel')->find_or_create( { name => $where } );
-    my $log = $schema->resultset('Log')->create(
-        {
-            channel_id => $channel,
-            user_id    => $user,
-#            ts         => '1980-01-01 12:00',
-            entry      => $what,
-            type       => 'log'
-        }
-    );
+    add_log($who, $where, 'log', $what);
 
     push @{ $heap->{log}->{$where} }, [ time(), "$who: $what" ]
       unless $what =~ /ACTION /;
