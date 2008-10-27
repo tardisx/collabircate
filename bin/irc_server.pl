@@ -11,21 +11,15 @@ use lib dir( $Bin, '..', 'lib' )->stringify;
 use POE qw(Component::Server::IRC);
 use Mail::Send;
 
+use CollabIRCate qw/Debug/;
 use CollabIRCate::Log qw/add_log/;
 
-# my $config = LoadFile(file($Bin, '..', 'collabircate.conf'));
-
-
-my $MAIL_DELAY = 3600;
-my $SUPER_USER = 'justin';
-my $PORT       = 6668;
-
-my @TO = ('justin@hawkins.id.au');
+my $PORT       = CollabIRCate->config->{irc_server_port};
 
 my %config = (
     servername => 'romana.hawkins.id.au',
     nicklen    => 15,
-    network    => 'nickNET',
+    network    => CollabIRCate->config->{irc_server_name},
     motd       => [
         'all you could ever want in a server',
         'and so much much more',
