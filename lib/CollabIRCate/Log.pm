@@ -24,6 +24,7 @@ sub _schema {
 
 sub add_log {
     my ($who, $where, $type, $what) = @_;
+    $where = lc($where);
 
     my $user = _schema->resultset('Users')->find_or_create( { email => $who } );
     my $channel =
