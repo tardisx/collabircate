@@ -7,11 +7,14 @@ use Path::Class;
 use lib dir( $Bin, '..', 'lib' )->stringify;
 use DateTime;
 
-use CollabIRCate qw/-Debug/;
+# use CollabIRCate qw/-Debug/;
 use CollabIRCate::Schema;
 use CollabIRCate::Schema::Channel;
 
-my $dsn = CollabIRCate->config->{dsn};
+use Config::General;
+my $config = { Config::General->new("collabircate.conf")->getall };
+
+my $dsn = $config->{dsn};
 
 my $schema = CollabIRCate::Schema->connect($dsn)
   || die $!;
