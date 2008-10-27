@@ -12,7 +12,7 @@ use CollabIRCate::Schema;
 use CollabIRCate::Schema::Channel;
 
 use Config::General;
-my $config = { Config::General->new("collabircate.conf")->getall };
+my $config = { Config::General->new("$Bin/../collabircate.conf")->getall };
 
 my $dsn = $config->{dsn};
 
