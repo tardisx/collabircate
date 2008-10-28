@@ -1,4 +1,4 @@
-package CollabIRCate::Model::CollabIRCate;
+package CollabIRCate::Model::CollabIRCateDB;
 
 use strict;
 use base 'Catalyst::Model::DBIC::Schema';
@@ -13,7 +13,7 @@ __PACKAGE__->config(
 
 =head1 NAME
 
-CollabIRCate::Model::CollabIRCate - Catalyst DBIC Schema Model
+CollabIRCate::Model::CollabIRCateDB - Catalyst DBIC Schema Model
 =head1 SYNOPSIS
 
 See L<CollabIRCate>
