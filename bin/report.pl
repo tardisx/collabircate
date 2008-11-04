@@ -30,14 +30,18 @@ if (! $chan) {
 }
 
 my $log = $schema->resultset('Log')->search(
-					    {ts => \$interval, channel_id => $chan->channel_id},
-					    {order_by => 'ts'},
+					    {ts => \$interval, channel_id => $chan->id, type => 'log'},
+					    {
+						order_by => 'ts',
+						join => 'users_id',
+						'+select' => [ 'users_id.email' ],
+					    }
 					    );
 
 my @entries = ();
 
 while (my $entry = $log->next) {
-  my $nick = $entry->user_id->email;
+  my $nick = $entry->users_id->email;
   $nick =~ s/!.*//;
   my $line  = $entry->entry;
   my $ts = $entry->ts;
@@ -45,6 +49,7 @@ while (my $entry = $log->next) {
 
   ($ts) = $ts =~ /\d\d\d\d\-\d\d\-\d\d\s+(.*):\d\d\./;
   push @entries, [$ts, $nick, $line, $epoch];
+
 }
 
 my ($last_epoch, $this_epoch);

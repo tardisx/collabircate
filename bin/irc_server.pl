@@ -12,7 +12,7 @@ use POE qw(Component::Server::IRC);
 use Mail::Send;
 
 use CollabIRCate qw/Debug/;
-use CollabIRCate::Log qw/add_log/;
+#use CollabIRCate::Log qw/add_log/;
 
 my $PORT       = CollabIRCate->config->{irc_server_port};
 
@@ -32,9 +32,7 @@ my $pocosi = POE::Component::Server::IRC->spawn( config => \%config );
 POE::Session->create(
     package_states => [
         'main' => [
-            qw(_start _default
-              ircd_daemon_public ircd_daemon_join ircd_daemon_quit ircd_daemon_privmsg ircd_daemon_nick
-              )
+            qw(_start _default                         )
         ],
     ],
     heap => { ircd => $pocosi },
@@ -42,66 +40,6 @@ POE::Session->create(
 
 $poe_kernel->run();
 exit 0;
-
-sub ircd_daemon_nick {
-  my ( $kernel, $heap, $nick, $umode, $hostname, $realname) = 
-      @_[ KERNEL, HEAP, ARG0, ARG3, ARG5, ARG7];
-  warn "Hello to $nick ($umode) from $hostname, he is called $realname";
-}
-
-sub ircd_daemon_privmsg {
-    my ( $kernel, $heap, $from, $to, $what ) =
-      @_[ KERNEL, HEAP, ARG0, ARG1, ARG2 ];
-    $from =~ s/!.*//;
-
-#    warn "giving ops to $SUPER_USER because $from wrote to $to ($what)";
-#    $heap->{ircd}->yield( 'daemon_cmd_mode', $SUPER_USER, '#people', '+o' );
-#    $heap->{ircd}->yield(
-#        'daemon_cmd_privmsg', 'peoplebot',
-#        '#people',            "$from said to me, \"$what\""
-#    );
-    if ($what =~ /^topic\s+(#\S+)\s+(.*)/) {
-			    $heap->{ircd}->yield(
-						 'daemon_cmd_topic', 'peoplebot', $1, $2 );
-			    $heap->{ircd}->yield( 'daemon_cmd_mode', 'justin', '#people', '+o' );
-			}
-
-}
-
-sub ircd_daemon_join {
-    my ( $kernel, $heap, $who, $where ) = @_[ KERNEL, HEAP, ARG0, ARG1 ];
-#    $who =~ s/!.*//;
-    $heap->{ircd}->yield( 'daemon_cmd_sjoin', 'peoplebot', $where );
-
-    add_log($who, $where, 'join', 'joined');
-
-}
-
-sub ircd_daemon_quit {
-    my ( $kernel, $heap, $who, $why ) = @_[ KERNEL, HEAP, ARG0, ARG1 ];
-#    $who =~ s/!.*//;
-    warn "$who quit but I don't yet know where they were\n";
-
-}
-
-sub ts_to_hhmm {
-    my $ts = shift;
-    return sprintf( "%02d:%02d", ( localtime($ts) )[ 2, 1 ] );
-}
-
-sub ircd_daemon_public {
-    my ( $kernel, $heap, $who, $where, $what ) =
-      @_[ KERNEL, HEAP, ARG0, ARG1, ARG2 ];
-#    $who =~ s/!.*//;
-
-    add_log($who, $where, 'log', $what);
-
-    push @{ $heap->{log}->{$where} }, [ time(), "$who: $what" ]
-      unless $what =~ /ACTION /;
-    push @{ $heap->{log}->{$where} }, [ time(), "$who $what" ]
-      if $what =~ s/ACTION //;
-    $heap->{interesting_log} = 1;
-}
 
 sub _start {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
@@ -122,17 +60,6 @@ sub _start {
     # Add an operator who can connect from localhost
     $heap->{ircd}
       ->add_operator( { username => 'justin', password => 'fishdontbreathe' } );
-
-    my $time = time();
-    $heap->{ircd}->yield(
-        'add_spoofed_nick',
-        {
-            nick    => 'peoplebot',
-            ts      => $time,
-            ircname => 'PeopleBot',
-            umode   => 'i'
-        }
-    );
 
     undef;
 }
