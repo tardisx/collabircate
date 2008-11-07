@@ -59,7 +59,7 @@ sub _start {
 
     # Add an operator who can connect from localhost
     $heap->{ircd}
-      ->add_operator( { username => 'justin', password => 'fishdontbreathe' } );
+      ->add_operator( { username => 'peoplebot', password => 'fishdontbreathe' } );
 
     undef;
 }
