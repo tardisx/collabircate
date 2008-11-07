@@ -8,10 +8,10 @@ use base 'DBIx::Class';
 __PACKAGE__->load_components("Core");
 __PACKAGE__->table("channel");
 __PACKAGE__->add_columns(
-  "channel_id",
+  "id",
   {
     data_type => "integer",
-    default_value => "nextval('channel_channel_id_seq'::regclass)",
+    default_value => "nextval('channel_id_seq'::regclass)",
     is_nullable => 0,
     size => 4,
   },
@@ -30,22 +30,22 @@ __PACKAGE__->add_columns(
     size => undef,
   },
 );
-__PACKAGE__->set_primary_key("channel_id");
-__PACKAGE__->add_unique_constraint("channel_pkey", ["channel_id"]);
+__PACKAGE__->set_primary_key("id");
+__PACKAGE__->add_unique_constraint("channel_pkey", ["id"]);
 __PACKAGE__->has_many(
   "channel_reports",
   "CollabIRCate::Schema::ChannelReport",
-  { "foreign.channel_id" => "self.channel_id" },
+  { "foreign.channel_id" => "self.id" },
 );
 __PACKAGE__->has_many(
   "logs",
   "CollabIRCate::Schema::Log",
-  { "foreign.channel_id" => "self.channel_id" },
+  { "foreign.channel_id" => "self.id" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.04005 @ 2008-10-21 11:43:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:MHIwIqqv57GoXDR3p48q7w
+# Created by DBIx::Class::Schema::Loader v0.04005 @ 2008-10-28 10:59:22
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ln9Sy4wXCkgXC21ltqA9nQ
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

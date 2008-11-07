@@ -8,10 +8,10 @@ use base 'DBIx::Class';
 __PACKAGE__->load_components("Core");
 __PACKAGE__->table("log");
 __PACKAGE__->add_columns(
-  "log_id",
+  "id",
   {
     data_type => "integer",
-    default_value => "nextval('log_log_id_seq'::regclass)",
+    default_value => "nextval('log_id_seq'::regclass)",
     is_nullable => 0,
     size => 4,
   },
@@ -24,7 +24,7 @@ __PACKAGE__->add_columns(
   },
   "channel_id",
   { data_type => "integer", default_value => undef, is_nullable => 0, size => 4 },
-  "user_id",
+  "users_id",
   { data_type => "integer", default_value => undef, is_nullable => 0, size => 4 },
   "type",
   {
@@ -41,28 +41,32 @@ __PACKAGE__->add_columns(
     size => undef,
   },
 );
-__PACKAGE__->set_primary_key("log_id");
-__PACKAGE__->add_unique_constraint("log_pkey", ["log_id"]);
+__PACKAGE__->set_primary_key("id");
+__PACKAGE__->add_unique_constraint("log_pkey", ["id"]);
+__PACKAGE__->belongs_to(
+  "users_id",
+  "CollabIRCate::Schema::Users",
+  { id => "users_id" },
+);
 __PACKAGE__->belongs_to(
   "channel_id",
   "CollabIRCate::Schema::Channel",
-  { channel_id => "channel_id" },
-);
-__PACKAGE__->belongs_to(
-  "user_id",
-  "CollabIRCate::Schema::Users",
-  { user_id => "user_id" },
+  { id => "channel_id" },
 );
 __PACKAGE__->has_many(
   "tags",
   "CollabIRCate::Schema::Tag",
-  { "foreign.log_id" => "self.log_id" },
+  { "foreign.log_id" => "self.id" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.04005 @ 2008-10-21 11:43:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XSu4W/frc2NbR6VkKKbcmA
+# Created by DBIx::Class::Schema::Loader v0.04005 @ 2008-10-28 10:59:22
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rJl4qG+bXpduFmxyBdZSnA
 
-
-# You can replace this text with custom content, and it will be preserved on regeneration
+sub nice_ts {
+    my $self = shift;
+    my $ts   = $self->ts;
+    $ts =~ s/\d\d\d\d\-\d\d\-\d\d\s(\d\d:\d\d).*/$1/;
+    return $ts;
+}
 1;

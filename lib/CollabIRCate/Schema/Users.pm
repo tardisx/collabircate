@@ -8,10 +8,10 @@ use base 'DBIx::Class';
 __PACKAGE__->load_components("Core");
 __PACKAGE__->table("users");
 __PACKAGE__->add_columns(
-  "user_id",
+  "id",
   {
     data_type => "integer",
-    default_value => "nextval('users_user_id_seq'::regclass)",
+    default_value => "nextval('users_id_seq'::regclass)",
     is_nullable => 0,
     size => 4,
   },
@@ -23,22 +23,22 @@ __PACKAGE__->add_columns(
     size => undef,
   },
 );
-__PACKAGE__->set_primary_key("user_id");
-__PACKAGE__->add_unique_constraint("users_pkey", ["user_id"]);
+__PACKAGE__->set_primary_key("id");
+__PACKAGE__->add_unique_constraint("users_pkey", ["id"]);
 __PACKAGE__->has_many(
   "channel_reports",
   "CollabIRCate::Schema::ChannelReport",
-  { "foreign.user_id" => "self.user_id" },
+  { "foreign.users_id" => "self.id" },
 );
 __PACKAGE__->has_many(
   "logs",
   "CollabIRCate::Schema::Log",
-  { "foreign.user_id" => "self.user_id" },
+  { "foreign.users_id" => "self.id" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.04005 @ 2008-10-21 11:43:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:iTb1vPVj3Pa7RTZf+h0pQw
+# Created by DBIx::Class::Schema::Loader v0.04005 @ 2008-10-28 10:59:22
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:emN1TEPy3NMzD1DCw1pFfA
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration

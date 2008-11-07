@@ -8,7 +8,7 @@ use base 'DBIx::Class';
 __PACKAGE__->load_components("Core");
 __PACKAGE__->table("channel_report");
 __PACKAGE__->add_columns(
-  "user_id",
+  "users_id",
   { data_type => "integer", default_value => undef, is_nullable => 0, size => 4 },
   "channel_id",
   { data_type => "integer", default_value => undef, is_nullable => 0, size => 4 },
@@ -34,22 +34,22 @@ __PACKAGE__->add_columns(
     size => 8,
   },
 );
-__PACKAGE__->set_primary_key("user_id", "channel_id");
-__PACKAGE__->add_unique_constraint("channel_report_pkey", ["user_id", "channel_id"]);
+__PACKAGE__->set_primary_key("users_id", "channel_id");
+__PACKAGE__->add_unique_constraint("channel_report_pkey", ["users_id", "channel_id"]);
+__PACKAGE__->belongs_to(
+  "users_id",
+  "CollabIRCate::Schema::Users",
+  { id => "users_id" },
+);
 __PACKAGE__->belongs_to(
   "channel_id",
   "CollabIRCate::Schema::Channel",
-  { channel_id => "channel_id" },
-);
-__PACKAGE__->belongs_to(
-  "user_id",
-  "CollabIRCate::Schema::Users",
-  { user_id => "user_id" },
+  { id => "channel_id" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.04005 @ 2008-10-21 11:43:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Q1fECF55wu3kIsjaCz2dgw
+# Created by DBIx::Class::Schema::Loader v0.04005 @ 2008-10-28 10:59:22
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Lr80P6sVyTBtr+sVsqILrQ
 
 
 # You can replace this text with custom content, and it will be preserved on regeneration
