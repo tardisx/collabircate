@@ -1,0 +1,11 @@
+[% META title = 'Steaming Logs' %]
+
+<p>The latest logs from around the traps!</p>
+
+<table>
+[% FOREACH log IN logs -%]
+<tr><td>[% log.nice_ts  %]</td><td>[% log.users_id.email %]</td><td>[% log.email %]</td><td>[% log.entry | html %]</td></tr>
+[% END %]
+</table>
+
+
