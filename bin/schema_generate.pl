@@ -7,6 +7,9 @@ use lib dir( $Bin, '..', 'lib' )->stringify;
 
 # use YAML qw/LoadFile/;
 
+my $version = shift;
+die unless $version;
+
 use CollabIRCate::Schema;
 use CollabIRCate::Schema::Channel;
 
@@ -16,7 +19,7 @@ my $schema = CollabIRCate::Schema->connect('dbi:Pg:dbname=collabircate')
   || die $!;
 
 $schema->create_ddl_dir(['MySQL', 'SQLite', 'PostgreSQL'],
-                        '0.1',
+                        $version,
                         'etc/',
 			);
 
