@@ -3,21 +3,21 @@
 # A fairly simple example:
 use strict;
 use warnings;
+use Carp qw/croak/;
 
 use FindBin qw/$Bin/;
 use Path::Class;
 use lib dir( $Bin, '..', 'lib' )->stringify;
 
+use CollabIRCate::Config;
 use CollabIRCate::Log qw/add_log/;
 use CollabIRCate::Bot qw/bot_request/;
 
-use Mail::Send;
+my $config = CollabIRCate::Config->config;
 
-use Config::General;
-my $config = { Config::General->new("$Bin/../collabircate.conf")->getall };
-
-my $PORT    = $config->{irc_server_port};
-my $BOTNICK = $config->{irc_bot_nickname} || 'peoplebot';
+my $HOST    = $config->{irc_bot_server_host} || croak "no server host";
+my $PORT    = $config->{irc_bot_server_port} || croak "no server port";
+my $BOTNICK = $config->{irc_bot_nickname}    || 'undefBOT';
 
 use POE;
 use POE::Component::IRC;

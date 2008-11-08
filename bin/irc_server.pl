@@ -9,32 +9,24 @@ use Path::Class;
 use lib dir( $Bin, '..', 'lib' )->stringify;
 
 use POE qw(Component::Server::IRC);
-use Mail::Send;
 
-use CollabIRCate qw/Debug/;
-#use CollabIRCate::Log qw/add_log/;
+use CollabIRCate::Config;
 
-my $PORT       = CollabIRCate->config->{irc_server_port};
+my $config = CollabIRCate::Config->config;
+my $PORT = $config->{irc_server_port} || 6669;
 
 my %config = (
-    servername => 'romana.hawkins.id.au',
+    servername => $config->{irc_server_name} || 'localhost',
     nicklen    => 15,
-    network    => CollabIRCate->config->{irc_server_name},
-    motd       => [
-        'all you could ever want in a server',
-        'and so much much more',
-        'try the beef - moo',
-    ],
+    network    => $config->{irc_server_name},
+    motd       => \@{ $config->{irc_server_motd} },
 );
 
 my $pocosi = POE::Component::Server::IRC->spawn( config => \%config );
 
 POE::Session->create(
-    package_states => [
-        'main' => [
-            qw(_start _default                         )
-        ],
-    ],
+    package_states =>
+        [ 'main' => [qw(_start _default                         )], ],
     heap => { ircd => $pocosi },
 );
 
@@ -46,20 +38,19 @@ sub _start {
     $heap->{ircd}->yield('register');
 
     # Anyone connecting from the loopback gets spoofed hostname
-    $heap->{ircd}
-      ->add_auth( mask => '*@localhost', spoof => 'm33p.com', no_tilde => 1 );
+    $heap->{ircd}->add_auth(
+        mask     => '*@localhost',
+        spoof    => 'm33p.com',
+        no_tilde => 1
+    );
 
-    # We have to add an auth as we have specified one above.
+# We have to add an auth as we have specified one above.
 #    $heap->{ircd}->add_auth( mask => '~justin@hawkins.id.au@*', password => 'fungula', no_tilde => 1 );
 
     $heap->{ircd}->add_auth( mask => '*@*' );
 
     # Start a listener on the 'standard' IRC port.
     $heap->{ircd}->add_listener( port => $PORT );
-
-    # Add an operator who can connect from localhost
-    $heap->{ircd}
-      ->add_operator( { username => 'peoplebot', password => 'fishdontbreathe' } );
 
     undef;
 }
@@ -74,7 +65,7 @@ sub _default {
     # ircd_daemon_privmsg: 'tardisx!~justin@121.45.172.28' 'peoplebot' 'ops'
 
     foreach (@$args) {
-      SWITCH: {
+    SWITCH: {
             if ( ref($_) eq 'ARRAY' ) {
                 print STDOUT "[", join( ", ", @$_ ), "] ";
                 last SWITCH;

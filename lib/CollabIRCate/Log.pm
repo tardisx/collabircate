@@ -14,49 +14,48 @@ our $schema;
 
 sub _schema {
 
-    return $schema if (defined $schema);
+    return $schema if ( defined $schema );
 
     $schema = CollabIRCate::Schema->connect('dbi:Pg:dbname=collabircate')
-	|| die $!;
+        || die $!;
 
     return $schema;
 
 }
 
 sub add_log {
-    my ($who, $where, $type, $what) = @_;
+    my ( $who, $where, $type, $what ) = @_;
     $where = lc($where);
 
-    my $user = _schema->resultset('Users')->find_or_create( { email => $who } );
-    my $channel =
-      _schema->resultset('Channel')->find_or_create( { name => $where } );
+    my $user
+        = _schema->resultset('Users')->find_or_create( { email => $who } );
+    my $channel
+        = _schema->resultset('Channel')->find_or_create( { name => $where } );
     my $log = _schema->resultset('Log')->create(
-        {
-            channel_id => $channel,
-            users_id    => $user,
+        {   channel_id => $channel,
+            users_id   => $user,
             entry      => $what,
             type       => $type,
         }
     );
-    
-    _add_tags($what, $log->id);
+
+    _add_tags( $what, $log->id );
 
 }
 
 sub _add_tags {
-    my $msg = shift;
+    my $msg    = shift;
     my $log_id = shift;
 
-    while ($msg =~ /\[\w+\]/) {
-	$msg =~ s/\[(\w+)\]//g;
-	my $tag =
-	    _schema->resultset('Tag')->find_or_create( 
-						       { log_id => $log_id,
-							 name   => $1 } 
-						      );
+    while ( $msg =~ /\[\w+\]/ ) {
+        $msg =~ s/\[(\w+)\]//g;
+        my $tag = _schema->resultset('Tag')->find_or_create(
+            {   log_id => $log_id,
+                name   => $1
+            }
+        );
     }
     return;
 }
-
 
 1;
