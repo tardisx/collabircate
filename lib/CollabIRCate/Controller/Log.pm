@@ -16,48 +16,70 @@ Catalyst Controller.
 
 =cut
 
-
 =head2 index 
 
 =cut
 
-sub index :Path :Args(0) {
+sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
 
     $c->response->body('Matched CollabIRCate::Controller::Log in Log.');
 }
 
-sub channel_setup :Chained('/') PathPart('log') CaptureArgs(1) {
-    my ( $self, $c, $channel) = @_;
-    $c->stash(channel => "#$channel");
+sub channel_setup : Chained('/') PathPart('log/channel') CaptureArgs(1) {
+    my ( $self, $c, $channel ) = @_;
+    $channel = "#" . $channel;
+    my $logs
+        = $c->model('CollabIRCateDB::Log')
+        ->search( { 'channel_id.name' => $channel },
+        { join => [qw/ channel_id users_id /], order_by => 'ts' } );
+
+    $c->stash( channel => $channel );
+    $c->stash( logs    => $logs );
 }
 
-sub latest :Chained('channel_setup') PathPart('latest') :Args(0) {
-    my ( $self, $c) = @_;
+sub latest : Chained('channel_setup') PathPart('latest') : Args(0) {
+    my ( $self, $c ) = @_;
 
-    my $channel = $c->stash->{'channel'};
+    #    my $channel = $c->stash->{'channel'};
+    my $logs = $c->stash->{logs};
 
-    my $interval = "> now() - '24 hours'::INTERVAL";
+    my $interval = "> now() - '65 minutes'::INTERVAL";
 
-    my $logs = $c->model('CollabIRCateDB::Log')->search(
-							{ts => \$interval, channel_id => 1},
-							{order_by => 'ts',
-							 join => ['users_id', 'channel_id']},
-						      );
+    $logs = $logs->search( { ts => \$interval } );
 
-    $c->stash->{logs} = [$logs->all];
+    $c->stash->{logs} = [ $logs->all ];
 
+}
+
+sub date : Chained('channel_setup') PathPart('date') : Args(1) {
+    my ( $self, $c, $date ) = @_;
+
+    my $logs = $c->stash->{logs};
+
+    $logs = $logs->search( { ts => { '>', $date } } );
+    $c->stash( logs     => [ $logs->all ] );
+    $c->stash( template => 'log/latest' );
+
+}
+
+sub hour : Chained('date') PathPart('hour') : Args(1) {
+    my ( $self, $c, $hour ) = @_;
+
+    my $logs = $c->stash->{logs};
+
+    die "OOH, but hour is now $hour";
 }
 
 sub end : Private {
-    my ( $self, $c )  = @_;
-    
+    my ( $self, $c ) = @_;
+
     $c->forward('CollabIRCate::View::Site');
 }
 
 =head1 AUTHOR
 
-A clever guy
+Justin Hawkins
 
 =head1 LICENSE
 

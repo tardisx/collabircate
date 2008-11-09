@@ -41,6 +41,8 @@ sub add_log {
 
     _add_tags( $what, $log->id );
 
+    return $log->id;
+
 }
 
 sub _add_tags {
