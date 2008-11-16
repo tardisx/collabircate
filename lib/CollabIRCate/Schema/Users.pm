@@ -36,10 +36,4 @@ __PACKAGE__->has_many(
   { "foreign.users_id" => "self.id" },
 );
 
-
-# Created by DBIx::Class::Schema::Loader v0.04005 @ 2008-10-28 10:59:22
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:emN1TEPy3NMzD1DCw1pFfA
-
-
-# You can replace this text with custom content, and it will be preserved on regeneration
 1;

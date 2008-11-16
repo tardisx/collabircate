@@ -43,10 +43,4 @@ __PACKAGE__->has_many(
   { "foreign.channel_id" => "self.id" },
 );
 
-
-# Created by DBIx::Class::Schema::Loader v0.04005 @ 2008-10-28 10:59:22
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ln9Sy4wXCkgXC21ltqA9nQ
-
-
-# You can replace this text with custom content, and it will be preserved on regeneration
 1;

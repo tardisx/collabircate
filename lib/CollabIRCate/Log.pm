@@ -32,8 +32,8 @@ sub add_log {
     my $channel
         = _schema->resultset('Channel')->find_or_create( { name => $where } );
     my $log = _schema->resultset('Log')->create(
-        {   channel_id => $channel,
-            users_id   => $user,
+        {   channel_id => $channel->id,
+            users_id   => $user->id,
             entry      => $what,
             type       => $type,
         }

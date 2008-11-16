@@ -37,12 +37,12 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("users_id", "channel_id");
 __PACKAGE__->add_unique_constraint("channel_report_pkey", ["users_id", "channel_id"]);
 __PACKAGE__->belongs_to(
-  "users_id",
+  "users",
   "CollabIRCate::Schema::Users",
   { id => "users_id" },
 );
 __PACKAGE__->belongs_to(
-  "channel_id",
+  "channel",
   "CollabIRCate::Schema::Channel",
   { id => "channel_id" },
 );

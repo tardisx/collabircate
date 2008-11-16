@@ -31,8 +31,8 @@ sub channel_setup : Chained('/') PathPart('log/channel') CaptureArgs(1) {
     $channel = "#" . $channel;
     my $logs
         = $c->model('CollabIRCateDB::Log')
-        ->search( { 'channel_id.name' => $channel },
-        { join => [qw/ channel_id users_id /], order_by => 'ts' } );
+        ->search( { 'channel.name' => $channel },
+        { join => [qw/ channel users /], order_by => 'ts' } );
 
     $c->stash( channel => $channel );
     $c->stash( logs    => $logs );
@@ -52,7 +52,7 @@ sub latest : Chained('channel_setup') PathPart('latest') : Args(0) {
 
 }
 
-sub date : Chained('channel_setup') PathPart('date') : Args(1) {
+sub date : Chained('channel_setup') PathPart('date') : Args(0) CaptureArgs(1) {
     my ( $self, $c, $date ) = @_;
 
     my $logs = $c->stash->{logs};

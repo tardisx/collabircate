@@ -3,6 +3,8 @@ package CollabIRCate;
 use strict;
 use warnings;
 
+use 5.8.0;
+
 use Catalyst::Runtime '5.70';
 
 # Set flags and add plugins for the application
