@@ -57,6 +57,13 @@ sub bot_request {
     elsif ($question =~ /upload/) {
 	return "upload ticket would be sent to you $from, if it were implemented";
     }
+    elsif ($question =~ /^(what\s*is\s:{0,1}){0,1}\s*([\d\+\-\s\*\/\.\,]+)([\s\=\?]+){0,1}$/) {
+        $question =~ s/[^\d\+\-\*\/\s\.]//g;
+        my $answer;
+        eval "\$answer = $question;";
+        return "the answer to $question is $answer" if (! $@);
+        return "nice try $from, $question is not valid";
+    }
 
     return _sorry($from, $question);
 }
