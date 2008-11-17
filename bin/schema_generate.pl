@@ -4,19 +4,12 @@ use warnings;
 use FindBin qw/$Bin/;
 use Path::Class;
 use lib dir( $Bin, '..', 'lib' )->stringify;
+use CollabIRCate::Config;
 
-# use YAML qw/LoadFile/;
+my $schema = CollabIRCate::Config->schema();
 
 my $version = shift;
 die unless $version;
-
-use CollabIRCate::Schema;
-use CollabIRCate::Schema::Channel;
-
-# my $config = LoadFile(file($Bin, '..', 'collabircate.conf'));
-
-my $schema = CollabIRCate::Schema->connect('dbi:Pg:dbname=collabircate')
-  || die $!;
 
 $schema->create_ddl_dir(['MySQL', 'SQLite', 'PostgreSQL'],
                         $version,

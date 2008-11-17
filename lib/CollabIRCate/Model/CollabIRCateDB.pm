@@ -2,13 +2,13 @@ package CollabIRCate::Model::CollabIRCateDB;
 
 use strict;
 use base 'Catalyst::Model::DBIC::Schema';
+use CollabIRCate::Config;
+
+my $config = CollabIRCate::Config->config;
 
 __PACKAGE__->config(
     schema_class => 'CollabIRCate::Schema',
-    connect_info => [
-        'dbi:Pg:dbname=collabircate',
-        
-    ],
+    connect_info => [ $config->{dsn} ],
 );
 
 =head1 NAME

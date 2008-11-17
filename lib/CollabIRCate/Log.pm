@@ -3,6 +3,7 @@ package CollabIRCate::Log;
 use strict;
 use warnings;
 
+use CollabIRCate::Config;
 use CollabIRCate::Schema;
 use CollabIRCate::Schema::Channel;
 use CollabIRCate::Schema::Tag;
@@ -16,11 +17,9 @@ sub _schema {
 
     return $schema if ( defined $schema );
 
-    $schema = CollabIRCate::Schema->connect('dbi:Pg:dbname=collabircate')
-        || die $!;
+    $schema = CollabIRCate::Config->schema();
 
     return $schema;
-
 }
 
 sub add_log {

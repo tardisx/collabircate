@@ -5,13 +5,13 @@ use warnings;
 
 use base 'DBIx::Class';
 
-__PACKAGE__->load_components("Core");
+__PACKAGE__->load_components(qw/PK::Auto Core/);
 __PACKAGE__->table("users");
 __PACKAGE__->add_columns(
   "id",
   {
     data_type => "integer",
-    default_value => "nextval('users_id_seq'::regclass)",
+#    default_value => "nextval('users_id_seq'::regclass)",
     is_nullable => 0,
     size => 4,
   },

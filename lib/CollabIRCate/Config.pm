@@ -22,8 +22,9 @@ sub config {
 sub schema {
 
     return $schema if ( defined $schema );
-
-    $schema = CollabIRCate::Schema->connect('dbi:Pg:dbname=collabircate')
+    my $config = config();
+    
+    $schema = CollabIRCate::Schema->connect($config->{dsn})
         || die $!;
 
     return $schema;
