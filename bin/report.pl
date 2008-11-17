@@ -33,15 +33,15 @@ my $log = $schema->resultset('Log')->search(
 					    {ts => \$interval, channel_id => $chan->id, type => 'log'},
 					    {
 						order_by => 'ts',
-						join => 'users_id',
-						'+select' => [ 'users_id.email' ],
+						join => 'users',
+						'+select' => [ 'users.email' ],
 					    }
 					    );
 
 my @entries = ();
 
 while (my $entry = $log->next) {
-  my $nick = $entry->users_id->email;
+  my $nick = $entry->users->email;
   $nick =~ s/!.*//;
   my $line  = $entry->entry;
   my $ts = $entry->ts;
