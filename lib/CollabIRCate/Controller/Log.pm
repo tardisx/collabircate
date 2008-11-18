@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use parent 'Catalyst::Controller';
 
+use DateTime;
+
 =head1 NAME
 
 CollabIRCate::Controller::Log - Catalyst Controller
@@ -44,9 +46,9 @@ sub latest : Chained('channel_setup') PathPart('latest') : Args(0) {
     #    my $channel = $c->stash->{'channel'};
     my $logs = $c->stash->{logs};
 
-    my $interval = "> now() - '65 minutes'::INTERVAL";
+    my $start = DateTime->now->subtract(hours => 3);
 
-    $logs = $logs->search( { ts => \$interval } );
+    $logs = $logs->search( { ts => {'>=', $start } } );
 
     $c->stash->{logs} = [ $logs->all ];
 
