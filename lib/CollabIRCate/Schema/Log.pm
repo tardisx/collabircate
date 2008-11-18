@@ -5,7 +5,7 @@ use warnings;
 
 use base 'DBIx::Class';
 
-__PACKAGE__->load_components(qw/PK::Auto Core/);
+__PACKAGE__->load_components(qw/PK::Auto InflateColumn::DateTime Core/);
 __PACKAGE__->table("log");
 __PACKAGE__->add_columns(
   "id",

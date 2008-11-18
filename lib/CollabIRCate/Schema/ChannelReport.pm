@@ -5,7 +5,7 @@ use warnings;
 
 use base 'DBIx::Class';
 
-__PACKAGE__->load_components("Core");
+__PACKAGE__->load_components(qw/InflateColumn::DateTime Core/);
 __PACKAGE__->table("channel_report");
 __PACKAGE__->add_columns(
   "users_id",
