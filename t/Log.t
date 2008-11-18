@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 8;
+use Test::More tests => 9;
 
 BEGIN { use_ok 'CollabIRCate::Log' }
 
@@ -32,4 +32,17 @@ my $our_tag = $search_tags->next;
 ok( defined $our_tag && $our_tag->name eq $unique, 'got our tag' );
 my $next_tag = $search_tags->next;
 ok( !defined $next_tag, 'it was the only one' );
+
+# test for multiple tags
+{ 
+  my $log_id = add_log ( 'person', '#people', 'log', '[one] [two] [three]' );
+  my $tags = $schema->resultset('Tag');
+  my $search_tags = $tags->search( { log_id => $log_id } );
+  my $count = 0;
+  while ($search_tags->next) {
+    $count++;
+  }
+  ok ($count == 3, '3 tags in one line');
+}
+
 
