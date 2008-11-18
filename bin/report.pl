@@ -2,10 +2,10 @@
 use strict;
 use warnings;
 use Mail::Send;
+use DateTime;
 use FindBin qw/$Bin/;
 use Path::Class;
 use lib dir( $Bin, '..', 'lib' )->stringify;
-use DateTime;
 
 # use CollabIRCate qw/-Debug/;
 use CollabIRCate::Schema;
@@ -22,7 +22,7 @@ my $schema = CollabIRCate::Schema->connect($dsn)
 my $channel = shift;
 my $dest = shift;
 
-my $interval = "> now() - '1 hour'::INTERVAL";
+my $start = DateTime->now->subtract(hours => 1);
 
 my $chan = $schema->resultset('Channel')->search({name => $channel})->next;
 if (! $chan) {
@@ -30,7 +30,11 @@ if (! $chan) {
 }
 
 my $log = $schema->resultset('Log')->search(
-					    {ts => \$interval, channel_id => $chan->id, type => 'log'},
+					    {
+						ts => { '>=', $start}, 
+						channel_id => $chan->id, 
+#						type => 'log',
+					    },
 					    {
 						order_by => 'ts',
 						join => 'users',
@@ -45,10 +49,11 @@ while (my $entry = $log->next) {
   $nick =~ s/!.*//;
   my $line  = $entry->entry;
   my $ts = $entry->ts;
-  my $epoch = epoch($ts);
+  my $epoch = $ts->epoch;
+  my $type = $entry->type;
 
-  ($ts) = $ts =~ /\d\d\d\d\-\d\d\-\d\d\s+(.*):\d\d\./;
-  push @entries, [$ts, $nick, $line, $epoch];
+#  ($ts) = $ts =~ /\d\d\d\d\-\d\d\-\d\d\s+(.*):\d\d\./;
+  push @entries, [$ts->hms, $nick, $line, $epoch, $type];
 
 }
 
@@ -69,26 +74,10 @@ if (@entries) {
 	  }
       }
       $last_epoch = $this_epoch;
-      print $fh  join (': ', @$_[0..2]) . "\n";
+      print $fh  join (': ', @$_[0..2]) . "\n" if ($$_[4] eq 'log');
+      print $fh  "$$_[0]: *** topic changed to '$$_[2]' by $$_[1]\n" if ($$_[4] eq 'topic');
   }
   $fh->close;
 
-}
-
-sub epoch {
-    my $ts = shift;
-
-    $ts =~ /^(\d\d\d\d)\-(\d\d)\-(\d\d) (\d\d):(\d\d):(\d\d)/;
-
-    die if (! $6);
-    my $dt = DateTime->new( year   => $1,
-			    month  => $2,
-			    day    => $3,
-			    hour   => $4,
-			    minute => $5,
-			    second => $6,
-			    );
-
-    return $dt->epoch;
 }
 
