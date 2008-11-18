@@ -48,8 +48,8 @@ sub _add_tags {
     my $msg    = shift;
     my $log_id = shift;
 
-    while ( $msg =~ /\[\w+?\]/ ) {
-        $msg =~ s/\[(\w+?)\]//;
+    while ( $msg =~ /\[[\w\S]+?\]/ ) {
+        $msg =~ s/\[([\w\S]+?)\]//;
         my $tag = _schema->resultset('Tag')->find_or_create(
             {   log_id => $log_id,
                 name   => $1
