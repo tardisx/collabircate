@@ -1,43 +1,55 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use Mail::Send;
-use DateTime;
+
 use FindBin qw/$Bin/;
 use Path::Class;
 use lib dir( $Bin, '..', 'lib' )->stringify;
 
-# use CollabIRCate qw/-Debug/;
-use CollabIRCate::Schema;
-use CollabIRCate::Schema::Channel;
+use Mail::Send;
+use DateTime;
+use Getopt::Long;
+use Carp;
 
-use Config::General;
-my $config = { Config::General->new("$Bin/../collabircate.conf")->getall };
+use CollabIRCate::Config;
 
-my $dsn = $config->{dsn};
+my $config = CollabIRCate::Config->config();
+my $dsn    = $config->{dsn};
+my $schema = CollabIRCate::Config->schema;
 
-my $schema = CollabIRCate::Schema->connect($dsn)
-  || die $!;
+my $debug = 0;
+my $email;
+my $channel;
+my $minutes;
 
-my $channel = shift;
-my $dest    = shift;
+my $options_okay = GetOptions(
+    'debug'     => \$debug,
+    'email=s'   => \$email,
+    'channel=s' => \$channel,
+    'minutes=s' => \$minutes,
+);
 
-my $start = DateTime->now->subtract( hours => 1 );
+croak "bad options" unless $options_okay;
+croak "need -c"     unless $channel;
+croak "need -e"     unless $email;
+croak "need -m"     unless $minutes;
 
-my $chan = $schema->resultset('Channel')->search( { name => $channel } )->next;
+my $start = DateTime->now->subtract( minutes => $minutes );
+$start =~ s/T/ /;    # ugly hack
+
+my $chan
+    = $schema->resultset('Channel')->search( { name => $channel } )->next;
 if ( !$chan ) {
     die "No such channel $channel";
 }
 
 my $log = $schema->resultset('Log')->search(
-    {
-        ts         => { '>=', $start },
+    {   ts         => { '>=', $start },
         channel_id => $chan->id,
 
-        #						type => 'log',
+        # type => 'log',
     },
-    {
-        order_by  => 'ts',
+    {   order_by  => 'ts',
         join      => 'users',
         '+select' => ['users.email'],
     }
@@ -66,10 +78,20 @@ my ( $last_epoch, $this_epoch );
 
 if (@entries) {
 
-    my $mail = Mail::Send->new;
-    $mail->to($dest);
-    $mail->subject("What happened in the last hour on $channel");
-    my $fh = $mail->open;
+    my $mail;
+    my $fh;
+    my $subject = "What happened in the last $minutes minutes on $channel";
+
+    if ($debug) {
+        $fh = *STDOUT;
+        print $fh "Subject: $subject\n\n";
+    }
+    else {
+        $mail = Mail::Send->new;
+        $mail->to($email);
+        $mail->subject("What happened in the last hour on $channel");
+        $fh = $mail->open;
+    }
 
     foreach (@entries) {
         $this_epoch = $$_[3];
@@ -79,11 +101,11 @@ if (@entries) {
             }
         }
         $last_epoch = $this_epoch;
-        print $fh join ( ': ', @$_[ 0 .. 2 ] ) . "\n" if ( $$_[4] eq 'log' );
+        print $fh join( ': ', @$_[ 0 .. 2 ] ) . "\n" if ( $$_[4] eq 'log' );
         print $fh "$$_[0]: *** topic changed to '$$_[2]' by $$_[1]\n"
-          if ( $$_[4] eq 'topic' );
+            if ( $$_[4] eq 'topic' );
     }
-    $fh->close;
+    $fh->close unless $debug;
 
 }
 
