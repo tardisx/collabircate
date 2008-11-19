@@ -2,6 +2,7 @@ package CollabIRCate::Log;
 
 use strict;
 use warnings;
+use Carp;
 
 use CollabIRCate::Config;
 use CollabIRCate::Schema;
@@ -11,26 +12,18 @@ use CollabIRCate::Schema::Tag;
 use Exporter qw/import/;
 our @EXPORT_OK = qw/add_log/;
 
-our $schema;
-
-sub _schema {
-
-    return $schema if ( defined $schema );
-
-    $schema = CollabIRCate::Config->schema();
-
-    return $schema;
-}
+our $config = CollabIRCate::Config->config();
+our $schema = CollabIRCate::Config->schema();
 
 sub add_log {
     my ( $who, $where, $type, $what ) = @_;
     $where = lc($where);
 
     my $user
-        = _schema->resultset('Users')->find_or_create( { email => $who } );
+        = $schema->resultset('Users')->find_or_create( { email => $who } );
     my $channel
-        = _schema->resultset('Channel')->find_or_create( { name => $where } );
-    my $log = _schema->resultset('Log')->create(
+        = $schema->resultset('Channel')->find_or_create( { name => $where } );
+    my $log = $schema->resultset('Log')->create(
         {   channel_id => $channel->id,
             users_id   => $user->id,
             entry      => $what,
@@ -48,9 +41,11 @@ sub _add_tags {
     my $msg    = shift;
     my $log_id = shift;
 
-    while ( $msg =~ /\[[\w\S]+?\]/ ) {
-        $msg =~ s/\[([\w\S]+?)\]//;
-        my $tag = _schema->resultset('Tag')->find_or_create(
+    croak "no irc_log_tag_regexp in config" unless $config->{irc_log_tag_regexp};
+    my $regex = qr/$config->{irc_log_tag_regexp}/;
+
+    while ($msg =~ s/$regex//) {
+        my $tag = $schema->resultset('Tag')->find_or_create(
             {   log_id => $log_id,
                 name   => $1
             }
