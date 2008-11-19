@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+# $Id$
+
 use strict;
 use warnings;
 
@@ -15,6 +17,7 @@ use CollabIRCate::Config;
 
 my $config = CollabIRCate::Config->config();
 my $dsn    = $config->{dsn};
+my $break  = $config->{irc_log_conversation_break};
 my $schema = CollabIRCate::Config->schema;
 
 my $debug = 0;
@@ -40,7 +43,7 @@ $start =~ s/T/ /;    # ugly hack
 my $chan
     = $schema->resultset('Channel')->search( { name => $channel } )->next;
 if ( !$chan ) {
-    die "No such channel $channel";
+    croak "No such channel $channel";
 }
 
 my $log = $schema->resultset('Log')->search(
@@ -63,7 +66,7 @@ while ( my $entry = $log->next ) {
         || $entry->type eq 'topic' );
 
     my $nick = $entry->users->email;
-    $nick =~ s/!.*//;
+    $nick =~ s/!.*//x;
     my $line  = $entry->entry;
     my $ts    = $entry->ts;
     my $epoch = $ts->epoch;
@@ -96,7 +99,7 @@ if (@entries) {
     foreach (@entries) {
         $this_epoch = $$_[3];
         if ($last_epoch) {
-            if ( $last_epoch + 300 < $this_epoch ) {
+            if ( $last_epoch + $break < $this_epoch ) {
                 print $fh "\n";
             }
         }
