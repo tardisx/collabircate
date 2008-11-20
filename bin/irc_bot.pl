@@ -11,7 +11,7 @@ use lib dir( $Bin, '..', 'lib' )->stringify;
 
 use CollabIRCate::Config;
 use CollabIRCate::Log qw/add_log/;
-use CollabIRCate::Bot qw/bot_request/;
+use CollabIRCate::Bot qw/bot_request get_tells del_tell/;
 
 my $config = CollabIRCate::Config->config;
 
@@ -21,6 +21,8 @@ my $BOTNICK = $config->{irc_bot_nickname}    || 'undefBOT';
 
 use POE;
 use POE::Component::IRC;
+
+my $seen = {};
 
 sub CHANNEL () { "#people" }
 
@@ -40,6 +42,7 @@ POE::Session->create(
         irc_part   => \&on_part,
         irc_msg    => \&on_msg,
         _default   => \&unknown,
+                      check_tells => \&check_tells,
     },
 );
 
@@ -62,6 +65,7 @@ sub bot_start {
             Port     => $PORT,
         }
     );
+    $kernel->delay( check_tells => 10 );
 }
 
 # The bot has successfully connected to a server.  Join a channel.
@@ -119,8 +123,9 @@ sub on_join {
     my ( $kernel, $who, $where ) = @_[ KERNEL, ARG0, ARG1 ];
     my $nick = ( split /!/, $who )[0];
     my $channel = $where;
+    $seen->{$channel}->{$nick} = 1;
     add_log( $nick, $channel, 'join', 'joined' );
-    if ( $nick =~ /justin/i ) {
+    if ( $nick =~ /justin|adam|mwp|ev|nick/i ) {
         $irc->yield( 'mode' => $channel => '+o' => $nick );
     }
 }
@@ -135,6 +140,7 @@ sub on_part {
     my ( $kernel, $who, $where ) = @_[ KERNEL, ARG0, ARG1 ];
     my $nick = ( split /!/, $who )[0];
     my $channel = $where;
+    $seen->{$channel}->{$nick} = 0;
     add_log( $nick, $channel, 'part', 'left' );
 }
 
@@ -152,6 +158,22 @@ sub unknown {
     }
     print join ' ', @output, "\n";
     return 0;
+}
+
+sub check_tells {
+  my ( $kernel ) = @_[ KERNEL, ARG0, ARG1 ];
+  my @tells = get_tells();
+  foreach my $a_tell (@tells) {
+    my ($who, $msg, $time) = @$a_tell;
+    foreach my $channel (keys %$seen) {
+      if ($seen->{$channel}->{$who}) {
+        $irc->yield( privmsg => $channel, "someone told me to tell you '$msg', $who" );
+        del_tell($who, $msg, $time);
+        last;
+      }
+    }
+  }
+  $kernel->delay (check_tells => 10);
 }
 
 # Run the bot until it is done.

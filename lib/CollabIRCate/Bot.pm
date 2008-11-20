@@ -6,7 +6,8 @@ use strict;
 use warnings;
 
 use Exporter qw/import/;
-our @EXPORT_OK = qw/bot_request/;
+our @EXPORT_OK = qw/bot_request get_tells del_tell/;
+our @tell;
 
 my @sorry_messages = ( "sorry NICK, I'm not sure what you mean by 'MSG'",
 		       "NICK, I'm having trouble following you",
@@ -64,10 +65,31 @@ sub bot_request {
         return "the answer to $question is $answer" if (! $@);
         return "nice try $from, $question is not valid";
     }
+    elsif ($question =~ /^tell (\w+?)\s+(.*)/) {
+      my $nick = $1;
+      my $tell_msg = $2;
+      my $when = time();
+      push @tell, [$nick, $tell_msg, $when];
+      return "will do $from";
+    }
 
     return _sorry($from, $question);
 }
 
+sub get_tells {
+  return @tell;
+}
+
+sub del_tell {
+  my ($who, $msg, $time) = @_;
+  my @new_tell = ();
+  foreach (@tell) {
+    my ($this_who, $this_msg, $this_time) = @$_;
+    push @new_tell, [$this_who, $this_msg, $this_time]
+      unless ($this_who eq $who && $this_msg eq $msg && $this_time eq $time);
+  }
+  @tell = @new_tell;
+}
 
 sub _sorry {
     my $nick = shift;
@@ -78,6 +100,28 @@ sub _sorry {
     $return =~ s/MSG/$msg/;
     return $return;
 }
-    
+
+=head1 NAME
+
+CollabIRCate::Bot - Functions for the CollabIRCate Bot
+
+=head1 SYNOPSIS
+
+See L<CollabIRCate>
+
+=head1 DESCRIPTION
+
+Catalyst TTSite View.
+
+=head1 AUTHOR
+
+A clever guy
+
+=head1 LICENSE
+
+This library is free software, you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
 
 1;
