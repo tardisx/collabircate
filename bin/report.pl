@@ -23,7 +23,7 @@ my $schema = CollabIRCate::Config->schema;
 my $debug = 0;
 my $email;
 my $channel;
-my $minutes;
+my $minutes = 60;
 
 my $options_okay = GetOptions(
     'debug'     => \$debug,
@@ -112,3 +112,28 @@ if (@entries) {
 
 }
 
+exit;
+
+__END__
+
+=head1 NAME
+
+report.pl - Send out a report of IRC channel activity
+
+=head1 VERSION
+
+This documentation refers to version 0.0.1
+
+=head1 USAGE
+
+  bin/report.pl -c #channel -e email@example.com,email2@example.com -i 90
+
+=head1 REQUIRED ARGUMENTS
+
+C<-c>
+
+C<-e>
+
+C<-i>  
+
+  
