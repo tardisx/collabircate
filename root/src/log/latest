@@ -4,7 +4,11 @@
 
 <table>
 [% FOREACH log IN logs -%]
-<tr><td>[% log.nice_ts  %]</td><td>[% log.users_id.email %]</td><td>[% log.email %]</td><td>[% log.entry | html %]</td></tr>
+<tr>
+  <td>[% log.ts.hms  %]</td>
+  <td>[% log.users.email %]</td>
+  <td>[% log.entry | html %]</td>
+</tr>
 [% END %]
 </table>
 
