@@ -92,9 +92,9 @@ if (@entries) {
     else {
         $mail = Mail::Send->new;
         $mail->to($email);
-        $mail->subject("What happened in the last hour on $channel");
+        $mail->subject($subject);
         $fh = $mail->open;
-    }
+      }
 
     foreach (@entries) {
         $this_epoch = $$_[3];
