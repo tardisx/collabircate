@@ -125,7 +125,7 @@ sub on_join {
     my $channel = $where;
     $seen->{$channel}->{$nick} = 1;
     add_log( $nick, $channel, 'join', 'joined' );
-    if ( $nick =~ /justin|adam|mwp|ev|nick/i ) {
+    if ( $nick =~ /justin|garner|nick|adam|ev|mwp/i ) {
         $irc->yield( 'mode' => $channel => '+o' => $nick );
     }
 }
