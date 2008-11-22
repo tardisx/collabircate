@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-# $Id$
 
 use strict;
 use warnings;
@@ -12,6 +11,7 @@ use Mail::Send;
 use DateTime;
 use Getopt::Long;
 use Carp;
+use Pod::Usage;
 
 use CollabIRCate::Config;
 
@@ -24,13 +24,20 @@ my $debug = 0;
 my $email;
 my $channel;
 my $minutes = 60;
+my $help;
 
 my $options_okay = GetOptions(
     'debug'     => \$debug,
     'email=s'   => \$email,
     'channel=s' => \$channel,
     'minutes=s' => \$minutes,
+    'help'      => \$help,
 );
+
+if ( $help || ( !$email && !$channel ) ) {
+    pod2usage( -exitval => 1 );
+    exit;    # unnecessary
+}
 
 croak "bad options" unless $options_okay;
 croak "need -c"     unless $channel;
@@ -94,7 +101,7 @@ if (@entries) {
         $mail->to($email);
         $mail->subject($subject);
         $fh = $mail->open;
-      }
+    }
 
     foreach (@entries) {
         $this_epoch = $$_[3];
@@ -119,6 +126,10 @@ __END__
 =head1 NAME
 
 report.pl - Send out a report of IRC channel activity
+
+=head1 SYNOPSIS
+
+report.pl -c #channel -m 60 -e person@example.com
 
 =head1 VERSION
 
