@@ -41,10 +41,11 @@ sub _add_tags {
     my $msg    = shift;
     my $log_id = shift;
 
-    croak "no irc_log_tag_regexp in config" unless $config->{irc_log_tag_regexp};
+    croak "no irc_log_tag_regexp in config"
+        unless $config->{irc_log_tag_regexp};
     my $regex = qr/$config->{irc_log_tag_regexp}/;
 
-    while ($msg =~ s/$regex//) {
+    while ( $msg =~ s/$regex// ) {
         my $tag = $schema->resultset('Tag')->find_or_create(
             {   log_id => $log_id,
                 name   => $1
