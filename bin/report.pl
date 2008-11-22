@@ -70,9 +70,6 @@ my $interesting = 0;
 
 while ( my $entry = $log->next ) {
 
-    next unless ( $entry->type eq 'log'
-        || $entry->type eq 'topic' );
-
     my $nick = $entry->users->email;
     $nick =~ s/!.*//x;
     my $line  = $entry->entry;
