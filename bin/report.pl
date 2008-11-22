@@ -41,7 +41,7 @@ if ( $help || ( !$email && !$channel ) ) {
 
 croak "bad options" unless $options_okay;
 croak "need -c"     unless $channel;
-croak "need -e"     unless $email;
+croak "need -e"     unless ( $email || $debug );
 croak "need -m"     unless $minutes;
 
 my $start = DateTime->now->subtract( minutes => $minutes );
@@ -65,7 +65,8 @@ my $log = $schema->resultset('Log')->search(
     }
 );
 
-my @entries = ();
+my @entries     = ();
+my $interesting = 0;
 
 while ( my $entry = $log->next ) {
 
@@ -79,12 +80,19 @@ while ( my $entry = $log->next ) {
     my $epoch = $ts->epoch;
     my $type  = $entry->type;
 
+    $interesting = 1 if ( $type eq 'log' );
+
     #  ($ts) = $ts =~ /\d\d\d\d\-\d\d\-\d\d\s+(.*):\d\d\./;
     push @entries, [ $ts->hms, $nick, $line, $epoch, $type ];
 
 }
 
-my ( $last_epoch, $this_epoch );
+if ( !$interesting ) {
+    warn "no output because no interesting entries\n" if ($debug);
+    exit 0;
+}
+
+my ($last_epoch);
 
 if (@entries) {
 
@@ -103,17 +111,28 @@ if (@entries) {
         $fh = $mail->open;
     }
 
-    foreach (@entries) {
-        $this_epoch = $$_[3];
+    foreach my $this_entry (@entries) {
+        my ( $ts, $nick, $line, $this_epoch, $type ) = @$this_entry;
+
         if ($last_epoch) {
             if ( $last_epoch + $break < $this_epoch ) {
                 print $fh "\n";
             }
         }
         $last_epoch = $this_epoch;
-        print $fh join( ': ', @$_[ 0 .. 2 ] ) . "\n" if ( $$_[4] eq 'log' );
-        print $fh "$$_[0]: *** topic changed to '$$_[2]' by $$_[1]\n"
-            if ( $$_[4] eq 'topic' );
+
+        if ( $type eq 'log' ) {
+            print $fh join( ': ', ( $ts, $nick, $line ) ) . "\n";
+        }
+        elsif ( $type eq 'topic' ) {
+            print $fh "$ts: *** topic changed to '$line' by $nick\n";
+        }
+        elsif ( $type eq 'join' ) {
+            print $fh "$ts: $nick joined\n";
+        }
+        elsif ( $type eq 'part' ) {
+            print $fh "$ts: $nick left\n";
+        }
     }
     $fh->close unless $debug;
 
@@ -141,10 +160,11 @@ This documentation refers to version 0.0.1
 
 =head1 REQUIRED ARGUMENTS
 
-C<-c>
+C<-c channel> - channel to be reported against
 
-C<-e>
+C<-e address> - email address to be sent to
 
-C<-i>  
+C<-m nn> - minutes of interval 
 
+C<-d> - debug mode
   
