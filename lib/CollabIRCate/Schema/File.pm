@@ -47,44 +47,40 @@ __PACKAGE__->add_unique_constraint( "file_pkey", ["id"] );
 #);
 
 sub new {
-  my ( $class, $attrs ) = @_;
+    my ( $class, $attrs ) = @_;
 
-  croak "no such file " . $attrs->{filename} unless (-e $attrs->{filename});
+    croak "no such file " . $attrs->{filename} unless (-e $attrs->{filename});
 
-  my $mime = MIME::Types->new();
-  my $type = $mime->mimeTypeOf($attrs->{filename});
-  $attrs->{mime_type} = $type;
+    my $mime = MIME::Types->new();
+    my $type = $mime->mimeTypeOf($attrs->{filename});
+    $attrs->{mime_type} = $type;
 
-  my $template = "$store_path/importXXXXXXXXXXX";
-  my $fh = File::Temp->new(TEMPLATE => $template, UNLINK => 0);
-  my $filename = $fh->filename;
+    my $template = "$store_path/importXXXXXXXXXXX";
+    my $fh = File::Temp->new(TEMPLATE => $template, UNLINK => 0);
+    my $filename = $fh->filename;
 
-  copy ($attrs->{filename}, $fh) || croak $!;
-  close $fh || croak $!;
+    copy ($attrs->{filename}, $fh) || croak $!;
+    close $fh || croak $!;
 
-  my $new = $class->next::method($attrs);
-  $tmp_filenames{$new} = $filename;
+    my $new = $class->next::method($attrs);
+    $tmp_filenames{$new} = $filename;
 
-  return $new;
+    return $new;
 }
 
 sub insert {
     my ( $self, @args ) = @_;
     $self->next::method(@args);
 
-    my $mime = MIME::Types->new();
-    my $type = $self->mime_type;
-    my $suffix = ($mime->type($type)->extensions)[0];
-    my $dest = $store_path . "/" . $self->id . ".$suffix";
+    my $mime   = MIME::Types->new();
+    my $type   = $self->mime_type;
+    my $suffix = ( $mime->type($type)->extensions )[0];
+    my $dest   = sprintf( "%s/%08d.%s", $store_path, $self->id, $suffix );
 
+    croak "file '$dest' already exists!" if -e $dest;
     rename $tmp_filenames{$self}, $dest;
     delete $tmp_filenames{$self};
     return $self;
 }
-
-sub _store {
-
-}
-
 
 1;
