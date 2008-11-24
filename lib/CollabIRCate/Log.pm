@@ -4,10 +4,10 @@ use strict;
 use warnings;
 use Carp;
 
-use CollabIRCate::Config;
-use CollabIRCate::Schema;
-use CollabIRCate::Schema::Channel;
-use CollabIRCate::Schema::Tag;
+require CollabIRCate::Config;
+require CollabIRCate::Schema;
+require CollabIRCate::Schema::Channel;
+require CollabIRCate::Schema::Tag;
 
 use Exporter qw/import/;
 our @EXPORT_OK = qw/add_log/;

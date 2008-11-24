@@ -4,12 +4,17 @@ use strict;
 use warnings;
 use Carp qw/croak/;
 
-my $store_path = "/tmp/store";
-our %tmp_filenames;
-
 use File::Temp;
 use File::Copy qw/copy/;
 use MIME::Types;
+
+use CollabIRCate::Config;
+my $config = CollabIRCate::Config->config();
+
+my $store_path = $config->{file_store_path}
+  || croak "file_store_path not defined in config";
+
+our %tmp_filenames;
 
 use base 'DBIx::Class';
 

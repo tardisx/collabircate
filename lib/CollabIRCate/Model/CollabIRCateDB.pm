@@ -2,7 +2,8 @@ package CollabIRCate::Model::CollabIRCateDB;
 
 use strict;
 use base 'Catalyst::Model::DBIC::Schema';
-use CollabIRCate::Config;
+
+require CollabIRCate::Config;
 
 my $config = CollabIRCate::Config->config;
 

@@ -10,10 +10,10 @@ use lib dir( $Bin, '..', 'lib' )->stringify;
 use Config::General;
 use Carp qw/croak/;
 
-use CollabIRCate::Schema;
+use Config::General;
 
-our $config;
-our $schema;
+my  $config;
+my  $schema;
 
 sub config {
 
@@ -30,6 +30,9 @@ sub schema {
 
     return $schema if ( defined $schema );
     my $config = config();
+
+    # require this here to avoid a problem
+    require CollabIRCate::Schema;
     
     $schema = CollabIRCate::Schema->connect($config->{dsn})
         || croak "cannot connect to schema";
