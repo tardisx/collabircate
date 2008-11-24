@@ -14,6 +14,8 @@ my $config = CollabIRCate::Config->config();
 my $store_path = $config->{file_store_path}
   || croak "file_store_path not defined in config";
 
+croak "nowhere to store files - '$store_path' does not exist" unless -d $store_path;
+
 our %tmp_filenames;
 
 use base 'DBIx::Class';
@@ -91,8 +93,12 @@ sub _hash_dir {
     my $i = $id % 10;
     my $j = ($id /10) % 10;
 
-    mkdir "$store_path/$j" unless -d "$store_path/$j";
-    mkdir "$store_path/$j/$i" unless -d "$store_path/$j/$i";
+    unless (-d "$store_path/$j") {
+        mkdir "$store_path/$j" || croak "could not mkdir: $!";
+    }
+    unless (-d "$store_path/$j/$i") {
+        mkdir "$store_path/$j/$i" || croak "could not mkdir: $!";
+    }
 
     return "$store_path/$j/$i";
 }
