@@ -78,12 +78,22 @@ sub insert {
     my $mime   = MIME::Types->new();
     my $type   = $self->mime_type;
     my $suffix = ( $mime->type($type)->extensions )[0];
-    my $dest   = sprintf( "%s/%08d.%s", $store_path, $self->id, $suffix );
-
+    my $dest   = sprintf( "%s/%08d.%s", _hash_dir($self->id), $self->id, $suffix);
+    
     croak "file '$dest' already exists!" if -e $dest;
     rename $tmp_filenames{$self}, $dest;
     delete $tmp_filenames{$self};
     return $self;
 }
 
+sub _hash_dir {
+    my $id = shift;
+    my $i = $id % 10;
+    my $j = ($id /10) % 10;
+
+    mkdir "$store_path/$j" unless -d "$store_path/$j";
+    mkdir "$store_path/$j/$i" unless -d "$store_path/$j/$i";
+
+    return "$store_path/$j/$i";
+}
 1;
