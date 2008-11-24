@@ -42,23 +42,21 @@ __PACKAGE__->add_columns(
 );
 __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint( "file_pkey", ["id"] );
-#__PACKAGE__->has_many(
-#    "channel_reports",
-#    "CollabIRCate::Schema::ChannelReport",
-#    { "foreign.channel_id" => "self.id" },
-#);
-#__PACKAGE__->has_many( "logs", "CollabIRCate::Schema::Log",
-#    { "foreign.channel_id" => "self.id" },
-#);
+
 
 sub new {
     my ( $class, $attrs ) = @_;
 
     croak "no such file " . $attrs->{filename} unless (-e $attrs->{filename});
 
-    my $mime = MIME::Types->new();
-    my $type = $mime->mimeTypeOf($attrs->{filename});
-    $attrs->{mime_type} = $type;
+    if (! ref $attrs->{filename}) {
+        my $mime = MIME::Types->new();
+        my $type = $mime->mimeTypeOf($attrs->{filename});
+        $attrs->{mime_type} = $type;
+    }
+    else {
+        croak "don't know how to get mime type for filehandles yet";
+    }
 
     my $template = "$store_path/importXXXXXXXXXXX";
     my $fh = File::Temp->new(TEMPLATE => $template, UNLINK => 0);
