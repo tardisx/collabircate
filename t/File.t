@@ -12,8 +12,7 @@ my $files = $schema->resultset('File');
 ok( defined $files, 'got some File resultset' );
 
 my $file = $files->create(
-    {   filename  => 'one.txt',
-        mime_type => 'text/plain',
+    {   filename  => '/tmp/one.txt',
     }
 );
 
