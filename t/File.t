@@ -62,3 +62,4 @@ SKIP: {
     my $data    = <$fh_back>;
     ok( $data =~ /abc123/, 'got data back, via fh' );
 }
+

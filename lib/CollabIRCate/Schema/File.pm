@@ -35,6 +35,11 @@ __PACKAGE__->add_columns(
         is_nullable   => 1,
         size          => undef,
     },
+    "size",
+    {   data_type     => "integer",
+        is_nullable   => 0,
+        size          => 4,
+    },
     "mime_type",
     {   data_type     => "text",
         default_value => undef,
@@ -56,6 +61,7 @@ sub new {
         my $mime = MIME::Types->new();
         my $type = $mime->mimeTypeOf( $attrs->{filename} );
         $attrs->{mime_type} = $type;
+        $attrs->{size}      = -s $attrs->{filename};
     }
     else {
         croak "don't know how to get mime type for filehandles yet";
