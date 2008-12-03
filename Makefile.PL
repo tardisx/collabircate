@@ -5,10 +5,15 @@ use inc::Module::Install;
 name 'CollabIRCate';
 all_from 'lib/CollabIRCate.pm';
 
+requires 'DBIx::Class';
+
+requires 'SQL::Translator';
+
 requires 'Catalyst::Runtime' => '5.7014';
 requires 'Catalyst::Plugin::ConfigLoader';
 requires 'Catalyst::Plugin::Static::Simple';
 requires 'Catalyst::Action::RenderView';
+requires 'Catalyst::Model::DBIC::Schema';
 
 requires 'DateTime';
 requires 'Path::Class';
