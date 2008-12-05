@@ -17,10 +17,23 @@ my  $schema;
 
 sub config {
 
+    return $config if defined $config;
+
     $config = { Config::General->new("$Bin/../collabircate.conf")->getall }
         unless defined $config;
 
     croak "cannot load config file" unless defined $config;
+
+    # update config from ENV
+    foreach my $key (keys %ENV) {
+      next unless $key =~ m/^COLLABIRCATE_CONFIG_(\w+)$/;
+      if (! defined $config->{lc $1}) {
+        warn "unknown environment variable $key\n";
+      }
+      else {
+        $config->{lc $1} = $ENV{$key};
+      }
+    }
 
     return $config;
 

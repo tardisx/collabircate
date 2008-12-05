@@ -42,7 +42,7 @@ POE::Session->create(
         irc_part   => \&on_part,
         irc_msg    => \&on_msg,
         _default   => \&unknown,
-                      check_tells => \&check_tells,
+        check_tells => \&check_tells,
     },
 );
 
@@ -61,7 +61,7 @@ sub bot_start {
             Username => 'peoplebot',
             Password => 'fishdontbreathe',
             Ircname  => 'POE::Component::IRC cookbook bot',
-            Server   => 'localhost',
+            Server   => $HOST,
             Port     => $PORT,
         }
     );
