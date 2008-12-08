@@ -24,7 +24,7 @@ use POE::Component::IRC;
 
 my $seen = {};
 
-sub CHANNEL () { "#people" }
+sub CHANNEL () {"#people"}
 
 # Create the component that will represent an IRC network.
 my ($irc) = POE::Component::IRC->spawn();
@@ -33,15 +33,15 @@ my ($irc) = POE::Component::IRC->spawn();
 # knows about and the functions that will handle those events.
 POE::Session->create(
     inline_states => {
-        _start     => \&bot_start,
-        irc_001    => \&on_connect,
-        irc_public => \&on_public,
-        irc_invite => \&on_invite,
-        irc_join   => \&on_join,
-        irc_topic  => \&on_topic,
-        irc_part   => \&on_part,
-        irc_msg    => \&on_msg,
-        _default   => \&unknown,
+        _start      => \&bot_start,
+        irc_001     => \&on_connect,
+        irc_public  => \&on_public,
+        irc_invite  => \&on_invite,
+        irc_join    => \&on_join,
+        irc_topic   => \&on_topic,
+        irc_part    => \&on_part,
+        irc_msg     => \&on_msg,
+        _default    => \&unknown,
         check_tells => \&check_tells,
     },
 );
@@ -82,7 +82,7 @@ sub on_connect {
 # respond to interesting things.
 sub on_public {
     my ( $kernel, $who, $where, $msg ) = @_[ KERNEL, ARG0, ARG1, ARG2 ];
-    my $nick    = ( split /!/, $who )[0];
+    my $nick = ( split /!/, $who )[0];
     my $channel = $where->[0];
 
     my $ts = scalar localtime;
@@ -90,17 +90,19 @@ sub on_public {
 
     add_log( $who, $channel, 'log', $msg );
 
-    if (   $msg =~ /^$BOTNICK,\s*(.*)/
-        || $msg =~ /^$BOTNICK\s+(.*)/
-        || $msg =~ /^${BOTNICK}:\s*(.*)/
-        || $msg =~ /^(.*)\s+${BOTNICK}\s*\?*$/ )
+    if (   $msg =~ /^$BOTNICK,\s*(.*)/i
+        || $msg =~ /^$BOTNICK\s+(.*)/i
+        || $msg =~ /^${BOTNICK}:\s*(.*)/i
+        || $msg =~ /^(.*)\s+${BOTNICK}\s*\?*$/i )
     {
 
-        my $bot_says = bot_request( $1, $nick );
-        $irc->yield( privmsg => $channel, $bot_says );
+        my ( $bot_says_pub, $bot_says_priv )
+            = @{ bot_request( { question => $1, from => $who } ) };
+        $irc->yield( privmsg => $channel, $bot_says_pub );
+        $irc->yield( privmsg => $nick, $bot_says_priv ) if ($bot_says_priv);
 
         # and fake the log
-        add_log( $BOTNICK, $channel, 'log', $bot_says );
+        add_log( $BOTNICK, $channel, 'log', $bot_says_pub );
 
     }
 
@@ -110,8 +112,14 @@ sub on_msg {
     my ( $kernel, $who, $what ) = @_[ KERNEL, ARG0, ARG2 ];
     my $nick = ( split /!/, $who )[0];
 
-    my $bot_says = bot_request( $what, $nick );
-    $irc->yield( privmsg => $nick, $bot_says );
+    my ( $bot_says_pub, $bot_says_priv )
+        = @{ bot_request( { question => $what, from => $who } ) };
+    if ($bot_says_priv) {
+        $irc->yield( privmsg => $nick, $bot_says_priv );
+    }
+    else {
+        $irc->yield( privmsg => $nick, $bot_says_pub );
+    }
 }
 
 sub on_invite {
@@ -161,19 +169,22 @@ sub unknown {
 }
 
 sub check_tells {
-  my ( $kernel ) = @_[ KERNEL, ARG0, ARG1 ];
-  my @tells = get_tells();
-  foreach my $a_tell (@tells) {
-    my ($who, $msg, $time) = @$a_tell;
-    foreach my $channel (keys %$seen) {
-      if ($seen->{$channel}->{$who}) {
-        $irc->yield( privmsg => $channel, "someone told me to tell you '$msg', $who" );
-        del_tell($who, $msg, $time);
-        last;
-      }
+    my ($kernel) = @_[ KERNEL, ARG0, ARG1 ];
+    my @tells = get_tells();
+    foreach my $a_tell (@tells) {
+        my ( $who, $msg, $time ) = @$a_tell;
+        foreach my $channel ( keys %$seen ) {
+            if ( $seen->{$channel}->{$who} ) {
+                $irc->yield(
+                    privmsg => $channel,
+                    "someone told me to tell you '$msg', $who"
+                );
+                del_tell( $who, $msg, $time );
+                last;
+            }
+        }
     }
-  }
-  $kernel->delay (check_tells => 10);
+    $kernel->delay( check_tells => 10 );
 }
 
 # Run the bot until it is done.
