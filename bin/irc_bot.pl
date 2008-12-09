@@ -40,6 +40,7 @@ POE::Session->create(
         irc_join    => \&on_join,
         irc_topic   => \&on_topic,
         irc_part    => \&on_part,
+        irc_quit    => \&on_quit,
         irc_msg     => \&on_msg,
         _default    => \&unknown,
         check_tells => \&check_tells,
@@ -145,11 +146,24 @@ sub on_topic {
 }
 
 sub on_part {
-    my ( $kernel, $who, $where ) = @_[ KERNEL, ARG0, ARG1 ];
+    my ( $kernel, $who, $where, $why ) = @_[ KERNEL, ARG0, ARG1, ARG2 ];
     my $nick = ( split /!/, $who )[0];
     my $channel = $where;
     $seen->{$channel}->{$nick} = 0;
-    add_log( $nick, $channel, 'part', 'left' );
+    add_log( $nick, $channel, 'part', $why );
+}
+
+sub on_quit {
+    my ( $kernel, $who, $why ) = @_[ KERNEL, ARG0, ARG1 ];
+    my $nick = ( split /!/, $who )[0];
+
+    # this is perhaps wrong in some edge cases?
+    foreach my $channel ( keys %$seen ) {
+      if ($seen->{$channel}->{$nick}) {
+        $seen->{$channel}->{$nick} = 0;
+        add_log( $nick, $channel, 'quit', $why );
+      }
+    }
 }
 
 sub unknown {
