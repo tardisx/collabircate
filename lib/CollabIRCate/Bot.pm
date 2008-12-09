@@ -5,11 +5,14 @@ package CollabIRCate::Bot;
 use strict;
 use warnings;
 
+use CollabIRCate::Config;
 use Carp qw/croak/;
 
 use Exporter qw/import/;
 our @EXPORT_OK = qw/bot_request get_tells del_tell/;
 our @tell;
+
+my $schema = CollabIRCate::Config->schema;
 
 my @sorry_messages = (
     "sorry NICK, I'm not sure what you mean by 'MSG'",
@@ -62,7 +65,8 @@ sub bot_request {
         return [ "I need help more than you right now $from", undef ];
     }
     elsif ( $question =~ /upload/ ) {
-        return [ "sending request ticket to $from", "your ticket is XXX" ];
+        my $req = $schema->resultset('Request')->create( {} );
+        return [ "sending request ticket to $from", "your ticket is " . $req->hash ];
     }
     elsif ( $question
         =~ /^(what\s*[i']s\s:{0,1}){0,1}\s*([\d\+\-\s\*\/\.\,]+)([\s\=\?]+){0,1}$/
