@@ -127,8 +127,13 @@ if (@entries) {
         elsif ( $type eq 'join' ) {
             print $fh "$ts: $nick joined\n";
         }
+
+        # these should show the witty message provided!
         elsif ( $type eq 'part' ) {
             print $fh "$ts: $nick left\n";
+        }
+        elsif ( $type eq 'quit' ) {
+            print $fh "$ts: $nick quit\n";
         }
     }
     $fh->close unless $debug;
