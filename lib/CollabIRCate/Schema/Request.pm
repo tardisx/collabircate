@@ -78,6 +78,33 @@ sub insert {
     return $self;
 }
 
+
+sub url {
+    my $self = shift;
+    my $hash = $self->hash;
+
+    my $url = $config->{upload_url};
+
+    croak "No upload_url set in config" unless $url;
+
+    $url =~ s/HASH/$hash/;
+
+    return $url;
+}
+
+sub email {
+    my $self  = shift;
+    my $hash = $self->hash;
+
+    my $email = $config->{upload_email};
+
+    croak "No upload_email set in config" unless $email;
+
+    $email =~ s/HASH/$hash/;
+
+    return $email;
+}
+
 __END__
 
 =head1 NAME

@@ -66,7 +66,7 @@ sub bot_request {
     }
     elsif ( $question =~ /upload/ ) {
         my $req = $schema->resultset('Request')->create( {} );
-        return [ "sending request ticket to $from", "your ticket is " . $req->hash ];
+        return [ "sending request ticket to $from", "you can upload your file at: " . $req->url . " or email it to " . $req->email ];
     }
     elsif ( $question
         =~ /^(what\s*[i']s\s:{0,1}){0,1}\s*([\d\+\-\s\*\/\.\,]+)([\s\=\?]+){0,1}$/
