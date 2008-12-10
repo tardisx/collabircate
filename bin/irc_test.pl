@@ -83,7 +83,7 @@ sub irc_001 {
 sub _default {
     my ( $event, $args ) = @_[ ARG0 .. $#_ ];
 
-    my @interesting = qw/irc_msg/;
+    my @interesting = qw/irc_msg irc_public/;
     
     my @output = ("$event: ");
 
@@ -98,7 +98,9 @@ sub _default {
         }
         print join ' ', @output, "\n";
     }
-    warn "ignoring $event\n" if $debug;
+    else {
+      warn "ignoring $event\n" if $debug;
+    }
     return 0;
 }
 
