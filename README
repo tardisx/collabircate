@@ -1,1 +1,4 @@
-Run script/collabircate_server.pl to test the application.
+CollabIRCate is a free, open-source collaboration tool. It leverages 
+existing services and environments, IRC, mail, the web, rather than 
+trying to force you to learn Yet Another Tool.
+
