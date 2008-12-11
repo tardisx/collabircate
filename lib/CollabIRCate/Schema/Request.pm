@@ -50,6 +50,11 @@ __PACKAGE__->add_columns(
         is_nullable   => 1,
         size          => 4,
     },
+    "logged", 
+    {   data_type     => "boolean",
+        default_value => 'f',
+        is_nullable   => 0,
+    }
 );
 __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint( "request_pkey", ["id"] );

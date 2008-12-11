@@ -49,13 +49,15 @@ foreach my $this_entity ($entity->parts) {
         my $head = $this_entity->head;
         my $body = $this_entity->bodyhandle;
         my $filename = $head->recommended_filename;
-        my $result;
+        my @ids;
         eval {
-            $result = accept_file( $body->path, $hash );
+            @ids = accept_file( $body->path, $hash );
         };
         die $@ if $@;
-        if ($result) {
-            warn "Accepted $filename into system\n";
+        if (@ids) {
+            if ($debug) {
+                warn "Accepted $filename into system, id $_\n" foreach @ids;
+            }
         }
         else {
             croak "oh I dunno!";

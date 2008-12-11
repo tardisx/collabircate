@@ -35,15 +35,19 @@ sub accept_file {
     $request = $request->first;
     croak "no such request '$hash'" unless $request;
 
-    # store this file
+    # which file id's did we create?
+    my @file_ids = ();
+
+    # store these files
     foreach (@files) {
         my $file = $schema->resultset('File')->create( { filename => $_ } );
-        $request->file_id($file->id);
-        $request->update;
+        # tell the file where it came from
+        $file->request_id($request->id);
+        $file->update;
+        push @file_ids, $file->id;
     }
 
-    return 1;
-    
+    return (@file_ids);
     
 }
 
