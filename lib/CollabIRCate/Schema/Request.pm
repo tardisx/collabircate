@@ -50,7 +50,7 @@ __PACKAGE__->add_columns(
         is_nullable   => 1,
         size          => 4,
     },
-    "logged", 
+    "logged",
     {   data_type     => "boolean",
         default_value => 'f',
         is_nullable   => 0,
@@ -62,11 +62,11 @@ __PACKAGE__->belongs_to( "users", "CollabIRCate::Schema::Users",
     { id => "users_id" },
 );
 __PACKAGE__->belongs_to(
-    "users",
+    "channel",
     "CollabIRCate::Schema::Channel",
     { id => "channel_id" },
 );
-__PACKAGE__->belongs_to( "users", "CollabIRCate::Schema::File",
+__PACKAGE__->belongs_to( "file", "CollabIRCate::Schema::File",
     { id => "file_id" },
 );
 
@@ -83,7 +83,6 @@ sub insert {
     return $self;
 }
 
-
 sub url {
     my $self = shift;
     my $hash = $self->hash;
@@ -98,7 +97,7 @@ sub url {
 }
 
 sub email {
-    my $self  = shift;
+    my $self = shift;
     my $hash = $self->hash;
 
     my $email = $config->{upload_email};

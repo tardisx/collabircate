@@ -13,7 +13,8 @@ use CollabIRCate::Config;
 use CollabIRCate::Log qw/add_log/;
 use CollabIRCate::Bot qw/bot_request get_tells del_tell/;
 
-my $config = CollabIRCate::Config->config;
+my $config = CollabIRCate::Config->config();
+my $schema = CollabIRCate::Config->schema();
 
 my $HOST    = $config->{irc_bot_server_host} || croak "no server host";
 my $PORT    = $config->{irc_bot_server_port} || croak "no server port";
@@ -21,6 +22,7 @@ my $BOTNICK = $config->{irc_bot_nickname}    || 'undefBOT';
 
 use POE;
 use POE::Component::IRC;
+use POE::Component::IRC::Plugin::CycleEmpty;
 
 my $seen = {};
 
@@ -28,22 +30,26 @@ sub CHANNEL () {"#people"}
 
 # Create the component that will represent an IRC network.
 my ($irc) = POE::Component::IRC->spawn();
+$irc->plugin_add( 'CycleEmpty',
+    POE::Component::IRC::Plugin::CycleEmpty->new() );
 
 # Create the bot session.  The new() call specifies the events the bot
 # knows about and the functions that will handle those events.
 POE::Session->create(
     inline_states => {
-        _start      => \&bot_start,
-        irc_001     => \&on_connect,
-        irc_public  => \&on_public,
-        irc_invite  => \&on_invite,
-        irc_join    => \&on_join,
-        irc_topic   => \&on_topic,
-        irc_part    => \&on_part,
-        irc_quit    => \&on_quit,
-        irc_msg     => \&on_msg,
-        _default    => \&unknown,
-        check_tells => \&check_tells,
+        _start     => \&bot_start,
+        irc_001    => \&on_connect,
+        irc_public => \&on_public,
+        irc_invite => \&on_invite,
+        irc_join   => \&on_join,
+        irc_topic  => \&on_topic,
+        irc_part   => \&on_part,
+        irc_quit   => \&on_quit,
+        irc_msg    => \&on_msg,
+        _default   => \&unknown,
+
+        check_tells    => \&check_tells,
+        check_requests => \&check_requests,
     },
 );
 
@@ -66,7 +72,8 @@ sub bot_start {
             Port     => $PORT,
         }
     );
-    $kernel->delay( check_tells => 10 );
+    $kernel->delay( check_tells    => 10 );
+    $kernel->delay( check_requests => 10 );
 }
 
 # The bot has successfully connected to a server.  Join a channel.
@@ -159,10 +166,10 @@ sub on_quit {
 
     # this is perhaps wrong in some edge cases?
     foreach my $channel ( keys %$seen ) {
-      if ($seen->{$channel}->{$nick}) {
-        $seen->{$channel}->{$nick} = 0;
-        add_log( $nick, $channel, 'quit', $why );
-      }
+        if ( $seen->{$channel}->{$nick} ) {
+            $seen->{$channel}->{$nick} = 0;
+            add_log( $nick, $channel, 'quit', $why );
+        }
     }
 }
 
@@ -199,6 +206,49 @@ sub check_tells {
         }
     }
     $kernel->delay( check_tells => 10 );
+}
+
+sub check_requests {
+    my ($kernel) = @_[ KERNEL, ARG0 ];
+
+    # check the database to see if we have any new requests that
+    # have been uploaded
+    my %requests_logged = ();
+    my $files           = $schema->resultset('File')->search(
+        { 'request.logged' => 'f', },
+        { join             => { request => 'channel' } }
+    );
+
+    #                  { join      => { 'request' => 'file' },
+    #                    '+select' => [ 'request.id' ],
+    #                    '+as'     => [ 'request_id' ]
+    #                }
+    #              );
+
+    while ( my $unlogged = $files->next ) {
+        warn "ID: " . $unlogged->id;
+
+        # we have a file for a channel
+        my $channel = $unlogged->request->channel->name;
+        my $url
+            = "http://"
+            . $config->{http_server_host} . ":"
+            . $config->{http_server_port} . "/file/" 
+            . $unlogged->id;
+        my $message
+            = $unlogged->filename
+            . " has been uploaded, download it at "
+            . $url;
+        $irc->yield( privmsg => $channel, $message );
+        $requests_logged{ $unlogged->request->id } = 1;
+    }
+
+    foreach ( keys %requests_logged ) {
+        $schema->resultset('Request')->search( { id => $_ } )
+            ->update( { logged => 't' } );
+    }
+
+    $kernel->delay( check_requests => 10 );
 }
 
 # Run the bot until it is done.

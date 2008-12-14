@@ -41,7 +41,7 @@ sub accept_file {
     # store these files
     foreach (@files) {
         my $file = $schema->resultset('File')->create( { filename => $_ } );
-        # tell the file where it came from
+        # tell the request what the file is
         $file->request_id($request->id);
         $file->update;
         push @file_ids, $file->id;

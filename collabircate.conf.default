@@ -21,6 +21,10 @@ irc_bot_server_host localhost
 irc_bot_server_port 6668
 irc_bot_nickname undefBOT
 
+# http server
+http_server_host localhost
+http_server_port 3000
+
 # tag matching
 # [] tags
 irc_log_tag_regexp \[([\w\S]+?)\]
@@ -31,6 +35,6 @@ irc_log_tag_regexp \[([\w\S]+?)\]
 irc_log_conversation_break 300
 
 # file stuff
-file_store_path /tmp/store
+file_store_path ./store
 upload_url http://example.org/upload/HASH/
 upload_email uploads+HASH@example.org

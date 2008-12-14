@@ -49,8 +49,8 @@ __PACKAGE__->add_columns(
     "request_id",
     {   data_type     => "integer",
         is_nullable   => 1,
-        sixe          => 4,
-    }
+        size          => 4,
+    },
 
 );
 __PACKAGE__->set_primary_key("id");
@@ -60,7 +60,6 @@ __PACKAGE__->belongs_to(
     "CollabIRCate::Schema::Request",
     { id => "request_id" },
 );
-
 
 sub new {
     my ( $class, $attrs ) = @_;
