@@ -1,0 +1,13 @@
+Testing the system:
+
+[skaro:~/collabircate] justin% perl Makefile.PL
+...
+Writing Makefile for CollabIRCate
+[skaro:~/collabircate] justin% bin/deploy.pl 
+[skaro:~/collabircate] justin% make test
+...
+All tests successful.
+Files=8, Tests=29,  3 wallclock secs ( 0.04 usr  0.03 sys +  2.30 cusr  0.34 csys =  2.71 CPU)
+Result: PASS
+
+All good!
