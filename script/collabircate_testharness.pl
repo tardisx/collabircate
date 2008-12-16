@@ -25,6 +25,9 @@ END {
   if (-e "collabircate.conf.preserved") {
     system ("mv", "collabircate.conf.preserved", "collabircate.conf");
   }
+  else {
+    system ("rm", "collabircate.conf");
+  }
   system ("rm", $db);
   system ("rm", "-rf", $store);
 }
