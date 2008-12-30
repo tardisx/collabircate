@@ -1,3 +1,4 @@
+META.yml
 bin/deploy.pl
 bin/email_process.pl
 bin/email_receive.pl
