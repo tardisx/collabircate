@@ -3,21 +3,19 @@
 use strict;
 use warnings;
 
+use Carp qw/croak/;
+
 use FindBin qw/$Bin/;
 use Path::Class;
+use File::Spec::Functions qw/catfile/;
 use lib dir( $Bin, '..', 'lib' )->stringify;
-
-use Carp;
-use Pod::Usage;
 use Getopt::Long;
-use MIME::Parser;
-use File::Temp qw/tempfile/;
 
 use CollabIRCate::Config;
 use CollabIRCate::File qw/accept_file/;
 
 my $config = CollabIRCate::Config->config();
-my $schema = CollabIRCate::Config->schema();
+my $queue_dir = $config->{email_queue_path} || croak "no email_queue_path";
 
 my ($debug, $help);
 
@@ -31,39 +29,16 @@ if ( $help ) {
     exit;    # unnecessary
 }
 
-### Create a new parser object:
-my $parser = new MIME::Parser;
-
-### Tell it where to put things:
-$parser->output_under("/tmp");
-
-my $entity = $parser->parse(\*STDIN);
-
-my $to = $entity->head->get('To');
-my ($hash) = $to =~ /\b([0-9a-f]{32,})\+/;
-
-croak "no hash in To: field" unless $hash;
-
-foreach my $this_entity ($entity->parts) {
-    if ($this_entity->effective_type ne 'text/plain')  {
-        my $head = $this_entity->head;
-        my $body = $this_entity->bodyhandle;
-        my $filename = $head->recommended_filename;
-        my @ids;
-        eval {
-            @ids = accept_file( $body->path, $hash );
-        };
-        die $@ if $@;
-        if (@ids) {
-            if ($debug) {
-                warn "Accepted $filename into system, id $_\n" foreach @ids;
-            }
-        }
-        else {
-            croak "oh I dunno!";
-        }
-    }
+# file comes in from the MTA on stdin, we must just store it into 
+# a directory
+croak "no such dir $queue_dir" unless (-d $queue_dir);
+my $filename = catfile($queue_dir, $$ . "-" . time());
+open my $fh, ">", $filename . ".tmp" || croak "oh no";
+while (<>) {
+  print $fh $_;
 }
+close $fh || croak "oh no!";
+rename "$filename.tmp", "$filename.mail" || croak "oh no!";
 
 exit;
 

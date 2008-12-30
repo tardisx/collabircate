@@ -20,6 +20,7 @@ my $hash = $req->hash;
 # run a file through email_receive.pl and make sure stuff goes
 # into the database
 system ("cat testdata/email_multiple_image.mail | sed 's/%%HASH%%/$hash/g' | bin/email_receive.pl");
+system ("bin/email_process.pl");
 
 # after that there should be four files with this request id
 my $files = $schema->resultset('File')->search(

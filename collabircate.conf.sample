@@ -36,3 +36,6 @@ irc_log_conversation_break 300
 file_store_path ./store
 upload_url http://example.org/upload/HASH/
 upload_email uploads+HASH@example.org
+
+# email stuff, must be writable by the mail server user
+email_queue_path ./queue
