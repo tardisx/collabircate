@@ -43,17 +43,15 @@ my @files = glob catfile( $config->{email_queue_path}, "*.mail" );
 foreach my $email_filename (@files) {
   warn "working on $email_filename";
   my $entity = $parser->parse_open($email_filename);
-#  use Data::Dumper;
-#  die Dumper ($entity);
   my $to = $entity->head->get('To');
   if (! defined $to) {
     carp "no To: field in $email_filename";
     next;
   }
-  my ($hash) = $to =~ /\b([0-9a-f]{32,})\+/;
+  my ($hash) = $to =~ /\+([0-9a-f]{32,})/;
 
   unless ($hash) {
-    carp "no hash in To: field on $email_filename";
+    carp "no hash in '$to' on $email_filename";
     next;
   }
 
