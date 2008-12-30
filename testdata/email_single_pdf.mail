@@ -12,7 +12,7 @@ Received: from [10.245.60.102] (amcom-gw.rocksoft.com [116.212.217.2])
 	for <justin@hawkins.id.au>; Wed, 10 Dec 2008 23:02:08 +0000 (GMT)
 Message-Id: <9FFD0B24-FC5E-4562-90F7-4CFC41EB0B92@hawkins.id.au>
 From: Justin Hawkins <justin@hawkins.id.au>
-To: %%HASH%%+justin@hawkins.id.au
+To: justin+%%HASH%%@hawkins.id.au
 Content-Type: multipart/mixed; boundary=Apple-Mail-60--612662326
 Mime-Version: 1.0 (Apple Message framework v929.2)
 Subject: Here is that PDF I was talking about
