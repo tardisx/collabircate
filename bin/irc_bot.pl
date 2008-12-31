@@ -99,7 +99,7 @@ sub on_public {
     {
 
         my ( $bot_says_pub, $bot_says_priv )
-            = @{ bot_request( { question => $1, from => $who } ) };
+            = @{ bot_request( { question => $1, from => $who, channel => $channel } ) };
         $irc->yield( privmsg => $channel, $bot_says_pub );
         $irc->yield( privmsg => $nick, $bot_says_priv ) if ($bot_says_priv);
 
