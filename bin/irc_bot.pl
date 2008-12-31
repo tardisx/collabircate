@@ -26,8 +26,6 @@ use POE::Component::IRC::Plugin::CycleEmpty;
 
 my $seen = {};
 
-sub CHANNEL () {"#people"}
-
 # Create the component that will represent an IRC network.
 my ($irc) = POE::Component::IRC->spawn();
 $irc->plugin_add( 'CycleEmpty',
@@ -80,10 +78,6 @@ sub bot_start {
 sub on_connect {
     $irc->yield( oper => '~peoplebot' => 'fishdontbreathe' );
 
-    $irc->yield( join => CHANNEL );
-    $irc->yield( join => '#vps' );
-    $irc->yield( join => '#collabIRCate' );
-    $irc->yield( join => '#random' );
 }
 
 # The bot has received a public message.  Parse it for commands, and
