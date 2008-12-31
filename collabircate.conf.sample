@@ -20,8 +20,7 @@ irc_bot_server_port 6668
 irc_bot_nickname undefBOT
 
 # http server
-http_server_host localhost
-http_server_port 3000
+http_server_url http://localhost:3000
 
 # tag matching
 # [] tags

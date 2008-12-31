@@ -224,16 +224,19 @@ sub check_requests {
 
         # we have a file for a channel
         my $channel = $unlogged->request->channel->name;
-        my $url
-            = "http://"
-            . $config->{http_server_host} . ":"
+        my $url = $config->{http_server_url}
             . $config->{http_server_port} . "/file/" 
             . $unlogged->id;
+        my $filename = $unlogged->filename;
+        $filename =~ s/.*\///;
         my $message
-            = $unlogged->filename
+            = $filename
             . " has been uploaded, download it at "
             . $url;
+        
         $irc->yield( privmsg => $channel, $message );
+        # fake the log
+        add_log( $BOTNICK, $channel, 'log', $message );
         $requests_logged{ $unlogged->request->id } = 1;
     }
 

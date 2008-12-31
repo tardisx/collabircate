@@ -65,10 +65,11 @@ sub bot_request {
         return [ "I need help more than you right now $from", undef ];
     }
     elsif ( $question =~ /upload/ ) {
-      my $chan
-          = $schema->resultset('Channel')->search( { name => $channel } )->next;
-
-        my $req = $schema->resultset('Request')->create( {channel_id => $chan->id } );
+        my $chan
+          = $schema->resultset('Channel')->search( { name => lc($channel) } )->next;
+        my $chan_id;
+        $chan_id = $chan->id if ($chan);
+        my $req = $schema->resultset('Request')->create( {channel_id => $chan_id } );
         return [ "sending request ticket to $from", "you can upload your file at: " . $req->url . " or email it to " . $req->email ];
     }
     elsif ( $question

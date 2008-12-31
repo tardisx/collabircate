@@ -101,6 +101,7 @@ sub insert {
     croak "file '$dest' already exists!" if -e $dest;
     rename $tmp_filenames{$self}, $dest;
     delete $tmp_filenames{$self};
+    chmod 0644, $dest;
     return $self;
 }
 

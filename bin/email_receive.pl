@@ -38,6 +38,7 @@ while (<>) {
   print $fh $_;
 }
 close $fh || croak "oh no!";
+chmod 0644, "$filename.tmp";
 rename "$filename.tmp", "$filename.mail" || croak "oh no!";
 
 exit;
