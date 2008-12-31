@@ -11,3 +11,15 @@ Files=8, Tests=29,  3 wallclock secs ( 0.04 usr  0.03 sys +  2.30 cusr  0.34 csy
 Result: PASS
 
 All good!
+
+Installing the web component as a CGI
+-------------------------------------
+
+Something like this in an appropriate virtualhost should do the trick:
+
+ScriptAlias /urlprefix "/path/to/CollabIRCate/script/collabircate_cgi.pl"
+
+Where 'urlprefix' is whatever you choose for the CollabIRCate URL's - the 
+system is happy to be rooted wherever you like.
+
+
