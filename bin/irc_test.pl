@@ -9,6 +9,7 @@ use Pod::Usage;
 use POE qw(Component::IRC);
 
 my ( $debug, $server, $port, $nick );
+my $success = 1;
 my $help = 0;
 
 my $options_okay = GetOptions(
@@ -41,7 +42,7 @@ my $irc = POE::Component::IRC->spawn(
 POE::Session->create(
     package_states => [
         main => [
-            qw(_default _start irc_001 irc_disconnected process )],
+            qw(_default _start irc_001 irc_disconnected process waitfor)],
     ],
     heap => { irc => $irc },
 );
@@ -57,6 +58,8 @@ sub _start {
 
     $irc->yield( register => 'all' );
     $irc->yield( connect  => {} );
+    $heap->{messages} = [];
+    $heap->{waitfor} = {};
     return;
 }
 
@@ -81,7 +84,7 @@ sub irc_001 {
 }
 
 sub _default {
-    my ( $event, $args ) = @_[ ARG0 .. $#_ ];
+    my ( $heap, $event, $args ) = @_[ HEAP, ARG0 .. $#_ ];
 
     my @interesting = qw/irc_msg irc_public/;
     
@@ -91,9 +94,11 @@ sub _default {
         for my $arg (@$args) {
             if ( ref $arg eq 'ARRAY' ) {
                 push( @output, '[' . join( ' ,', @$arg ) . ']' );
+                push @{ $heap->{messages} }, '[' . join( ' ,', @$arg ) . ']';
             }
             else {
                 push( @output, "'$arg'" );
+                push @{ $heap->{messages} }, "'$arg'";
             }
         }
         print join ' ', @output, "\n";
@@ -104,58 +109,114 @@ sub _default {
     return 0;
 }
 
-sub process {
-    my $kernel = $_[KERNEL];
+sub waitfor {
+  my ($kernel, $heap, $regexp, $timeout) = @_[KERNEL, HEAP, ARG0, ARG1];
+  $timeout--;
+  if (! $timeout) {
+    warn "[$regexp] timeout!";
+    delete $heap->{waitfor}->{$regexp};
+    $success = 0;
+    return;
+  }
 
-    if ( !@actions ) {
-        $quit_wait--;
-        warn "Waiting $quit_wait";
-        if ( !$quit_wait ) {
-            die "we did not disconnect";
-        }
-        $kernel->delay( 'process' => 1 );
+
+  warn "[$regexp] $timeout remaining";
+
+  # init the index pointer for this regexp if we don't have one
+  if (! defined $heap->{waitfor}->{$regexp}) {
+    warn "[$regexp] initting pointer";
+    $heap->{waitfor}->{$regexp} = scalar @{ $heap->{messages} };
+  }
+
+  # iterate through the messages we haven't looked at
+  my $found = 0;
+  foreach ( $heap->{waitfor}->{$regexp} .. scalar @{ $heap->{messages} } - 1) {
+    my $message = $heap->{messages}->[$_];
+    if ($message =~ /$regexp/) {
+      print "WOO $regexp in $message\n";
+      $found = 1;
+    }
+  }
+
+  if (! $found) {
+    # record we are up to here now
+    $heap->{waitfor}->{$regexp} = scalar @{ $heap->{messages} };
+    # and do it again
+    warn "[$regexp] re-queueing $timeout";
+    $kernel->delay_add( waitfor => 1, $regexp, $timeout );
+  }
+
+  else {
+    # no need to do this anymore!
+    warn "[$regexp] is done";
+    delete $heap->{waitfor}->{$regexp};
+  }
+
+}
+
+sub process {
+  my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
+
+  if ( !@actions ) {
+    $irc->yield( 'quit' => 'finished all commands' );
+    $irc->yield('shutdown');
+  }
+  else {
+    my $action = shift @actions;
+
+    my ( $key, $value ) = $action =~ m/(\w+)=(.+)$/;
+    if ( $key eq 'nick' ) {
+      warn "Changing nick to $value";
+      $irc->yield( 'nick' => $value );
+    }
+    elsif ( $key eq 'sleep' ) {
+      $kernel->delay( 'process' => $value );
+      return;
+    }
+    elsif ( $key eq 'join' ) {
+      $irc->yield( 'join' => $value );
+    }
+    elsif ( $key eq 'part' ) {
+      $irc->yield( 'part' => $value );
+    }
+    elsif ( $key eq 'waitfor' ) {
+      my ( $regexp, $delay ) = split /,/, $value;
+      $kernel->yield( 'waitfor', $regexp, $delay );
+    }
+    elsif ( $key eq 'quit' ) {
+      # do this again in a moment if we still have outstanding
+      # waitfors
+      if ( keys %{ $heap->{waitfor} } ) {
+        unshift @actions, "$key=$value";
+      }
+      else {
+        $irc->yield( 'quit' => $value );
+        $irc->yield('shutdown');
+      }
+    }
+    elsif ( $key eq 'privmsg' ) {
+      $irc->yield( 'privmsg' => split /,/, $value );
     }
     else {
-        my $action = shift @actions;
-
-        my ( $key, $value ) = $action =~ m/(\w+)=(.+)$/;
-        if ( $key eq 'nick' ) {
-            warn "Changing nick to $value";
-            $irc->yield( 'nick' => $value );
-        }
-        elsif ( $key eq 'sleep' ) {
-            $kernel->delay( 'process' => $value );
-            return;
-        }
-        elsif ( $key eq 'join' ) {
-            $irc->yield( 'join' => $value );
-        }
-        elsif ( $key eq 'part' ) {
-            $irc->yield( 'part' => $value );
-        }
-        elsif ( $key eq 'quit' ) {
-            push @actions, 'sleep=3';
-            $irc->yield( 'quit' => $value );
-        }
-        elsif ( $key eq 'privmsg' ) {
-            $irc->yield( 'privmsg' => split /,/, $value );
-        }
-        else {
-            warn "don't know how to deal with $action";
-        }
-
+      warn "don't know how to deal with $action";
     }
+
     $kernel->yield('process');
+  }
 
 }
 
 sub irc_disconnected {
 
     # happy ending!
-    exit;
+    warn "got irc_disconnect";
 
 }
 
+END {
+
+    exit 1 - $success;
+}
 __END__
 
 =head1 NAME
