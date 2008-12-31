@@ -22,7 +22,39 @@ mkdir $queue;
 
 system ("perl", "Makefile.PL");
 system ("bin/deploy.pl");
-system ("make", "test");
+
+# start the server and bot
+my $spid = start_server();
+my $bpid = start_bot();
+sleep 5;
+
+if (@ARGV) {
+  system ($ENV{SHELL});
+}
+else {
+  system ("make", "test");
+} 
+
+kill "TERM", $bpid;
+kill "TERM", $spid;
+
+sub start_server {
+  if (my $pid = fork()) {
+    return $pid;
+  }
+  else {
+    exec "bin/irc_server.pl";
+  }
+}
+
+sub start_bot {
+  if (my $pid = fork()) {
+    return $pid;
+  }
+  else {
+    exec "bin/irc_bot.pl";
+  }
+}
 
 END {
   if (-e "collabircate.conf.preserved") {
