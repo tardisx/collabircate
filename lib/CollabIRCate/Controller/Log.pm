@@ -38,41 +38,43 @@ sub channel_setup : Chained('/') PathPart('log/channel') CaptureArgs(1) {
         ->search( { 'channel.name' => $channel },
         { join => [qw/ channel users /], order_by => 'ts' } );
 
-    $c->stash( logs    => $logs );
+    $c->stash( logs => $logs );
 }
 
 sub latest : Chained('channel_setup') PathPart('latest') : Args(0) {
     my ( $self, $c ) = @_;
 
     # redirect to the place we need to be
-    
+
     my $channel = $c->stash->{'channel'};
-    my $start = DateTime->now->date;
+    my $start   = DateTime->now->date;
     $start =~ s#-#/#g;
 
-    $c->res->redirect($c->uri_for("/log/channel/$channel/date/" . $start . '#bottom'));
+    $c->res->redirect(
+        $c->uri_for( "/log/channel/$channel/date/" . $start . '#bottom' ) );
     $c->detach();
 
 }
 
 sub date : Chained('channel_setup') PathPart('date') : Args(3) {
     my ( $self, $c, $year, $month, $day ) = @_;
+    my $page = $c->req->param('page') || 1;
 
-    my $logs = $c->stash->{logs};
-    my $date =    sprintf "%04d-%02d-%02d", $year, $month, $day;
-    my $date_to = sprintf "%04d-%02d-%02d", $year, $month, $day+1;
-
+    my $logs    = $c->stash->{logs};
+    my $date    = sprintf "%04d-%02d-%02d", $year, $month, $day;
+    my $date_to = sprintf "%04d-%02d-%02d", $year, $month, $day + 1;
 
     warn "FROM: $date TO: $date_to";
 
-    $logs = $logs->search( { ts => { '>=', $date, '<', $date_to } } );
-    $c->stash( logs     => [ $logs->all ] );
+    $logs = $logs->search( { ts => { '>=', $date, '<', $date_to } }, { page => $page, rows => 200} );
+    $c->stash( logs => [ $logs->all ] );
+    $c->stash( pager => $logs->pager );
 
 }
 
 sub end : Private {
     my ( $self, $c ) = @_;
-   
+
     $c->stash( template => 'log/display' );
     $c->forward('CollabIRCate::View::Site');
 }

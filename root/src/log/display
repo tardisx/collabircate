@@ -10,5 +10,13 @@
 </tr>
 [% END %]
 </table>
-
+[% IF pager.previous_page OR pager.next_page %]
+Page:
+[% IF pager.previous_page %]
+[<a href="[% c.request.uri_with( page => pager.previous_page ) %]">&lt;&lt;</a>] 
+[% END %]
+[% IF pager.next_page %]
+[<a href="[% c.request.uri_with( page => pager.next_page ) %]">&gt;&gt;</a>]
+[% END %]
+[% END %]
 
