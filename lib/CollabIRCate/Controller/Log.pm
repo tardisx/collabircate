@@ -30,52 +30,51 @@ sub index : Path : Args(0) {
 
 sub channel_setup : Chained('/') PathPart('log/channel') CaptureArgs(1) {
     my ( $self, $c, $channel ) = @_;
+    $c->stash( channel => $channel );
+
     $channel = "#" . $channel;
     my $logs
         = $c->model('CollabIRCateDB::Log')
         ->search( { 'channel.name' => $channel },
         { join => [qw/ channel users /], order_by => 'ts' } );
 
-    $c->stash( channel => $channel );
     $c->stash( logs    => $logs );
 }
 
 sub latest : Chained('channel_setup') PathPart('latest') : Args(0) {
     my ( $self, $c ) = @_;
 
-    #    my $channel = $c->stash->{'channel'};
-    my $logs = $c->stash->{logs};
+    # redirect to the place we need to be
+    
+    my $channel = $c->stash->{'channel'};
+    my $start = DateTime->now->date;
+    $start =~ s#-#/#g;
 
-    my $start = DateTime->now->subtract(hours => 3);
-
-    $logs = $logs->search( { ts => {'>=', $start } } );
-
-    $c->stash->{logs} = [ $logs->all ];
+    $c->res->redirect($c->uri_for("/log/channel/$channel/date/" . $start . '#bottom'));
+    $c->detach();
 
 }
 
-sub date : Chained('channel_setup') PathPart('date') : Args(0) CaptureArgs(1) {
-    my ( $self, $c, $date ) = @_;
+sub date : Chained('channel_setup') PathPart('date') : Args(3) {
+    my ( $self, $c, $year, $month, $day ) = @_;
 
     my $logs = $c->stash->{logs};
+    my $date =    sprintf "%04d-%02d-%02d", $year, $month, $day;
+    my $date_to = sprintf "%04d-%02d-%02d", $year, $month, $day+1;
 
-    $logs = $logs->search( { ts => { '>', $date } } );
+
+    warn "FROM: $date TO: $date_to";
+
+    $logs = $logs->search( { ts => { '>=', $date, '<', $date_to } } );
     $c->stash( logs     => [ $logs->all ] );
     $c->stash( template => 'log/latest' );
 
 }
 
-sub hour : Chained('date') PathPart('hour') : Args(1) {
-    my ( $self, $c, $hour ) = @_;
-
-    my $logs = $c->stash->{logs};
-
-    die "OOH, but hour is now $hour";
-}
-
 sub end : Private {
     my ( $self, $c ) = @_;
 
+    warn "in end";
     $c->forward('CollabIRCate::View::Site');
 }
 
