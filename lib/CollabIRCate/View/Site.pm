@@ -2,6 +2,7 @@ package CollabIRCate::View::Site;
 
 use strict;
 use base 'Catalyst::View::TT';
+use URI::Find;
 
 __PACKAGE__->config({
     INCLUDE_PATH => [
@@ -13,6 +14,28 @@ __PACKAGE__->config({
     ERROR        => 'error.tt2',
     TIMER        => 0
 });
+
+
+my $finder = URI::Find->new(sub {
+    my ($uri, $orig_uri) = @_;
+    return qq|<a href="$uri">$orig_uri</a>|;
+});
+
+sub makelinks {
+    my $text = shift;
+    $finder->find(\$text);
+#    $text =~ s/http:/LINK:/g;
+    return $text;
+}
+
+
+__PACKAGE__->config({
+    FILTERS => {
+        'makelinks' => \&makelinks,
+        },
+    }
+                  );
+    
 
 =head1 NAME
 

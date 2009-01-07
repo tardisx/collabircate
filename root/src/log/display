@@ -1,13 +1,12 @@
-[% META title = 'Steaming Logs' %]
-
-<p>The latest logs from around the traps!</p>
+[% META title = 'Logs' %]
 
 <table>
 [% FOREACH log IN logs -%]
 <tr>
   <td>[% log.ts.hms  %]</td>
   <td>[% log.users.email %]</td>
-  <td>[% log.entry | html %]</td>
+  <td>[% log.entry | html | makelinks %]</td>
+
 </tr>
 [% END %]
 </table>

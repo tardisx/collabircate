@@ -67,14 +67,13 @@ sub date : Chained('channel_setup') PathPart('date') : Args(3) {
 
     $logs = $logs->search( { ts => { '>=', $date, '<', $date_to } } );
     $c->stash( logs     => [ $logs->all ] );
-    $c->stash( template => 'log/latest' );
 
 }
 
 sub end : Private {
     my ( $self, $c ) = @_;
-
-    warn "in end";
+   
+    $c->stash( template => 'log/display' );
     $c->forward('CollabIRCate::View::Site');
 }
 

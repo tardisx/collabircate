@@ -21,6 +21,7 @@ requires 'Path::Class';
 requires 'FindBin';
 requires 'Mail::Send';
 requires 'MIME::Parser';
+requires 'URI::Find';
 
 requires 'POE';
 requires 'POE::Component::IRC';
