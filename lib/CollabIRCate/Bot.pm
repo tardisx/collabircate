@@ -39,7 +39,7 @@ sub bot_request {
 
     # we always need at least the question and from
     croak "bot_request called incorrectly, no question or from arguments"
-        unless ( $question && $from );
+      unless ( $question && $from );
 
     if ( $question =~ /time.*in.*\s(\w{4,})\?*/i ) {
         my $place = lc($1);
@@ -56,7 +56,34 @@ sub bot_request {
         }
         return [ $result, undef ];
     }
+    elsif ( $question =~ /google\s+(.*)/ ) {
+        my $q = $1;
+        $q =~ s/[^\w\s]//g;
 
+        use REST::Google;
+
+        # set service to use
+        REST::Google->service(
+            'http://ajax.googleapis.com/ajax/services/search/web');
+
+        # provide a valid http referer
+        REST::Google->http_referer('http://collabircate.eatmorecode.com');
+
+        my $res = REST::Google->new( q => $q );
+
+        return [ 'google response failure', undef ]
+          if $res->responseStatus != 200;
+
+        my $data = $res->responseData;
+
+        my $result =
+            $data->{results}->[0]->{url} . ' | '
+          . $data->{results}->[0]->{content};
+        return [ $result, undef ];
+    }
+    elsif ( $question =~ /fml/i ) {
+        return [ fml(), undef ];
+    }
     elsif ( $question =~ s/^rot13:*\s*(.*)/$1/ ) {
         $question =~ y/A-Za-z/N-ZA-Mn-za-m/;
         return [ $question, undef ];
@@ -65,16 +92,24 @@ sub bot_request {
         return [ "I need help more than you right now $from", undef ];
     }
     elsif ( $question =~ /upload/ ) {
-        my $chan
-          = $schema->resultset('Channel')->search( { name => lc($channel) } )->next;
+        my $chan =
+          $schema->resultset('Channel')->search( { name => lc($channel) } )
+          ->next;
         my $chan_id;
         $chan_id = $chan->id if ($chan);
-        my $req = $schema->resultset('Request')->create( {channel_id => $chan_id } );
-        return [ "sending request ticket to $from", "you can upload your file at: " . $req->url . " or email it to " . $req->email ];
+        my $req =
+          $schema->resultset('Request')->create( { channel_id => $chan_id } );
+        return [
+            "sending request ticket to $from",
+            "you can upload your file at: "
+              . $req->url
+              . " or email it to "
+              . $req->email
+        ];
     }
-    elsif ( $question
-        =~ /^(what\s*[i']s\s:{0,1}){0,1}\s*([\d\+\-\s\*\/\.\,]+)([\s\=\?]+){0,1}$/
-        )
+    elsif ( $question =~
+        /^(what\s*[i']s\s:{0,1}){0,1}\s*([\d\+\-\s\*\/\.\,]+)([\s\=\?]+){0,1}$/
+      )
     {
         $question =~ s/[^\d\+\-\*\/\^\s\.]//g;
         my $answer;
@@ -103,7 +138,7 @@ sub del_tell {
     foreach (@tell) {
         my ( $this_who, $this_msg, $this_time ) = @$_;
         push @new_tell, [ $this_who, $this_msg, $this_time ]
-            unless ( $this_who eq $who
+          unless ( $this_who eq $who
             && $this_msg  eq $msg
             && $this_time eq $time );
     }
@@ -118,6 +153,21 @@ sub _sorry {
     $return =~ s/NICK/$nick/;
     $return =~ s/MSG/$msg/;
     return $return;
+}
+
+sub fml {
+    use LWP::Simple;
+    use XML::Simple;    # lets be simple
+
+    my $url = 'http://api.betacie.com/view/random?language=en';
+
+    my $xml     = get $url;
+    my $xml_ref = XMLin($xml);
+
+    my $id   = $xml_ref->{items}->{item}->{id};
+    my $text = $xml_ref->{items}->{item}->{text};
+
+    return "$id: $text";
 }
 
 =head1 NAME

@@ -16,6 +16,8 @@ requires 'Catalyst::Action::RenderView';
 requires 'Catalyst::Model::DBIC::Schema';
 requires 'Catalyst::View::TT';
 
+requires 'REST::Google';
+
 requires 'DateTime';
 requires 'Path::Class';
 requires 'FindBin';

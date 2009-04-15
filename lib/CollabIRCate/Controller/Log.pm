@@ -60,16 +60,18 @@ sub date : Chained('channel_setup') PathPart('date') : Args(3) {
     my ( $self, $c, $year, $month, $day ) = @_;
     my $page = $c->req->param('page') || 1;
 
-    my $logs    = $c->stash->{logs};
+    my $starting_logs    = $c->stash->{logs};
     my $date    = sprintf "%04d-%02d-%02d", $year, $month, $day;
     my $date_to = sprintf "%04d-%02d-%02d", $year, $month, $day + 1;
 
     warn "FROM: $date TO: $date_to";
 
-    $logs = $logs->search( { ts => { '>=', $date, '<', $date_to } }, { page => $page, rows => 200} );
+    my $logs = $starting_logs->search( { ts => { '>=', $date, '<', $date_to } }, { page => $page, rows => 200} );
     $c->stash( logs => [ $logs->all ] );
     $c->stash( pager => $logs->pager );
 
+            
+    
 }
 
 sub end : Private {
