@@ -54,7 +54,7 @@ L<CollabIRCate::Controller::Root>, L<Catalyst>
 
 =head1 AUTHOR
 
-Catalyst developer
+Justin Hawkins
 
 =head1 LICENSE
 
