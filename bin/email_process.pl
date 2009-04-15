@@ -41,7 +41,6 @@ $parser->output_under("/tmp");
 my @files = glob catfile( $config->{email_queue_path}, "*.mail" );
 
 foreach my $email_filename (@files) {
-  warn "working on $email_filename";
   my $entity = $parser->parse_open($email_filename);
   my $to = $entity->head->get('To');
   if (! defined $to) {
