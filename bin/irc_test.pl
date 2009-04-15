@@ -176,6 +176,9 @@ sub process {
     elsif ( $key eq 'join' ) {
       $irc->yield( 'join' => $value );
     }
+    elsif ( $key eq 'invite' ) {
+      $irc->yield( 'invite' => split/,/,$value );
+    }
     elsif ( $key eq 'part' ) {
       $irc->yield( 'part' => $value );
     }
