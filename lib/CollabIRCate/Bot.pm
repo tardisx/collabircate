@@ -67,16 +67,6 @@ sub bot_request {
               . $req->email
         ];
     }
-    elsif ( $question =~
-        /^(what\s*[i']s\s:{0,1}){0,1}\s*([\d\+\-\s\*\/\.\,]+)([\s\=\?]+){0,1}$/
-      )
-    {
-        $question =~ s/[^\d\+\-\*\/\^\s\.]//g;
-        my $answer;
-        eval "\$answer = $question;";
-        return [ "the answer to $question is $answer", undef ] if ( !$@ );
-        return [ "nice try $from, $question is not valid", undef ];
-    }
     elsif ( $question =~ /^tell (\w+?)\s+(.*)/ ) {
         my $nick     = $1;
         my $tell_msg = $2;
