@@ -7,12 +7,18 @@ use warnings;
 
 use CollabIRCate::Config;
 use Carp qw/croak/;
+use Module::Pluggable require => 1;
 
 use Exporter qw/import/;
 our @EXPORT_OK = qw/bot_request get_tells del_tell/;
 our @tell;
 
 my $schema = CollabIRCate::Config->schema;
+my @plugins = plugins();
+
+foreach (@plugins) {
+  warn "LOADED: $_";
+}
 
 my @sorry_messages = (
     "sorry NICK, I'm not sure what you mean by 'MSG'",
@@ -20,12 +26,6 @@ my @sorry_messages = (
     "what do you mean by 'MSG', NICK?",
     "I'd love to help with 'MSG', but I'm not sure what it's about",
     "'MSG'? What do you mean NICK?",
-);
-
-my %timezones = (
-    'london',   'Europe/London',      'adelaide',  'Australia/Adelaide',
-    'brisbane', 'Australia/Brisbane', 'melbourne', 'Australia/Melbourne',
-    'sydney',   'Australia/Sydney',
 );
 
 # someone made a request of our bot. let's deal with it and
@@ -41,57 +41,17 @@ sub bot_request {
     croak "bot_request called incorrectly, no question or from arguments"
       unless ( $question && $from );
 
-    if ( $question =~ /time.*in.*\s(\w{4,})\?*/i ) {
-        my $place = lc($1);
-        my $result;
-        if ( defined $timezones{$place} ) {
-            $ENV{TZ} = $timezones{$place};
-            my $tmp = `date`;
-            chomp $tmp;
-            $tmp =~ s/\s\w\w\w\s\d\d\d\d$//;
-            $result = $tmp;
-        }
-        else {
-            $result = 'sorry, don\'t know about the time in ' . $place;
-        }
-        return [ $result, undef ];
+    my $result;
+
+    # check plugins first
+    foreach my $plugin (@plugins) {
+      if (my $result = $plugin->answer($question,
+                                       { from => $from })) {
+        return [ $result->{answer}, undef ];
+      }
     }
-    elsif ( $question =~ /google\s+(.*)/ ) {
-        my $q = $1;
-        $q =~ s/[^\w\s]//g;
 
-        use REST::Google;
-
-        # set service to use
-        REST::Google->service(
-            'http://ajax.googleapis.com/ajax/services/search/web');
-
-        # provide a valid http referer
-        REST::Google->http_referer('http://collabircate.eatmorecode.com');
-
-        my $res = REST::Google->new( q => $q );
-
-        return [ 'google response failure', undef ]
-          if $res->responseStatus != 200;
-
-        my $data = $res->responseData;
-
-        my $result =
-            $data->{results}->[0]->{url} . ' | '
-          . $data->{results}->[0]->{content};
-        return [ $result, undef ];
-    }
-    elsif ( $question =~ /fml/i ) {
-        return [ fml(), undef ];
-    }
-    elsif ( $question =~ s/^rot13:*\s*(.*)/$1/ ) {
-        $question =~ y/A-Za-z/N-ZA-Mn-za-m/;
-        return [ $question, undef ];
-    }
-    elsif ( $question =~ /help/i ) {
-        return [ "I need help more than you right now $from", undef ];
-    }
-    elsif ( $question =~ /upload/ ) {
+    if ( $question =~ /upload/ ) {
         my $chan =
           $schema->resultset('Channel')->search( { name => lc($channel) } )
           ->next;
@@ -153,21 +113,6 @@ sub _sorry {
     $return =~ s/NICK/$nick/;
     $return =~ s/MSG/$msg/;
     return $return;
-}
-
-sub fml {
-    use LWP::Simple;
-    use XML::Simple;    # lets be simple
-
-    my $url = 'http://api.betacie.com/view/random?language=en';
-
-    my $xml     = get $url;
-    my $xml_ref = XMLin($xml);
-
-    my $id   = $xml_ref->{items}->{item}->{id};
-    my $text = $xml_ref->{items}->{item}->{text};
-
-    return "$id: $text";
 }
 
 =head1 NAME

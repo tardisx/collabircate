@@ -16,6 +16,7 @@ requires 'Catalyst::Action::RenderView';
 requires 'Catalyst::Model::DBIC::Schema';
 requires 'Catalyst::View::TT';
 
+requires 'Module::Pluggable';
 requires 'REST::Google';
 
 requires 'DateTime';
