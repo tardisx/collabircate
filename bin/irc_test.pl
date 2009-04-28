@@ -25,6 +25,8 @@ if ( $help || ( !$server && !$port ) ) {
     exit;    # unnecessary
 }
 
+$debug = 0;
+
 $nick = "tester$$" unless $nick;
 
 my @actions   = @ARGV;
@@ -93,18 +95,17 @@ sub _default {
     if (grep /$event/, @interesting) {
         for my $arg (@$args) {
             if ( ref $arg eq 'ARRAY' ) {
-                push( @output, '[' . join( ' ,', @$arg ) . ']' );
                 push @{ $heap->{messages} }, '[' . join( ' ,', @$arg ) . ']';
+                warn "[message] " . join(', ', @$arg) . "\n" if ($debug);
             }
             else {
-                push( @output, "'$arg'" );
                 push @{ $heap->{messages} }, "'$arg'";
+                warn "[message] $arg" . "\n" if ($debug);
             }
         }
-        print join ' ', @output, "\n";
     }
     else {
-      warn "ignoring $event\n" if $debug;
+      warn "ignoring $event\n" if 0 && $debug;
     }
     return 0;
 }
@@ -113,18 +114,15 @@ sub waitfor {
   my ($kernel, $heap, $regexp, $timeout) = @_[KERNEL, HEAP, ARG0, ARG1];
   $timeout--;
   if (! $timeout) {
-    warn "[$regexp] timeout!";
+    warn "[waitfor] timeout on $regexp\n" if ($debug);
     delete $heap->{waitfor}->{$regexp};
     $success = 0;
     return;
   }
 
-
-  warn "[$regexp] $timeout remaining";
-
   # init the index pointer for this regexp if we don't have one
   if (! defined $heap->{waitfor}->{$regexp}) {
-    warn "[$regexp] initting pointer";
+    warn "[waitfor] initialising watch for '$regexp' - timeout $timeout seconds" if ($debug);
     $heap->{waitfor}->{$regexp} = scalar @{ $heap->{messages} };
   }
 
@@ -133,8 +131,10 @@ sub waitfor {
   foreach ( $heap->{waitfor}->{$regexp} .. scalar @{ $heap->{messages} } - 1) {
     my $message = $heap->{messages}->[$_];
     if ($message =~ /$regexp/) {
-      print "WOO $regexp in $message\n";
+      warn  "[waitfor] FOUND '$regexp' in '$message'\n" if ($debug);
       $found = 1;
+    } else {
+      warn "[waitfor] no match for '$regexp' in '$message'\n" if ($debug);
     }
   }
 
@@ -142,13 +142,12 @@ sub waitfor {
     # record we are up to here now
     $heap->{waitfor}->{$regexp} = scalar @{ $heap->{messages} };
     # and do it again
-    warn "[$regexp] re-queueing $timeout";
     $kernel->delay_add( waitfor => 1, $regexp, $timeout );
   }
 
   else {
     # no need to do this anymore!
-    warn "[$regexp] is done";
+    warn "[waitfor] '$regexp' is complete\n" if ($debug);
     delete $heap->{waitfor}->{$regexp};
   }
 
@@ -158,6 +157,12 @@ sub process {
   my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
 
   if ( !@actions ) {
+    # still outstanding waitfors?
+    if (keys %{ $heap->{waitfor} }) {
+       warn "[quit] still waiting on " . join (',', keys %{ $heap->{waitfor} }) . "\n" if ($debug);
+       $kernel->delay( 'process' => 1 );
+       return;
+    }
     $irc->yield( 'quit' => 'finished all commands' );
     $irc->yield('shutdown');
   }
@@ -166,7 +171,7 @@ sub process {
 
     my ( $key, $value ) = $action =~ m/(\w+)=(.+)$/;
     if ( $key eq 'nick' ) {
-      warn "Changing nick to $value";
+      warn "Changing nick to $value" if ($debug);
       $irc->yield( 'nick' => $value );
     }
     elsif ( $key eq 'sleep' ) {
@@ -212,7 +217,7 @@ sub process {
 sub irc_disconnected {
 
     # happy ending!
-    warn "got irc_disconnect";
+    warn "got irc_disconnect" if ($debug);
 
 }
 
