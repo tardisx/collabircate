@@ -26,6 +26,8 @@ requires 'Mail::Send';
 requires 'MIME::Parser';
 requires 'URI::Find';
 
+requires 'File::Temp' => 0.18;
+
 requires 'POE';
 requires 'POE::Component::IRC';
 requires 'POE::Component::Server::IRC';
