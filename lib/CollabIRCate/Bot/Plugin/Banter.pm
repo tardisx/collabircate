@@ -23,6 +23,10 @@ sub answer {
         return { answer => "hello $from" };
     }
 
+    if ( $question =~ /\b(thanks|cheers|awesome)\b/i ) {
+        return { answer => "no problem $from" };
+    }
+
     if ( $question =~ /\b(bye|goodbye|ciao)\b/i ) {
         return { answer => "goodbye $from" };
     }
