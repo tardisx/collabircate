@@ -28,6 +28,7 @@ requires 'URI::Find';
 
 requires 'POE';
 requires 'POE::Component::IRC';
+requires 'POE::Component::Server::IRC';
 
 requires 'parent';
 requires 'Config::General'; # This should reflect the config file format you've chosen
