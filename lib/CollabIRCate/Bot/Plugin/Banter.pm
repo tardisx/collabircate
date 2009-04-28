@@ -13,33 +13,33 @@ sub answer {
 
     if (   $question =~ /fuck off/i
         || $question =~ /get fucked/i
-        || $question =~ /hate.*you/
-        || $question =~ /you.*are.*(stupid|dumb|ugly)/ )
+        || $question =~ /hate.*you/i
+        || $question =~ /you.*are.*(stupid|dumb|ugly)/i )
     {
         return { answer => "same to you $from" };
     }
 
-    if ( $question =~ /\b(hello|greetings|g'day|gday|hi)\b/ ) {
+    if ( $question =~ /\b(hello|greetings|g'day|gday|hi)\b/i ) {
         return { answer => "hello $from" };
     }
 
-    if ( $question =~ /\b(bye|goodbye|ciao)\b/ ) {
+    if ( $question =~ /\b(bye|goodbye|ciao)\b/i ) {
         return { answer => "goodbye $from" };
     }
 
-    if ( $question =~ /\b(how are you)\b/ ) {
+    if ( $question =~ /\b(how are you)\b/i ) {
         return { answer => "just fine thanks $from" };
     }
 
-    if ( $question =~ /\b(your mother)\b/ ) {
+    if ( $question =~ /\b(your mother)\b/i ) {
         return { answer => "let me tell you about my mother *BLAM*" };
     }
 
-    if ( $question =~ /good.*(morning|afternoon|evening|night)/ ) {
+    if ( $question =~ /good.*(morning|afternoon|evening|night)/i ) {
         return { answer => "and a very good $1 to you to" };
     }
 
-    if ( $question =~ /thanks,?\s*(\w+)(.*?)/ ) {
+    if ( $question =~ /thanks,?\s*(\w+)(.*?)/i ) {
         my $word = $1;
         my $answer;
         my ( $first_bit, $last_bit ) = $word =~ /^([^aeiou]+)(.*)$/;

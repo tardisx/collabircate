@@ -14,6 +14,7 @@ use CollabIRCate::Config;
 
 my $config = CollabIRCate::Config->config;
 my $PORT = $config->{irc_server_port} || 6669;
+my $debug = 0;
 
 my %config = (
     servername => $config->{irc_server_name} || 'localhost',
@@ -57,7 +58,7 @@ sub _start {
 
 sub _default {
     my ( $kernel, $event, $args ) = @_[ KERNEL, ARG0 .. $#_ ];
-    print STDOUT "$event: ";
+    print STDOUT "$event: " if ($debug);
 
     # ircd_daemon_join: 'tardisx!~mobile@121.45.172.28' '#people'
     # ircd_daemon_quit: 'tardisx!~mobile@121.45.172.28' 'Client Quit'
@@ -67,16 +68,16 @@ sub _default {
     foreach (@$args) {
     SWITCH: {
             if ( ref($_) eq 'ARRAY' ) {
-                print STDOUT "[", join( ", ", @$_ ), "] ";
+                print STDOUT "[", join( ", ", @$_ ), "] " if ($debug);
                 last SWITCH;
             }
             if ( ref($_) eq 'HASH' ) {
-                print STDOUT "{", join( ", ", %$_ ), "} ";
+                print STDOUT "{", join( ", ", %$_ ), "} " if ($debug);
                 last SWITCH;
             }
-            print STDOUT "'$_' ";
+            print STDOUT "'$_' " if ($debug);
         }
     }
-    print STDOUT "\n";
+    print STDOUT "\n" if ($debug);
     return 0;    # Don't handle signals.
 }

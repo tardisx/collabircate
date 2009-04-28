@@ -220,13 +220,13 @@ sub check_requests {
     #              );
 
     while ( my $unlogged = $files->next ) {
-        warn "ID: " . $unlogged->id;
 
         # we have a file for a channel
         my $channel = $unlogged->request->channel->name;
-        my $url = $config->{http_server_url}
-            . $config->{http_server_port} . "/file/" 
-            . $unlogged->id;
+        my $url = 'http://' . $config->{http_server_host} . 
+                  ($config->{http_server_port} ? ':' . $config->{http_server_port} : '') .
+                  $config->{http_server_path} . "file/" .
+                  $unlogged->id;
         my $filename = $unlogged->filename;
         $filename =~ s/.*\///;
         my $message
