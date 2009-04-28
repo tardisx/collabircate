@@ -2,6 +2,7 @@ This file documents the revision history for the CollabIRCate system.
 
 0.02  ????-??-?? 
         - basic bot plug-ability
+        - command-line options for test harness
 
 0.01  2009-04-15 14:50:00
         - initial revision
