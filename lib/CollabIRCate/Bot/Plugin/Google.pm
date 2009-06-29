@@ -10,7 +10,7 @@ use base 'CollabIRCate::Bot::Plugin';
 sub answer {
   my $class = shift;
   my $question = shift;
-  return undef unless ( $question =~ /google\s+(.*)/i );
+  return unless ( $question =~ /google\s+(.*)/i );
 
   my $q = $1;
   $q =~ s/[^\w\s]//g;

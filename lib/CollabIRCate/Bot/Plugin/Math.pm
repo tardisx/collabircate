@@ -22,7 +22,7 @@ sub answer {
         return { answer => "nice try $from, $question is not valid" };
       }
   else {
-    return undef;
+    return;
   }
 
 }

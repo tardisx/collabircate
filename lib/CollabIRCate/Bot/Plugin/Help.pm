@@ -9,7 +9,7 @@ sub answer {
   my ($class, $question, $args) = @_;
 
   unless ( $question =~ /help/i ) {
-    return undef;
+    return;
   }
 
   my $from = $args->{from};

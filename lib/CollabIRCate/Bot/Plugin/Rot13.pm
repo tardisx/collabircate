@@ -9,7 +9,7 @@ sub answer {
   my ($class, $question) = @_;
 
   unless ( $question =~ /^rot13:*\s*(.*)/i ) {
-    return undef;
+    return;
   }
   my $result = $1;
   $result =~ y/A-Za-z/N-ZA-Mn-za-m/;

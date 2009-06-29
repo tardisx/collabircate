@@ -14,6 +14,7 @@ sub answer {
     if (   $question =~ /fuck off/i
         || $question =~ /get fucked/i
         || $question =~ /hate.*you/i
+        || $question =~ /you suck/i
         || $question =~ /you.*are.*(stupid|dumb|ugly)/i )
     {
         return { answer => "same to you $from" };
@@ -55,7 +56,7 @@ sub answer {
         }
         return { answer => $answer };
     }
-    return undef;
+    return;
 }
 
 1;

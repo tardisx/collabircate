@@ -14,7 +14,7 @@ sub answer {
   my ($class, $question) = @_;
 
   unless ( $question =~ /fml/i ) {
-    return undef;
+    return;
   }
 
   my $xml     = get $url;

@@ -15,7 +15,7 @@ sub answer {
   my ($class, $question) = @_;
 
   unless ( $question =~ /time.*in.*\s(\w{4,})\?*/i ) {
-    return undef;
+    return;
   }
 
   my $place = lc($1);
