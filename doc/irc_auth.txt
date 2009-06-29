@@ -1,7 +1,18 @@
-elements:
+When users are first noticed by the bot, we need to identify them. We
+want messages from them to be identified with a single UID inside the
+CollabIRCate system.
 
-* username (provided at login)
-* password (provided at login)
-* domain   (client ip address, then changed by irc server)
-* nickname (provided at login, can change)
+We can possibly do this with some sort of automated method (IP
+address, private token share).
 
+Failing that, we need to tell the user that we don't know who they
+are, and that there messages may not be permanently logged until we
+do. We do this by sending them a private message with a token, as part
+of a URL.
+
+When the user visits this URL, they login with their known username
+and password, or they create an account.
+
+At this point the system tells the bot the mapping between the IRC
+user and the CollabIRCate user, and the log records are marked
+correctly.
