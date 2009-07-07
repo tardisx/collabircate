@@ -15,6 +15,11 @@ Installing
 Put the entire directory in the filesystem at the place of your
 choosing.  Note that you probably DO NOT want to run 'make install'.
 
+Configuration
+-------------
+
+All configuration is within collabircate.conf
+
 Installing the web component as a CGI
 -------------------------------------
 
@@ -25,3 +30,20 @@ ScriptAlias /urlprefix "/path/to/CollabIRCate/script/collabircate_cgi.pl"
 Where 'urlprefix' is whatever you choose for the CollabIRCate URL's - the 
 system is happy to be rooted wherever you like.
 
+Running the IRC server and bot
+------------------------------
+
+The server is bin/irc_server.pl and the bot is bin/irc_bot.pl
+
+Running them is presently probably best done via 'screen' or
+similar. In the future they will properly daemonise and have logging
+for monitoring.
+
+Run the irc_server.pl first, give it time to come up before starting
+the bot.
+
+Trying it out
+-------------
+
+Log in with your favourite client. Join the #channel of your choice and
+/invite the bot to your channel.
