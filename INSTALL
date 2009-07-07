@@ -1,4 +1,5 @@
-Testing the system:
+Testing the system
+------------------
 
 [skaro:~/collabircate] justin% script/collabircate_testharness.pl
 ...
@@ -7,6 +8,12 @@ Files=8, Tests=29,  3 wallclock secs ( 0.04 usr  0.03 sys +  2.30 cusr  0.34 csy
 Result: PASS
 
 All good!
+
+Installing
+----------
+
+Put the entire directory in the filesystem at the place of your
+choosing.  Note that you probably DO NOT want to run 'make install'.
 
 Installing the web component as a CGI
 -------------------------------------
@@ -17,5 +24,4 @@ ScriptAlias /urlprefix "/path/to/CollabIRCate/script/collabircate_cgi.pl"
 
 Where 'urlprefix' is whatever you choose for the CollabIRCate URL's - the 
 system is happy to be rooted wherever you like.
-
 
