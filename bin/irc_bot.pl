@@ -12,6 +12,7 @@ use lib dir( $Bin, '..', 'lib' )->stringify;
 use CollabIRCate::Config;
 use CollabIRCate::Log qw/add_log/;
 use CollabIRCate::Bot qw/bot_request get_tells del_tell/;
+# use CollabIRCate::Bot::Users;
 
 my $config = CollabIRCate::Config->config();
 my $schema = CollabIRCate::Config->schema();
@@ -84,12 +85,12 @@ sub on_connect {
 # respond to interesting things.
 sub on_public {
     my ( $kernel, $who, $where, $msg ) = @_[ KERNEL, ARG0, ARG1, ARG2 ];
-    my $nick = ( split /!/, $who )[0];
     my $channel = $where->[0];
 
     my $ts = scalar localtime;
-    print " [$ts] <$nick:$channel> $msg\n";
 
+#    $who = CollabIRCate::Bot::Users->new({irc_user => $who});
+    
     add_log( $who, $channel, 'log', $msg );
 
     if (   $msg =~ /^$BOTNICK,\s*(.*)/i
@@ -101,9 +102,11 @@ sub on_public {
         my ( $bot_says_pub, $bot_says_priv )
             = @{ bot_request( { question => $1, from => $who, channel => $channel } ) };
         $irc->yield( privmsg => $channel, $bot_says_pub );
-        $irc->yield( privmsg => $nick, $bot_says_priv ) if ($bot_says_priv);
+        $irc->yield( privmsg => $who, $bot_says_priv ) if ($bot_says_priv);
 
         # and fake the log
+#        my $botwho = CollabIRCate::Bot::Users->new({irc_user => $BOTNICK});
+#        add_log( $botwho, $channel, 'log', $bot_says_pub );
         add_log( $BOTNICK, $channel, 'log', $bot_says_pub );
 
     }
@@ -112,15 +115,14 @@ sub on_public {
 
 sub on_msg {
     my ( $kernel, $who, $what ) = @_[ KERNEL, ARG0, ARG2 ];
-    my $nick = ( split /!/, $who )[0];
 
     my ( $bot_says_pub, $bot_says_priv )
         = @{ bot_request( { question => $what, from => $who } ) };
     if ($bot_says_priv) {
-        $irc->yield( privmsg => $nick, $bot_says_priv );
+        $irc->yield( privmsg => $who, $bot_says_priv );
     }
     else {
-        $irc->yield( privmsg => $nick, $bot_says_pub );
+        $irc->yield( privmsg => $who, $bot_says_pub );
     }
 }
 
@@ -131,38 +133,38 @@ sub on_invite {
 
 sub on_join {
     my ( $kernel, $who, $where ) = @_[ KERNEL, ARG0, ARG1 ];
-    my $nick = ( split /!/, $who )[0];
+
     my $channel = $where;
-    $seen->{$channel}->{$nick} = 1;
-    add_log( $nick, $channel, 'join', 'joined' );
-    if ( $nick =~ /justin|garner|nick|adam|ev|mwp/i ) {
-        $irc->yield( 'mode' => $channel => '+o' => $nick );
+    $seen->{$channel}->{$who} = 1;
+
+    add_log( $who, $channel, 'join', 'joined' );
+    if ( $who =~ /justin|garner|nick|adam|ev|mwp/i ) {
+        $irc->yield( 'mode' => $channel => '+o' => $who );
     }
 }
 
 sub on_topic {
     my ( $kernel, $who, $where, $topic ) = @_[ KERNEL, ARG0, ARG1, ARG2 ];
-    my $nick = ( split /!/, $who )[0];
-    add_log( $nick, $where, 'topic', $topic );
+
+    add_log( $who, $where, 'topic', $topic );
 }
 
 sub on_part {
     my ( $kernel, $who, $where, $why ) = @_[ KERNEL, ARG0, ARG1, ARG2 ];
-    my $nick = ( split /!/, $who )[0];
     my $channel = $where;
-    $seen->{$channel}->{$nick} = 0;
-    add_log( $nick, $channel, 'part', $why );
+    $seen->{$channel}->{$who} = 0;
+    add_log( $who, $channel, 'part', $why );
 }
 
 sub on_quit {
     my ( $kernel, $who, $why ) = @_[ KERNEL, ARG0, ARG1 ];
-    my $nick = ( split /!/, $who )[0];
+
 
     # this is perhaps wrong in some edge cases?
     foreach my $channel ( keys %$seen ) {
-        if ( $seen->{$channel}->{$nick} ) {
-            $seen->{$channel}->{$nick} = 0;
-            add_log( $nick, $channel, 'quit', $why );
+        if ( $seen->{$channel}->{$who} ) {
+            $seen->{$channel}->{$who} = 0;
+            add_log( $who, $channel, 'quit', $why );
         }
     }
 }
@@ -179,7 +181,8 @@ sub unknown {
             push( @output, "'$arg'" );
         }
     }
-    print join ' ', @output, "\n";
+    # interesting but verbose:
+    # print join ' ', @output, "\n";
     return 0;
 }
 
