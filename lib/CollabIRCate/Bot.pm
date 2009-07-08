@@ -1,7 +1,5 @@
 package CollabIRCate::Bot;
 
-# stuff for bots that matters!
-
 use strict;
 use warnings;
 
@@ -10,15 +8,26 @@ use Carp qw/croak/;
 use Module::Pluggable require => 1;
 
 use Exporter qw/import/;
+
+=head1 NAME
+
+CollabIRCate::Bot
+
+=head1 SYNOPSIS
+
+XXX
+
+=head1 DESCRIPTION
+
+The brains of the CollabIRCate bot.
+
+=cut
+
 our @EXPORT_OK = qw/bot_request get_tells del_tell/;
 our @tell;
 
 my $schema = CollabIRCate::Config->schema;
 my @plugins = plugins();
-
-foreach (@plugins) {
-  warn "LOADED: $_";
-}
 
 my @sorry_messages = (
     "sorry NICK, I'm not sure what you mean by 'MSG'",
@@ -115,11 +124,13 @@ See L<CollabIRCate>
 
 =head1 DESCRIPTION
 
-Catalyst TTSite View.
+The L<CollabIRCate::Bot> helps us deal with users, specifically
+L<CollabIRCate::Bot::Users>, who may or may not be identified real
+users of the CollabIRCate system.
 
 =head1 AUTHOR
 
-A clever guy
+Justin Hawkins
 
 =head1 LICENSE
 
