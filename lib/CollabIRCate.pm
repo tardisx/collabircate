@@ -19,7 +19,7 @@ use parent qw/Catalyst/;
 use Catalyst qw/-Debug
                 ConfigLoader
                 Static::Simple/;
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 # Configure the application.
 #
