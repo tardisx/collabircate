@@ -45,10 +45,13 @@ my $spid = start_server();
 my $bpid = start_bot();
 sleep 5;
 
+# set the variable so that tests can see that they are inside
+# the harness
+$ENV{'COLLABIRCATE_INSIDE_HARNESS'} = 1;
+
 if ($shell) {
   print "Escaping to shell - remember to exit after testing\n";
   # So that end-to-end tests know they can run.
-  $ENV{'COLLABIRCATE_INSIDE_HARNESS'} = 1;
   system ($ENV{SHELL});
   print "Killing servers and cleaning up\n";
 }
