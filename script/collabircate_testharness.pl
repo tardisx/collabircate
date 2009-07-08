@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Getopt::Long;
 use Pod::Usage;
+use Carp qw/croak/;
 
 my $shell;
 my $help;
@@ -11,6 +12,10 @@ my $result = GetOptions("shell"  => \$shell,  # shell after start
                         "help"   => \$help);  # help
 if (! $result) { pod2usage(2); exit; }
 if ($help)     { pod2usage(1); exit; }
+
+if ($ENV{COLLABIRCATE_INSIDE_HARNESS}) {
+    croak "Attempted to star the test harness from within the harness!";
+}
 
 my $store = '/tmp/store' . $$;
 my $queue = '/tmp/queue' . $$;
@@ -42,6 +47,8 @@ sleep 5;
 
 if ($shell) {
   print "Escaping to shell - remember to exit after testing\n";
+  # So that end-to-end tests know they can run.
+  $ENV{'COLLABIRCATE_INSIDE_HARNESS'} = 1;
   system ($ENV{SHELL});
   print "Killing servers and cleaning up\n";
 }
