@@ -20,7 +20,7 @@ sub answer {
         return { answer => "same to you $from" };
     }
 
-    if ( $question =~ /\b(hello|greetings|g'day|gday|hi)\b/i ) {
+    if ( $question =~ /\b(hello|greetings|g'day|gday|hi|hi there|good morning|good afternoon)\b/i ) {
         return { answer => "hello $from" };
     }
 
