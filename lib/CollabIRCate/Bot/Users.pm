@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Moose;
+use Carp qw/croak/;
 
 =head1 NAME
 
@@ -36,7 +37,7 @@ some other means).
 
 =cut
 
-has 'irc_nick' => ( is => 'rw', isa => 'Str' );
+has 'irc_user' => ( is => 'rw', isa => 'Str' );
 has 'user'     => ( is => 'rw', isa => 'CollabIRCate::Schema::Users' );
 
 sub is_identified {
