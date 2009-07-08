@@ -16,7 +16,7 @@ sub answer {
       )
     {
         $question =~ s/[^\d\+\-\*\/\^\s\.]//g;
-        my $answer = eval { $question };
+        my $answer = eval "$question";
         return { answer => "the answer to $question is $answer" } if ( !$@ );
         return { answer => "nice try $from, $question is not valid" };
       }
