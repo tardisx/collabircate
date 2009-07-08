@@ -2,7 +2,7 @@ package CollabIRCate::Log;
 
 use strict;
 use warnings;
-use Carp;
+use Carp qw/croak confess/;
 
 require CollabIRCate::Config;
 require CollabIRCate::Schema;
@@ -19,13 +19,30 @@ sub add_log {
     my ( $who, $where, $type, $what ) = @_;
     $where = lc($where);
 
-    my $user
-        = $schema->resultset('Users')->find_or_create( { email => $who } );
+=pod
+
+    confess "not a CollabIRCate::Bot::Users"
+        unless $who->isa('CollabIRCate::Bot::Users');
+
+    # If this user if known to us, use them, otherwise use their nick.
+    my ( $user_id, $irc_user );
+    if ( $who->is_identified ) {
+        $user_id = $who->user;
+    }
+    else {
+        $irc_user = $who->irc_user;
+    }
+
+=cut
+    my $irc_user = $who;
+    my $users_id = undef;
+
     my $channel
         = $schema->resultset('Channel')->find_or_create( { name => $where } );
     my $log = $schema->resultset('Log')->create(
         {   channel_id => $channel->id,
-            users_id   => $user->id,
+            users_id   => $users_id,
+            irc_user   => $irc_user,
             entry      => $what,
             type       => $type,
         }
