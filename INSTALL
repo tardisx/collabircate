@@ -30,6 +30,11 @@ ScriptAlias /urlprefix "/path/to/CollabIRCate/script/collabircate_cgi.pl"
 Where 'urlprefix' is whatever you choose for the CollabIRCate URL's - the 
 system is happy to be rooted wherever you like.
 
+Deploy the DB schema
+--------------------
+
+Run bin/deploy.pl to deploy the sqlite db schema.
+
 Running the IRC server and bot
 ------------------------------
 
