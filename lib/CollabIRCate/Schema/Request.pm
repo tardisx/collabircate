@@ -32,7 +32,7 @@ __PACKAGE__->add_columns(
         is_nullable   => 0,
         size          => undef,
     },
-    "user_id",
+    "users_id",
     {   data_type     => "integer",
         default_value => undef,
         is_nullable   => 1,
