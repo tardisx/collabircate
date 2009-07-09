@@ -6,7 +6,6 @@ use warnings;
 # base class for plugins
 
 BEGIN {
-  warn "__PACKAGE__ init\n";
 }
 
 sub answer { die "unimplemented answer() in __PACKAGE__"; };
