@@ -1,8 +1,11 @@
 This file documents the revision history for the CollabIRCate system.
 
-0.02  ????-??-?? 
+0.02  2009-07-09 
         - basic bot plug-ability
         - command-line options for test harness
+        - removed user stuff, back to bare irc usernames,
+          preps the way for proper user support
+        - better documentation
 
 0.01  2009-04-15 14:50:00
         - initial revision
