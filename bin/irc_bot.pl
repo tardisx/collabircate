@@ -12,7 +12,7 @@ use lib dir( $Bin, '..', 'lib' )->stringify;
 use CollabIRCate::Config;
 use CollabIRCate::Log qw/add_log/;
 use CollabIRCate::Bot qw/bot_request get_tells del_tell/;
-# use CollabIRCate::Bot::Users;
+use CollabIRCate::Bot::Users;
 
 my $config = CollabIRCate::Config->config();
 my $schema = CollabIRCate::Config->schema();
@@ -23,6 +23,7 @@ my $BOTNICK = $config->{irc_bot_nickname}    || 'undefBOT';
 
 use POE;
 use POE::Component::IRC;
+use POE::Component::IRC::Common qw/parse_user/;
 use POE::Component::IRC::Plugin::CycleEmpty;
 
 my $seen = {};
@@ -88,8 +89,7 @@ sub on_public {
     my $channel = $where->[0];
 
     my $ts = scalar localtime;
-
-#    $who = CollabIRCate::Bot::Users->new({irc_user => $who});
+    my $user = CollabIRCate::Bot::Users->from_ircuser(parse_user($who));
     
     add_log( $who, $channel, 'log', $msg );
 
@@ -116,6 +116,8 @@ sub on_public {
 sub on_msg {
     my ( $kernel, $who, $what ) = @_[ KERNEL, ARG0, ARG2 ];
 
+    my $user = CollabIRCate::Bot::Users->from_ircuser(parse_user($who));
+    
     my ( $bot_says_pub, $bot_says_priv )
         = @{ bot_request( { question => $what, from => $who } ) };
     if ($bot_says_priv) {
@@ -128,12 +130,17 @@ sub on_msg {
 
 sub on_invite {
     my ( $kernel, $who, $where ) = @_[ KERNEL, ARG0, ARG1 ];
+
+    my $user = CollabIRCate::Bot::Users->from_ircuser(parse_user($who));
+    
     $irc->yield( join => $where );
 }
 
 sub on_join {
     my ( $kernel, $who, $where ) = @_[ KERNEL, ARG0, ARG1 ];
 
+    my $user = CollabIRCate::Bot::Users->from_ircuser(parse_user($who));
+    
     my $channel = $where;
     $seen->{$channel}->{$who} = 1;
 
@@ -145,12 +152,15 @@ sub on_join {
 
 sub on_topic {
     my ( $kernel, $who, $where, $topic ) = @_[ KERNEL, ARG0, ARG1, ARG2 ];
-
+    
+    my $user = CollabIRCate::Bot::Users->from_ircuser(parse_user($who));
     add_log( $who, $where, 'topic', $topic );
 }
 
 sub on_part {
     my ( $kernel, $who, $where, $why ) = @_[ KERNEL, ARG0, ARG1, ARG2 ];
+
+    my $user = CollabIRCate::Bot::Users->from_ircuser(parse_user($who));
     my $channel = $where;
     $seen->{$channel}->{$who} = 0;
     add_log( $who, $channel, 'part', $why );
@@ -159,6 +169,7 @@ sub on_part {
 sub on_quit {
     my ( $kernel, $who, $why ) = @_[ KERNEL, ARG0, ARG1 ];
 
+    my $user = CollabIRCate::Bot::Users->from_ircuser(parse_user($who));
 
     # this is perhaps wrong in some edge cases?
     foreach my $channel ( keys %$seen ) {
