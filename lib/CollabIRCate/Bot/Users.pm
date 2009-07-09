@@ -42,16 +42,15 @@ and provide a token back to the user to prove their identity (via the web or
 some other means).
 
 During the lifetime of the IRC server, users will come and go. Each user that
-the bot needs to deal with will be one of these objects.
-
-When use foo!~ 
+the bot needs to deal with will be one of these objects. It may be linked to
+a real user, if we have some somehow authenticated them.
 
 =cut
 
 # IRC components
-has 'nick'     => ( is => 'rw', isa => 'Str' );
-has 'username' => ( is => 'rw', isa => 'Str' );
-has 'hostname' => ( is => 'rw', isa => 'Str' );
+has 'nick'      => ( is => 'rw', isa => 'Str' );
+has 'username'  => ( is => 'rw', isa => 'Str' );
+has 'hostname'  => ( is => 'rw', isa => 'Str' );
 has 'last_seen' => ( is => 'rw', isa => 'Int' );
 
 # User object
@@ -59,6 +58,25 @@ has 'user' => ( is => 'rw', isa => 'CollabIRCate::Schema::Users' );
 
 # Users we currently know about
 our @known_users = ();
+
+=head2 from_ircuser
+
+Return a L<CollabIRCate::Bot::Users> object given the 3 parameters:
+
+=over 4
+
+=item * nickname
+
+=item * username
+
+=item * hostname
+
+=back
+
+This has the side-effect of updating the existing known user's nick and
+last_seen timestamp, if they were already known to us.
+
+=cut
 
 sub from_ircuser {
     my $class = shift;
@@ -69,18 +87,19 @@ sub from_ircuser {
         if (   $username eq $check_user->username()
             && $hostname eq $check_user->hostname() )
         {
-            # update the nick, they might have changed while we weren't watching!
+
+         # update the nick, they might have changed while we weren't watching!
             $check_user->nick($nick);
-            $check_user->last_seen(time());
+            $check_user->last_seen( time() );
             return $check_user;
         }
     }
 
     # no, lets create a new one
     my $user = __PACKAGE__->new(
-        {   nick     => $nick,
-            username => $username,
-            hostname => $hostname,
+        {   nick      => $nick,
+            username  => $username,
+            hostname  => $hostname,
             last_seen => time(),
         }
     );
