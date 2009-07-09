@@ -28,8 +28,8 @@ requires 'URI::Find';
 
 requires 'File::Temp' => 0.18;
 
-requires 'POE';
-requires 'POE::Component::IRC';
+requires 'POE' => 1.006;
+requires 'POE::Component::IRC' => 6.08;
 requires 'POE::Component::Server::IRC';
 
 requires 'parent';
