@@ -52,6 +52,7 @@ $ENV{'COLLABIRCATE_INSIDE_HARNESS'} = 1;
 if ($shell) {
   print "Escaping to shell - remember to exit after testing\n";
   # So that end-to-end tests know they can run.
+  print "DB: $db\n";
   system ($ENV{SHELL});
   print "Killing servers and cleaning up\n";
 }
