@@ -1,18 +1,25 @@
-When users are first noticed by the bot, we need to identify them. We
-want messages from them to be identified with a single UID inside the
-CollabIRCate system.
+When users are first noticed by the bot, we track them. We can believe
+that a user, as represented by a single IRC username/hostname
+combination is the same person. The nick is arbitrary and can be changed
+at will.
 
-We can possibly do this with some sort of automated method (IP
-address, private token share).
+The username and hostname is also relatively arbitrary, but we only use
+it for tracking, not for identifying.
 
-Failing that, we need to tell the user that we don't know who they
-are, and that there messages may not be permanently logged until we
-do. We do this by sending them a private message with a token, as part
-of a URL.
+Before we identify a user, we track them based on the aforementioned
+criteria. Any logs they emit we still want to track, but we want to mark
+these logs as 'untrustworthy'. This status can be changed if the user is
+subsequently identified.
 
-When the user visits this URL, they login with their known username
-and password, or they create an account.
+When such a user is first noticed, the bot challenges them. The
+challenge is a request to authenticate, either via a unique web link,
+or via a pre-shared password.
 
-At this point the system tells the bot the mapping between the IRC
-user and the CollabIRCate user, and the log records are marked
-correctly.
+The former will cause them to login or create an account, and their
+previous logs for that IRC login, and any subsequent logs will be
+marked with the correct username.
+
+The latter will allow them to authenticate entirely through IRC, in a
+similar way as you would to a nickserv. The pre-shared secret would be
+setup in the web interface.
+
