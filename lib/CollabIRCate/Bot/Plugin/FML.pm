@@ -17,13 +17,26 @@ sub answer {
     return;
   }
 
-  my $xml     = get $url;
-  my $xml_ref = XMLin($xml);
+  my $xml;
+  my $xml_ref;
+
+  eval {
+    $xml     = get $url;
+    $xml_ref = XMLin($xml);
+  };
+
+  if ($@) {
+    return { answer => "Today, the FML server failed to respond. FML" };
+  }
 
   my $id   = $xml_ref->{items}->{item}->{id};
   my $text = $xml_ref->{items}->{item}->{text};
 
   my $result =  "$id: $text";
+
+  if ((! $id) || (! $text)) {
+    return { answer => "Today, the FML server failed to respond. FML" };
+  }
 
   return { answer => $result };
 }
