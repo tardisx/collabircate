@@ -25,7 +25,17 @@ Installing the web component as a CGI
 
 Something like this in an appropriate virtualhost should do the trick:
 
+Apache:
+
 ScriptAlias /urlprefix "/path/to/CollabIRCate/script/collabircate_cgi.pl"
+
+Lighttpd:
+
+$HTTP["url"] =~ "^/urlprefix" {
+  alias.url = ( "/urlprefix" => 
+                  "/path/to/CollabIRCate/script/collabircate_cgi.pl" )
+  cgi.assign = ( "" => "" )
+}
 
 Where 'urlprefix' is whatever you choose for the CollabIRCate URL's - the 
 system is happy to be rooted wherever you like.
