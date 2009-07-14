@@ -23,13 +23,22 @@ All configuration is within collabircate.conf
 Installing the web component as a CGI
 -------------------------------------
 
-Something like this in an appropriate virtualhost should do the trick:
+It is easy to run the web interface of CollabIRCate as a CGI. This minimal
+configuration is easy to setup, and light on resources *IF* your system
+is very low load.
 
-Apache:
+If you expect to be receiving a lot of hits, a FastCGI setup would be 
+preferable.
+
+To install as a CGI, simply setup your web server to serve requests via
+the CGI script script/collabircate_cgi.pl. A couple of sample configurations
+are provided below:
+
+ * Apache
 
 ScriptAlias /urlprefix "/path/to/CollabIRCate/script/collabircate_cgi.pl"
 
-Lighttpd:
+ * Lighttpd
 
 $HTTP["url"] =~ "^/urlprefix" {
   alias.url = ( "/urlprefix" => 
