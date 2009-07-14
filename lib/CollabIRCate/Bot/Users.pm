@@ -4,7 +4,10 @@ use strict;
 use warnings;
 
 use Moose;
+
 use Carp qw/croak/;
+
+use List::MoreUtils qw/uniq/;
 
 =head1 NAME
 
@@ -53,6 +56,9 @@ has 'username'  => ( is => 'rw', isa => 'Str' );
 has 'hostname'  => ( is => 'rw', isa => 'Str' );
 has 'last_seen' => ( is => 'rw', isa => 'Int' );
 
+# where we can see them
+has 'channels'  => ( is => 'rw', isa => 'ArrayRef');
+                     
 # User object
 has 'user' => ( is => 'rw', isa => 'CollabIRCate::Schema::Users' );
 
@@ -101,12 +107,31 @@ sub from_ircuser {
             username  => $username,
             hostname  => $hostname,
             last_seen => time(),
+            channels  => [],
         }
     );
 
     push @known_users, $user;
 
     return $user;
+}
+
+sub add_channel {
+    my $self = shift;
+    my $channel = shift;
+    my @channels = @{ $self->channels };
+    push @channels, $channel;
+    @channels = uniq(@channels);
+    $self->channels( \@channels );
+    warn $self->nick . " now on @channels";
+}
+
+sub remove_channel {
+    my $self = shift;
+    my $channel = shift;
+    my @channels = grep { !/^$channel$/} @{ $self->channels };
+    $self->channels( [ @channels ] );
+    warn $self->nick . " now on @channels";
 }
 
 sub is_identified {
@@ -120,5 +145,12 @@ sub update_logs {
     croak "not an identified user!" unless $self->user;
     croak "unimplemented";
 }
+
+sub dump {
+    use Data::Dumper;
+    print Dumper \@known_users;
+}
+      
+       
 
 1;

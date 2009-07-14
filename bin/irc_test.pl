@@ -205,6 +205,11 @@ sub process {
     elsif ( $key eq 'privmsg' ) {
       $irc->yield( 'privmsg' => split /,/, $value );
     }
+    elsif ( $key eq 'dccsend' ) {
+        warn "DCC SENDING!!";
+        my ($nick, $filename) = split /,/, $value;
+        $irc->yield(dcc => $nick => SEND => $filename);
+    }
     else {
       warn "don't know how to deal with $action";
     }

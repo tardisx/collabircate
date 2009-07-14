@@ -46,10 +46,16 @@ POE::Session->create(
         irc_part   => \&on_part,
         irc_quit   => \&on_quit,
         irc_msg    => \&on_msg,
+        irc_353    => \&on_names,
+           
         _default   => \&unknown,
 
+        irc_dcc_request => \&dcc_request,
+        
         check_tells    => \&check_tells,
         check_requests => \&check_requests,
+
+        debug          => \&debug,
     },
 );
 
@@ -70,10 +76,12 @@ sub bot_start {
             Ircname  => 'POE::Component::IRC cookbook bot',
             Server   => $HOST,
             Port     => $PORT,
+            Debug => 1,
         }
     );
     $kernel->delay( check_tells    => 10 );
     $kernel->delay( check_requests => 10 );
+    $kernel->delay( debug => 5 );
 }
 
 # The bot has successfully connected to a server.  Join a channel.
@@ -134,12 +142,18 @@ sub on_invite {
     my $user = CollabIRCate::Bot::Users->from_ircuser(parse_user($who));
     
     $irc->yield( join => $where );
+    
 }
 
 sub on_join {
     my ( $kernel, $who, $where ) = @_[ KERNEL, ARG0, ARG1 ];
 
     my $user = CollabIRCate::Bot::Users->from_ircuser(parse_user($who));
+    $user->add_channel($where);
+
+    $irc->yield('names' => $where);
+    
+    
     
     my $channel = $where;
     $seen->{$channel}->{$who} = 1;
@@ -161,6 +175,8 @@ sub on_part {
     my ( $kernel, $who, $where, $why ) = @_[ KERNEL, ARG0, ARG1, ARG2 ];
 
     my $user = CollabIRCate::Bot::Users->from_ircuser(parse_user($who));
+    $user->remove_channel($where);
+    
     my $channel = $where;
     $seen->{$channel}->{$who} = 0;
     add_log( $who, $channel, 'part', $why );
@@ -193,7 +209,7 @@ sub unknown {
         }
     }
     # interesting but verbose:
-    # print join ' ', @output, "\n";
+    print join ' ', @output, "\n";
     return 0;
 }
 
@@ -260,6 +276,29 @@ sub check_requests {
     }
 
     $kernel->delay( check_requests => 10 );
+}
+
+sub dcc_request {
+
+    my ($user, $type, $port, $cookie, $file, $size, $addr) = @_[ARG0..$#_];
+    return if $type ne 'SEND';
+
+    my $nick = (split /!/, $user)[0];
+
+    print "$nick wants to send me '$file' ($size bytes) from $addr:$port\n";
+    
+    $irc->yield(dcc_accept => $cookie, "FILE$$");
+}
+
+sub on_names {
+    die join (',', @_[ARG0..ARG9]);
+}
+
+
+sub debug {
+    my $kernel = $_[KERNEL];
+    CollabIRCate::Bot::Users->dump();
+    $kernel->delay(debug => 5);
 }
 
 # Run the bot until it is done.
