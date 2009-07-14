@@ -4,6 +4,8 @@
 use strict;
 use warnings;
 
+use Carp qw/croak/;
+
 use FindBin qw/$Bin/;
 use Path::Class;
 use lib dir( $Bin, '..', 'lib' )->stringify;
@@ -27,7 +29,7 @@ my $pocosi = POE::Component::Server::IRC->spawn( config => \%config );
 
 POE::Session->create(
     package_states =>
-        [ 'main' => [qw(_start _default                         )], ],
+        [ 'main' => [qw(_start _default ircd_listener_failure   )], ],
     heap => { ircd => $pocosi },
 );
 
@@ -80,4 +82,10 @@ sub _default {
     }
     print STDOUT "\n" if ($debug);
     return 0;    # Don't handle signals.
+}
+
+sub ircd_listener_failure {
+   my ($reason) = $_[ARG3];
+
+   croak "Could not start server: $reason";
 }
