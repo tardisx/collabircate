@@ -19,7 +19,7 @@ our $schema = CollabIRCate::Config->schema();
 # accept a file that has been sent to us, with a request hash
 
 sub accept_file {
-    my ( $files, $hash ) = @_;
+    my ( $files, $hash, $requested_filename ) = @_;
 
     my @files;
     @files = @{$files} if ( ref($files) eq 'ARRAY' );
@@ -29,6 +29,14 @@ sub accept_file {
         croak "no such file '$_'" unless -f $_;
     }
 
+    if (! @files) {
+        croak "no files?";
+    }
+    
+    if ((scalar @files > 1) && $requested_filename) {
+        croak "can't have a requested_filename if passing multiple files"
+    }
+    
     # find the hash
     my $request
         = $schema->resultset('Request')->search( { hash => $hash } );
@@ -43,6 +51,11 @@ sub accept_file {
         my $file = $schema->resultset('File')->create( { filename => $_ } );
         # tell the request what the file is
         $file->request_id($request->id);
+
+        # change the filename, if requested
+        $file->filename($requested_filename) if ($requested_filename);
+        $file->set_mime_type_from_filename if ($requested_filename);
+
         $file->update;
         push @file_ids, $file->id;
     }

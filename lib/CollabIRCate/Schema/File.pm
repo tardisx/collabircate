@@ -61,6 +61,14 @@ __PACKAGE__->belongs_to(
     { id => "request_id" },
 );
 
+sub set_mime_type_from_filename {
+    my $self = shift;
+    
+    my $mime = MIME::Types->new();
+    my $type = $mime->mimeTypeOf( $self->filename );
+    $self->mime_type($type || 'text/plain');  # hack    
+}
+
 sub new {
     my ( $class, $attrs ) = @_;
 
@@ -70,7 +78,8 @@ sub new {
     if ( !ref $attrs->{filename} ) {
         my $mime = MIME::Types->new();
         my $type = $mime->mimeTypeOf( $attrs->{filename} );
-        $attrs->{mime_type} = $type;
+        $attrs->{mime_type} = $type || 'text/plain';  # hack    
+        
         $attrs->{size}      = -s $attrs->{filename};
     }
     else {

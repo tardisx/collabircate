@@ -116,6 +116,25 @@ sub from_ircuser {
     return $user;
 }
 
+=head2 from_nick
+
+Find the user from a nickname. We never create this user, we must already have
+knowledge of them.
+
+=cut
+
+sub from_nick {
+    my $class = shift;
+    my $nick  = shift;
+
+    foreach my $check_user (@known_users) {
+        if ($check_user->nick eq $nick) {
+            return $check_user;
+        }
+    }
+    return;
+}
+
 sub add_channel {
     my $self = shift;
     my $channel = shift;
@@ -123,7 +142,6 @@ sub add_channel {
     push @channels, $channel;
     @channels = uniq(@channels);
     $self->channels( \@channels );
-    warn $self->nick . " now on @channels";
 }
 
 sub remove_channel {
@@ -144,6 +162,27 @@ sub update_logs {
     my $self = shift;
     croak "not an identified user!" unless $self->user;
     croak "unimplemented";
+}
+
+=head2 one_channel
+
+Sometimes it is important to know that the user is on one channel and
+only one channel. Some instructions are received via a private message
+that will affect a channel (file upload for example). In the simple case,
+if the user is only on one channel, then we can go straight ahead without
+any confirmation about what channel the user meant.
+
+=cut
+
+sub one_channel {
+    my $self = shift;
+    my @channels = @{ $self->channels };
+    if (scalar @channels == 1) {
+        return $channels[0];
+    }
+    else {
+        return;
+    }
 }
 
 sub dump {

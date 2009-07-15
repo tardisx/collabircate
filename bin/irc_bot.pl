@@ -13,6 +13,7 @@ use CollabIRCate::Config;
 use CollabIRCate::Log qw/add_log/;
 use CollabIRCate::Bot qw/bot_request get_tells del_tell/;
 use CollabIRCate::Bot::Users;
+use CollabIRCate::File qw/accept_file/;
 
 my $config = CollabIRCate::Config->config();
 my $schema = CollabIRCate::Config->schema();
@@ -47,15 +48,20 @@ POE::Session->create(
         irc_quit   => \&on_quit,
         irc_msg    => \&on_msg,
         irc_353    => \&on_names,
-           
-        _default   => \&unknown,
+
+        _default => \&unknown,
 
         irc_dcc_request => \&dcc_request,
-        
+        irc_dcc_get     => \&dcc_get,
+        irc_dcc_done    => \&dcc_done,
+
+        irc_whois => \&whois,
+        irc_nick  => \&nick,
+
         check_tells    => \&check_tells,
         check_requests => \&check_requests,
 
-        debug          => \&debug,
+        debug => \&debug,
     },
 );
 
@@ -76,12 +82,12 @@ sub bot_start {
             Ircname  => 'POE::Component::IRC cookbook bot',
             Server   => $HOST,
             Port     => $PORT,
-            Debug => 1,
+#            Debug    => 1,
         }
     );
     $kernel->delay( check_tells    => 10 );
     $kernel->delay( check_requests => 10 );
-    $kernel->delay( debug => 5 );
+    $kernel->delay( debug          => 5 );
 }
 
 # The bot has successfully connected to a server.  Join a channel.
@@ -96,9 +102,9 @@ sub on_public {
     my ( $kernel, $who, $where, $msg ) = @_[ KERNEL, ARG0, ARG1, ARG2 ];
     my $channel = $where->[0];
 
-    my $ts = scalar localtime;
-    my $user = CollabIRCate::Bot::Users->from_ircuser(parse_user($who));
-    
+    my $ts   = scalar localtime;
+    my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
+
     add_log( $who, $channel, 'log', $msg );
 
     if (   $msg =~ /^$BOTNICK,\s*(.*)/i
@@ -107,14 +113,17 @@ sub on_public {
         || $msg =~ /^(.*)\s+${BOTNICK}\s*\?*$/i )
     {
 
-        my ( $bot_says_pub, $bot_says_priv )
-            = @{ bot_request( { question => $1, from => $who, channel => $channel } ) };
+        my ( $bot_says_pub, $bot_says_priv ) = @{
+            bot_request(
+                { question => $1, from => $who, channel => $channel }
+            )
+            };
         $irc->yield( privmsg => $channel, $bot_says_pub );
         $irc->yield( privmsg => $who, $bot_says_priv ) if ($bot_says_priv);
 
-        # and fake the log
-#        my $botwho = CollabIRCate::Bot::Users->new({irc_user => $BOTNICK});
-#        add_log( $botwho, $channel, 'log', $bot_says_pub );
+  # and fake the log
+  #        my $botwho = CollabIRCate::Bot::Users->new({irc_user => $BOTNICK});
+  #        add_log( $botwho, $channel, 'log', $bot_says_pub );
         add_log( $BOTNICK, $channel, 'log', $bot_says_pub );
 
     }
@@ -124,8 +133,8 @@ sub on_public {
 sub on_msg {
     my ( $kernel, $who, $what ) = @_[ KERNEL, ARG0, ARG2 ];
 
-    my $user = CollabIRCate::Bot::Users->from_ircuser(parse_user($who));
-    
+    my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
+
     my ( $bot_says_pub, $bot_says_priv )
         = @{ bot_request( { question => $what, from => $who } ) };
     if ($bot_says_priv) {
@@ -139,22 +148,20 @@ sub on_msg {
 sub on_invite {
     my ( $kernel, $who, $where ) = @_[ KERNEL, ARG0, ARG1 ];
 
-    my $user = CollabIRCate::Bot::Users->from_ircuser(parse_user($who));
-    
+    my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
+
     $irc->yield( join => $where );
-    
+
 }
 
 sub on_join {
     my ( $kernel, $who, $where ) = @_[ KERNEL, ARG0, ARG1 ];
 
-    my $user = CollabIRCate::Bot::Users->from_ircuser(parse_user($who));
+    my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
     $user->add_channel($where);
 
-    $irc->yield('names' => $where);
-    
-    
-    
+    $irc->yield( 'names' => $where );
+
     my $channel = $where;
     $seen->{$channel}->{$who} = 1;
 
@@ -166,17 +173,17 @@ sub on_join {
 
 sub on_topic {
     my ( $kernel, $who, $where, $topic ) = @_[ KERNEL, ARG0, ARG1, ARG2 ];
-    
-    my $user = CollabIRCate::Bot::Users->from_ircuser(parse_user($who));
+
+    my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
     add_log( $who, $where, 'topic', $topic );
 }
 
 sub on_part {
     my ( $kernel, $who, $where, $why ) = @_[ KERNEL, ARG0, ARG1, ARG2 ];
 
-    my $user = CollabIRCate::Bot::Users->from_ircuser(parse_user($who));
+    my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
     $user->remove_channel($where);
-    
+
     my $channel = $where;
     $seen->{$channel}->{$who} = 0;
     add_log( $who, $channel, 'part', $why );
@@ -185,7 +192,7 @@ sub on_part {
 sub on_quit {
     my ( $kernel, $who, $why ) = @_[ KERNEL, ARG0, ARG1 ];
 
-    my $user = CollabIRCate::Bot::Users->from_ircuser(parse_user($who));
+    my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
 
     # this is perhaps wrong in some edge cases?
     foreach my $channel ( keys %$seen ) {
@@ -208,8 +215,9 @@ sub unknown {
             push( @output, "'$arg'" );
         }
     }
+
     # interesting but verbose:
-    print join ' ', @output, "\n";
+    # print join ' ', @output, "\n";
     return 0;
 }
 
@@ -253,18 +261,23 @@ sub check_requests {
 
         # we have a file for a channel
         my $channel = $unlogged->request->channel->name;
-        my $url = 'http://' . $config->{http_server_host} . 
-                  ($config->{http_server_port} ? ':' . $config->{http_server_port} : '') .
-                  $config->{http_server_path} . "file/" .
-                  $unlogged->id;
+        my $url 
+            = 'http://' 
+            . $config->{http_server_host}
+            . (
+            $config->{http_server_port}
+            ? ':' . $config->{http_server_port}
+            : ''
+            )
+            . $config->{http_server_path} . "file/"
+            . $unlogged->id;
         my $filename = $unlogged->filename;
         $filename =~ s/.*\///;
         my $message
-            = $filename
-            . " has been uploaded, download it at "
-            . $url;
-        
+            = $filename . " has been uploaded, download it at " . $url;
+
         $irc->yield( privmsg => $channel, $message );
+
         # fake the log
         add_log( $BOTNICK, $channel, 'log', $message );
         $requests_logged{ $unlogged->request->id } = 1;
@@ -279,26 +292,105 @@ sub check_requests {
 }
 
 sub dcc_request {
-
-    my ($user, $type, $port, $cookie, $file, $size, $addr) = @_[ARG0..$#_];
+    my $heap = $_[HEAP];
+    my ( $who, $type, $port, $cookie, $file, $size, $addr )
+        = @_[ ARG0 .. $#_ ];
     return if $type ne 'SEND';
 
-    my $nick = (split /!/, $user)[0];
+    my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
+    my $nick = $user->nick();
 
-    print "$nick wants to send me '$file' ($size bytes) from $addr:$port\n";
-    
-    $irc->yield(dcc_accept => $cookie, "FILE$$");
+    # get the channel
+    my $channel;
+    unless ( $channel = $user->one_channel ) {
+        my $message = "I don't know which channel to send your file. You are "
+            . "not on any channels I know about, or more than one. Sorry.";
+        $irc->yield( privmsg => $user->nick, $message );
+        return;
+    }
+
+    # make a request
+    my $chan
+        = $schema->resultset('Channel')->search( { name => $channel } )->next;
+    my $chan_id;
+    $chan_id = $chan->id if ($chan);
+    my $req
+        = $schema->resultset('Request')->create( { channel_id => $chan_id } );
+
+    # remember the filename they originally desired
+    $heap->{dcc}->{transfers}->{ $req->hash } = $file;
+
+    $irc->yield( dcc_accept => $cookie, "/tmp/" . $req->hash );
+}
+
+sub dcc_get {
+
+    # for now we just ignore these, they are noise.
+}
+
+sub dcc_done {
+    my $heap = $_[HEAP];
+    my ( $nick, $filename, $size ) = @_[ ARG1, ARG4, ARG5 ];
+
+    # filename is the request hash!
+    my $hash = $filename;
+    $hash =~ s/.*([0-9a-f]{32}).*/$1/g;
+
+    # but the filename they really want is here
+    my $requested_filename = $heap->{dcc}->{transfers}->{$hash};
+    delete $heap->{dcc}->{transfers}->{$hash};
+
+    my @ids;
+    eval { @ids = accept_file( $filename, $hash, $requested_filename ); };
+
+    # XXX
+    die $@ if $@;
+
 }
 
 sub on_names {
-    die join (',', @_[ARG0..ARG9]);
+    my $names = ( split /:/, $_[ARG1] )[1];
+
+    # do a whois on each
+    foreach my $nick ( split /\s+/, $names ) {
+
+        # remove op symbols from nick and issue a whois
+        $nick =~ s/^[^\w]//;
+        $irc->yield( whois => $nick );
+    }
 }
 
+sub whois {
+    my $info = $_[ARG0];
+
+    my @channels = @{ $info->{channels} };
+
+    s/^@// foreach @channels;    # remove oper crap
+
+    # get the bot user and this user objects
+    my $bot  = CollabIRCate::Bot::Users->from_nick($BOTNICK);
+    my $user = CollabIRCate::Bot::Users->from_ircuser( $info->{nick},
+        $info->{user}, $info->{host} );
+
+    # only consider the channels that the bot is also on
+    my %bot_channels = map { $_ => 1 } @{ $bot->channels() };
+
+    foreach (@channels) {
+        $user->add_channel($_) if ( $bot_channels{$_} );
+    }
+}
+
+sub nick {
+    my ( $changer, $newnick ) = @_[ ARG0, ARG1 ];
+    my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($changer) );
+    $user->nick($newnick);
+}
 
 sub debug {
     my $kernel = $_[KERNEL];
+    return;
     CollabIRCate::Bot::Users->dump();
-    $kernel->delay(debug => 5);
+    $kernel->delay( debug => 5 );
 }
 
 # Run the bot until it is done.
