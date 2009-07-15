@@ -324,7 +324,6 @@ sub dcc_request {
 }
 
 sub dcc_get {
-
     # for now we just ignore these, they are noise.
 }
 
@@ -345,6 +344,9 @@ sub dcc_done {
 
     # XXX
     die $@ if $@;
+
+    # clean up tmp
+    unlink $filename;
 
 }
 
