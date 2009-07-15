@@ -4,6 +4,7 @@ This file documents the revision history for the CollabIRCate system.
         - improve installation documentation
         - gracefully handle failure if irc_server.pl cannot bind to the port
         - revamp the way irc users are handled
+        - include a 'version' command or the bot
 
 0.02  2009-07-09 
         - basic bot plug-ability
