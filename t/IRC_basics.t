@@ -6,7 +6,7 @@ unless ($ENV{'COLLABIRCATE_INSIDE_HARNESS'}) {
     plan skip_all => 'Not inside harness';
 }
 else {
-    plan tests => 4;
+    plan tests => 5;
 }
 
 my $ret = system ("bin/irc_test.pl -s localhost -p 6668 join=#people quit=gone");
@@ -20,4 +20,7 @@ ok (! $ret, 'bot can do maths');
 
 $ret = system("bin/irc_test.pl", '-s', 'localhost', '-p', '6668', 'join=#people', 'privmsg=#people,undefBOT: google google', 'waitfor=google,9');
 ok (! $ret, 'google command to bot works');
+
+$ret = system("bin/irc_test.pl", '-s', 'localhost', '-p', '6668', 'join=#people', 'privmsg=#people,undefBOT: version', 'waitfor=I am version,9');
+ok (! $ret, 'bot knows what version he is');
 
