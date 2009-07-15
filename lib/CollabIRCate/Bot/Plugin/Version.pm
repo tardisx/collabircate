@@ -5,6 +5,14 @@ use warnings;
 
 use base 'CollabIRCate::Bot::Plugin';
 
+=head2 answer
+
+We read the main C<CollabIRCate.pm> file manually here, since we don't
+want to C<require> or C<use> it from the bot - it does a heap of unwanted
+Catalyst things.
+
+=cut
+
 sub answer {
   my ($class, $question, $args) = @_;
 
@@ -16,7 +24,6 @@ sub answer {
     open (my $fh, "<", "lib/CollabIRCate.pm") || die "can't open file\n";
     my $line;
     while ($line = <$fh>) {
-      warn $line;
       next unless $line =~ /\$VERSION\s*\=\s*['"]([\d\.]+)['"]/;
       my $version = $1;
       return { answer => "I am version $version" };
