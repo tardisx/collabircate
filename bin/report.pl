@@ -60,8 +60,8 @@ my $log = $schema->resultset('Log')->search(
         # type => 'log',
     },
     {   order_by  => 'ts',
-        join      => 'users',
-        '+select' => ['users.email'],
+        #join      => 'users',
+        #'+select' => ['users.email'],
     }
 );
 
@@ -70,7 +70,7 @@ my $interesting = 0;
 
 while ( my $entry = $log->next ) {
 
-    my $nick = $entry->users->email;
+    my $nick = $entry->irc_user;
     $nick =~ s/!.*//x;
     my $line  = $entry->entry;
     my $ts    = $entry->ts;
