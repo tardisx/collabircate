@@ -15,7 +15,7 @@ __PACKAGE__->add_columns(
     },
     "ts",
     {   data_type     => "datetime",
-        default_value => "now()",
+        # default_value => "now()",
         is_nullable   => 0,
     },
     "channel_id",

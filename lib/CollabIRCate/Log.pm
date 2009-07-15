@@ -9,6 +9,8 @@ require CollabIRCate::Schema;
 require CollabIRCate::Schema::Channel;
 require CollabIRCate::Schema::Tag;
 
+use DateTime;
+
 use Exporter qw/import/;
 our @EXPORT_OK = qw/add_log/;
 
@@ -45,6 +47,7 @@ sub add_log {
             irc_user   => $irc_user,
             entry      => $what,
             type       => $type,
+            ts         => DateTime->now(),
         }
     );
 
