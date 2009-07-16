@@ -15,8 +15,8 @@ CollabIRCate::Bot::Users
 
 =head1 SYNOPSIS
 
-  # get/create a user from an IRC nick
-  my $user = CollabIRCate::Bot::Users->from_ircuser($nick, $username, $hostname);
+  # get/create a user from his IRC details
+  my $user = CollabIRCate::Bot::Users->from_ircuser($nick, $user, $host);
 
   # return his nickname
   my $nick = $user->get_nick();
@@ -82,6 +82,9 @@ Return a L<CollabIRCate::Bot::Users> object given the 3 parameters:
 This has the side-effect of updating the existing known user's nick and
 last_seen timestamp, if they were already known to us.
 
+This will return the existing user, if they were already known to us, or
+create a new one if not.
+
 =cut
 
 sub from_ircuser {
@@ -135,6 +138,12 @@ sub from_nick {
     return;
 }
 
+=head2 add_channel
+
+Adds one channel to the list of channels that this user is on.
+
+=cut
+
 sub add_channel {
     my $self = shift;
     my $channel = shift;
@@ -144,13 +153,24 @@ sub add_channel {
     $self->channels( \@channels );
 }
 
+=head2 remove_channel
+
+Removes a channel from the list of channels that this user is on.
+
+=cut
+
 sub remove_channel {
     my $self = shift;
     my $channel = shift;
     my @channels = grep { !/^$channel$/} @{ $self->channels };
     $self->channels( [ @channels ] );
-    warn $self->nick . " now on @channels";
 }
+
+=head2 is_identified
+
+Checks if a user has been identified to us.
+
+=cut
 
 sub is_identified {
     my $self = shift;
@@ -158,10 +178,27 @@ sub is_identified {
     return 0;
 }
 
+=head2 update_logs
+
+Updates the logs for a user, once that user has become identified.
+
+=cut
+
 sub update_logs {
     my $self = shift;
-    croak "not an identified user!" unless $self->user;
+    croak "not an identified user!" unless $self->is_identified;
     croak "unimplemented";
+}
+
+=head2 list_users
+
+List all users known to the Bot.
+
+=cut
+
+sub list_users {
+    my $class = shift;
+    return @known_users;
 }
 
 =head2 one_channel
