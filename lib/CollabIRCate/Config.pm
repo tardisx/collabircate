@@ -19,8 +19,15 @@ sub config {
 
     return $config if defined $config;
 
+    eval {
     $config = { Config::General->new("$Bin/../collabircate.conf")->getall }
         unless defined $config;
+    };
+
+    if ($@) {
+    $config = { Config::General->new("$Bin/../../collabircate.conf")->getall }
+        unless defined $config;
+    }
 
     croak "cannot load config file" unless defined $config;
 
