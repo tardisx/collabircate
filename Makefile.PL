@@ -40,4 +40,5 @@ catalyst;
 
 install_script glob('script/*.pl');
 auto_install;
-WriteAll;
+my $tests = join (' ', glob("t/*.t"), glob("t/*/*.t"));
+WriteMakefile(test => {TESTS => $tests});
