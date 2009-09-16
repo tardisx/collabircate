@@ -132,11 +132,11 @@ sub on_public {
 }
 
 sub on_ctcp_action {
-    my ( $kernel, $who, $channel, $what ) = @_[ KERNEL, ARG0, ARG1, ARG2 ];
+    my ( $kernel, $who, $where, $what ) = @_[ KERNEL, ARG0, ARG1, ARG2 ];
 
     my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
 
-    add_log( $who, $channel, 'action', $what );
+    add_log( $who, $where->[0], 'action', $what );
 }
 
 sub on_msg {

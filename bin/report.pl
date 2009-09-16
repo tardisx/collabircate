@@ -77,7 +77,7 @@ while ( my $entry = $log->next ) {
     my $epoch = $ts->epoch;
     my $type  = $entry->type;
 
-    $interesting = 1 if ( $type eq 'log' );
+    $interesting = 1 if (( $type eq 'log' ) || ( $type eq 'action' ));
 
     #  ($ts) = $ts =~ /\d\d\d\d\-\d\d\-\d\d\s+(.*):\d\d\./;
     push @entries, [ $ts->hms, $nick, $line, $epoch, $type ];
@@ -120,6 +120,9 @@ if (@entries) {
 
         if ( $type eq 'log' ) {
             print $fh join( ': ', ( $ts, $nick, $line ) ) . "\n";
+        }
+        elsif ( $type eq 'action' ) {
+            print $fh "$ts: $nick $line\n";
         }
         elsif ( $type eq 'topic' ) {
             print $fh "$ts: *** topic changed to '$line' by $nick\n";
