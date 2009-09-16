@@ -20,6 +20,7 @@ requires 'Module::Pluggable';
 requires 'REST::Google';
 
 requires 'DateTime';
+requires 'DateTime::Format::SQLite';
 requires 'Path::Class';
 requires 'FindBin';
 requires 'Mail::Send';
