@@ -14,6 +14,7 @@ requires 'Catalyst::Plugin::ConfigLoader';
 requires 'Catalyst::Plugin::Static::Simple';
 requires 'Catalyst::Action::RenderView';
 requires 'Catalyst::Model::DBIC::Schema';
+requires 'Catalyst::Controller::REST';
 requires 'Catalyst::View::TT';
 
 requires 'Module::Pluggable';
