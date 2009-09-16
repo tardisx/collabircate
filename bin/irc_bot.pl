@@ -47,6 +47,7 @@ POE::Session->create(
         irc_part   => \&on_part,
         irc_quit   => \&on_quit,
         irc_msg    => \&on_msg,
+        irc_ctcp_action    => \&on_ctcp_action,
         irc_353    => \&on_names,
 
         _default => \&unknown,
@@ -128,6 +129,14 @@ sub on_public {
 
     }
 
+}
+
+sub on_ctcp_action {
+    my ( $kernel, $who, $channel, $what ) = @_[ KERNEL, ARG0, ARG1, ARG2 ];
+
+    my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
+
+    add_log( $who, $channel, 'action', $what );
 }
 
 sub on_msg {
@@ -260,7 +269,12 @@ sub check_requests {
     while ( my $unlogged = $files->next ) {
 
         # we have a file for a channel
-        my $channel = $unlogged->request->channel->name;
+        my $channel = $unlogged->request->channel;
+        if (! $channel) {
+          warn "No channel ??";
+          next;
+        }
+        my $channel_name = $channel->name;
         my $url 
             = 'http://' 
             . $config->{http_server_host}
