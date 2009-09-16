@@ -26,14 +26,14 @@ ok( $response->[0] =~ /^\d+:/, 'some fml response' );
 
 # world time
 $response = bot_request( { from => 'fred', question => 'time in london' } );
-ok( $response->[0] =~ /20\d\d\s+\d\d:\d\d:\d\d/, 'got some london time' );
+ok( $response->[0] =~ /\d\d:\d\d:\d\d/, 'got some london time' );
 
 $response = bot_request(
     { from => 'fred', question => 'what is the time in brisbane?' } );
-ok( $response->[0] =~ /20\d\d\s+\d\d:\d\d:\d\d/, 'got some brisbane time' );
+ok( $response->[0] =~ /\d\d:\d\d:\d\d/, 'got some brisbane time' );
 
 $response = bot_request( { from => 'fred', question => 'sydney time?' } );
-ok( $response->[0] =~ /20\d\d\s+\d\d:\d\d:\d\d/, 'got some sydney time' );
+ok( $response->[0] =~ /\d\d:\d\d:\d\d/, 'got some sydney time' );
 
 # banter
 $response = bot_request( { from => 'fred', question => 'get fucked' } );
