@@ -29,17 +29,15 @@ if ( $help ) {
     exit;    # unnecessary
 }
 
-# file comes in from the MTA on stdin, we must just store it into 
-# a directory
-croak "no such dir $queue_dir" unless (-d $queue_dir);
-my $filename = catfile($queue_dir, $$ . "-" . time());
-open my $fh, ">", $filename . ".tmp" || croak "oh no";
-while (<>) {
-  print $fh $_;
-}
-close $fh || croak "oh no!";
-chmod 0644, "$filename.tmp";
-rename "$filename.tmp", "$filename.mail" || croak "oh no!";
+# Mail comes from the MTA on stdin, and we cram it into a data structure
+# and send it through to the API on the server (possibly localhost). This
+# obviates all need for rubbish like queue dirs and permissions and so on.
+#
+# It also possibly imposes a hard limit on how much big an incoming mail
+# we can process is, but that's probably ok, we'd like to encourage people
+# to use more appropriate (read: DCC or HTTP) methods to upload multi-
+# megabyte files.
+#
 
 exit;
 
