@@ -8,6 +8,10 @@ use warnings;
 BEGIN {
 }
 
-sub answer { die "unimplemented answer() in __PACKAGE__"; };
+sub answer { die "unimplemented answer()"; };
+
+sub register {
+    return {};
+}
 
 1;

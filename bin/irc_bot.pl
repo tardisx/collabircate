@@ -11,7 +11,7 @@ use lib dir( $Bin, '..', 'lib' )->stringify;
 
 use CollabIRCate::Config;
 use CollabIRCate::Log qw/add_log/;
-use CollabIRCate::Bot qw/bot_request get_tells del_tell/;
+use CollabIRCate::Bot qw/bot_heard bot_addressed/;
 use CollabIRCate::Bot::Users;
 use CollabIRCate::File qw/accept_file/;
 
@@ -25,14 +25,12 @@ my $BOTNICK = $config->{irc_bot_nickname}    || 'undefBOT';
 use POE;
 use POE::Component::IRC;
 use POE::Component::IRC::Common qw/parse_user/;
-use POE::Component::IRC::Plugin::CycleEmpty;
+use POE::Component::IRC::Plugin::BotAddressed;
 
 my $seen = {};
 
 # Create the component that will represent an IRC network.
 my ($irc) = POE::Component::IRC->spawn();
-$irc->plugin_add( 'CycleEmpty',
-    POE::Component::IRC::Plugin::CycleEmpty->new() );
 
 # Create the bot session.  The new() call specifies the events the bot
 # knows about and the functions that will handle those events.
@@ -74,6 +72,7 @@ sub bot_start {
     my $session = $_[SESSION];
 
     $irc->yield( register => "all" );
+    $irc->plugin_add( 'BotAddressed', POE::Component::IRC::Plugin::BotAddressed->new() );
 
     $irc->yield(
         connect => {
@@ -113,20 +112,19 @@ sub on_public {
         || $msg =~ /^${BOTNICK}:\s*(.*)/i
         || $msg =~ /^(.*)\s+${BOTNICK}\s*\?*$/i )
     {
-
-        my ( $bot_says_pub, $bot_says_priv ) = @{
-            bot_request(
-                { question => $1, from => $who, channel => $channel }
-            )
-            };
-        $irc->yield( privmsg => $channel, $bot_says_pub );
-        $irc->yield( privmsg => $who, $bot_says_priv ) if ($bot_says_priv);
+        bot_addressed($who, $channel, $1);
+     
+        #$irc->yield( privmsg => $channel, $bot_says_pub );
+        #$irc->yield( privmsg => $who, $bot_says_priv ) if ($bot_says_priv);
 
   # and fake the log
   #        my $botwho = CollabIRCate::Bot::Users->new({irc_user => $BOTNICK});
   #        add_log( $botwho, $channel, 'log', $bot_says_pub );
         add_log( $BOTNICK, $channel, 'log', $bot_says_pub );
 
+    }
+    else {
+        bot_heard($who, $channel, $msg);
     }
 
 }
@@ -139,19 +137,19 @@ sub on_ctcp_action {
     add_log( $who, $where->[0], 'action', $what );
 }
 
+# private msg
 sub on_msg {
     my ( $kernel, $who, $what ) = @_[ KERNEL, ARG0, ARG2 ];
 
     my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
 
-    my ( $bot_says_pub, $bot_says_priv )
-        = @{ bot_request( { question => $what, from => $who } ) };
-    if ($bot_says_priv) {
-        $irc->yield( privmsg => $who, $bot_says_priv );
-    }
-    else {
-        $irc->yield( privmsg => $who, $bot_says_pub );
-    }
+    bot_addressed($who, undef, $what);
+#    if ($bot_says_priv) {
+#        $irc->yield( privmsg => $who, $bot_says_priv );
+#    }
+#    else {
+#        $irc->yield( privmsg => $who, $bot_says_pub );
+#    }
 }
 
 sub on_invite {
@@ -407,6 +405,15 @@ sub debug {
     return;
     CollabIRCate::Bot::Users->dump();
     $kernel->delay( debug => 5 );
+}
+
+sub irc_bot_addressed {
+  my ($kernel, $heap) = @_[KERNEL, HEAP];
+  my $nick = ( split /!/, $_[ARG0] )[0];
+  my $channel = $_[ARG1]->[0];
+  my $what = $_[ARG2];
+
+  print "$nick addressed me in channel $channel with the message '$what'\n";
 }
 
 # Run the bot until it is done.

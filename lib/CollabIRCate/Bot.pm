@@ -23,7 +23,7 @@ The brains of the CollabIRCate bot.
 
 =cut
 
-our @EXPORT_OK = qw/bot_request get_tells del_tell/;
+our @EXPORT_OK = qw/bot_addressed bot_heard/;
 our @tell;
 
 my $schema = CollabIRCate::Config->schema;
@@ -35,31 +35,42 @@ my @sorry_messages = (
     "what do you mean by 'MSG', NICK?",
     "I'd love to help with 'MSG', but I'm not sure what it's about",
     "'MSG'? What do you mean NICK?",
+    "an interesting concept I'm sure, NICK",
+    "NICK, that makes little sense to me :-(",
+    "I'm not sure what you mean NICK",
+    "I don't have enough brains to work that out, NICK",
 );
 
-# someone made a request of our bot. let's deal with it and
-# pass back a message indicating what we should say
+# someone said something to anyone, the bot 'heard' it
+sub bot_heard {
+    my $who     = shift;
+    my $channel = shift;
+    my $message = shift;
 
-sub bot_request {
-    my $args     = shift;
-    my $question = $args->{question};
-    my $from     = $args->{from};
-    my $channel  = $args->{channel};
+    # check plugins
+    foreach my $plugin (@plugins) {
+        if ($plugin->register->{public}) {
+            &{ $plugin->register->{public} }($who, $channel, $message);
+        }
+    }
+}
 
-    # we always need at least the question and from
-    croak "bot_request called incorrectly, no question or from arguments"
-      unless ( $question && $from );
-
-    my $result;
+# someone said something to the bot (publically or privately)
+sub bot_addressed {
+    my $who     = shift;
+    my $channel = shift;
+    my $message = shift;
 
     # check plugins first
     foreach my $plugin (@plugins) {
-      if (my $result = $plugin->answer($question,
-                                       { from => $from })) {
-        return [ $result->{answer}, undef ];
-      }
+        if ($plugin->register->{addressed}) {
+            &{ $plugin->register->{addressed} }($who, $channel, $message);
+        }
     }
 
+=pod
+
+    # this needs to go into a plugin
     if ( $question =~ /upload/ ) {
         my $chan =
           $schema->resultset('Channel')->search( { name => lc($channel) } )
@@ -84,24 +95,9 @@ sub bot_request {
         return [ "will do $from", undef ];
     }
 
+=cut
+
     return [ _sorry( $from, $question ), undef ];
-}
-
-sub get_tells {
-    return @tell;
-}
-
-sub del_tell {
-    my ( $who, $msg, $time ) = @_;
-    my @new_tell = ();
-    foreach (@tell) {
-        my ( $this_who, $this_msg, $this_time ) = @$_;
-        push @new_tell, [ $this_who, $this_msg, $this_time ]
-          unless ( $this_who eq $who
-            && $this_msg  eq $msg
-            && $this_time eq $time );
-    }
-    @tell = @new_tell;
 }
 
 sub _sorry {
