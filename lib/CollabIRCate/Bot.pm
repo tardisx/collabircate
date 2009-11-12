@@ -29,6 +29,8 @@ our @tell;
 my $schema = CollabIRCate::Config->schema;
 my @plugins = plugins();
 
+@plugins = ('CollabIRCate::Bot::Plugin::Statistics');
+
 my @sorry_messages = (
     "sorry NICK, I'm not sure what you mean by 'MSG'",
     "NICK, I'm having trouble following you",
@@ -50,7 +52,9 @@ sub bot_heard {
     # check plugins
     foreach my $plugin (@plugins) {
         if ($plugin->register->{public}) {
-            &{ $plugin->register->{public} }($who, $channel, $message);
+            my $response = &{ $plugin->register->{public} }($who, $channel, $message);
+            # XXX do something with the response
+            warn $response;
         }
     }
 }
@@ -58,13 +62,14 @@ sub bot_heard {
 # someone said something to the bot (publically or privately)
 sub bot_addressed {
     my $who     = shift;
-    my $channel = shift;
+    my $channel = shift;    # undef if private
     my $message = shift;
 
     # check plugins first
     foreach my $plugin (@plugins) {
         if ($plugin->register->{addressed}) {
-            &{ $plugin->register->{addressed} }($who, $channel, $message);
+            my $response = &{ $plugin->register->{addressed} }($who, $channel, $message);
+            return $response;
         }
     }
 
@@ -97,7 +102,8 @@ sub bot_addressed {
 
 =cut
 
-    return [ _sorry( $from, $question ), undef ];
+    # XXX should be a response
+    return [ _sorry( $who, $message ), undef ];
 }
 
 sub _sorry {

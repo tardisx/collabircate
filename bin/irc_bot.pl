@@ -1,6 +1,5 @@
 #!/usr/bin/perl
 
-# A fairly simple example:
 use strict;
 use warnings;
 use Carp qw/croak/;
@@ -57,7 +56,7 @@ POE::Session->create(
         irc_whois => \&whois,
         irc_nick  => \&nick,
 
-        check_tells    => \&check_tells,
+#        check_tells    => \&check_tells,
         check_requests => \&check_requests,
 
         debug => \&debug,
@@ -111,8 +110,8 @@ sub on_public {
         || $msg =~ /^$BOTNICK\s+(.*)/i
         || $msg =~ /^${BOTNICK}:\s*(.*)/i
         || $msg =~ /^(.*)\s+${BOTNICK}\s*\?*$/i )
-    {
-        bot_addressed($who, $channel, $1);
+        {
+            my $response = bot_addressed($who, $channel, $1);
      
         #$irc->yield( privmsg => $channel, $bot_says_pub );
         #$irc->yield( privmsg => $who, $bot_says_priv ) if ($bot_says_priv);
@@ -120,11 +119,15 @@ sub on_public {
   # and fake the log
   #        my $botwho = CollabIRCate::Bot::Users->new({irc_user => $BOTNICK});
   #        add_log( $botwho, $channel, 'log', $bot_says_pub );
-        add_log( $BOTNICK, $channel, 'log', $bot_says_pub );
+
+            # XXX do response stuff
+            # XXXadd_log( $BOTNICK, $channel, 'log', $bot_says_pub );
+            warn "RESPONSE was $response";
 
     }
     else {
-        bot_heard($who, $channel, $msg);
+        my $response = bot_heard($who, $channel, $msg);
+        warn "RESPONSE was $response";
     }
 
 }

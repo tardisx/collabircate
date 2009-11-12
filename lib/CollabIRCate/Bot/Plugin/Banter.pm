@@ -5,11 +5,14 @@ use warnings;
 
 use base 'CollabIRCate::Bot::Plugin';
 
+sub register {
+    return {
+        addressed => \&answer,
+    }
+}
+
 sub answer {
-    my $class    = shift;
-    my $question = shift;
-    my $args     = shift;
-    my $from     = $args->{from};
+    my ($from, $where, $question) = @_;
 
     if (   $question =~ /fuck off/i
         || $question =~ /get fucked/i
