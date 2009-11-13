@@ -40,13 +40,6 @@ line stats, and an C<addressed> method to answer questions about stats.
 
 use Carp qw/croak/;
 
-# base class for plugins
-
-BEGIN {
-}
-
-sub answer { die "unimplemented answer()"; };
-
 sub register {
 
     croak "abstract register called!";
