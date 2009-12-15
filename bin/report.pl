@@ -95,7 +95,11 @@ if (@entries) {
 
     my $mail;
     my $fh;
-    my $subject = "What happened in the last $minutes minutes on $channel";
+    my $date = sprintf("%04d-%02d-%02d", 
+                       (localtime)[5]+1900,
+                       (localtime)[4]+1,
+                       (localtime)[3]);
+    my $subject = "$channel - $date - last $minutes minutes";
 
     if ($debug) {
         $fh = *STDOUT;
