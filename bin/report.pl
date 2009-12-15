@@ -177,3 +177,5 @@ C<-m nn> - minutes of interval
 
 C<-d> - debug mode
   
+Causes the output to be sent to C<STDOUT> instead of an email being sent.
+
