@@ -41,4 +41,37 @@ sub add_private_response {
     $self->private_response( [ ( @{$current}, [ $user, $text ] ) ] );
     return $self;
 }
+
+sub merge {
+    my $self = shift;
+    my $other_response = shift;
+
+    croak "not a CollabIRCate::Bot::Response object"
+        unless ( ref $other_response eq 'CollabIRCate::Bot::Response' );
+    $self->private_response( [ @{ $self->private_response || [] },
+                               @{ $other_response->private_response || [] } ] );
+    $self->public_response( [ @{ $self->public_response || [] },
+                              @{ $other_response->public_response || [] } ] );
+    return $self;
+}
+
+sub emit {
+    my $self = shift;
+    my $irc  = shift;
+
+    if ($self->private_response) {
+        foreach ( @{ $self->private_response } ) {
+            die "unimplemented";
+        }
+    }
+
+    if ($self->public_response) {
+        foreach ( @{ $self->public_response } ) {
+            my ($channel, $text) = @$_;
+            $irc->yield( privmsg => $channel, $text );
+        }
+    }
+
+}
+
 1;

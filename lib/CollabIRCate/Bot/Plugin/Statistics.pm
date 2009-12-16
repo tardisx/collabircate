@@ -38,6 +38,7 @@ Record details on every single public mesage we see.
 sub record {
     my ($who, $where, $message) = @_;
     warn "$who said $message at $where";
+    return undef; # no response
 }
 
 =head2 stats

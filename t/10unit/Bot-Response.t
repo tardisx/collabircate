@@ -18,8 +18,4 @@ eval {
 };
 ok ($@ =~ /not a CollabIRCate::Bot::Users/, 'bad user');
 
-
-
-
-
 1;

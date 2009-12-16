@@ -112,22 +112,16 @@ sub on_public {
         || $msg =~ /^(.*)\s+${BOTNICK}\s*\?*$/i )
         {
             my $response = bot_addressed($who, $channel, $1);
-     
-        #$irc->yield( privmsg => $channel, $bot_says_pub );
-        #$irc->yield( privmsg => $who, $bot_says_priv ) if ($bot_says_priv);
+            $response->emit($irc);
 
-  # and fake the log
-  #        my $botwho = CollabIRCate::Bot::Users->new({irc_user => $BOTNICK});
-  #        add_log( $botwho, $channel, 'log', $bot_says_pub );
-
-            # XXX do response stuff
-            # XXXadd_log( $BOTNICK, $channel, 'log', $bot_says_pub );
-            warn "RESPONSE was $response";
+            # and fake the log
+            #        my $botwho = CollabIRCate::Bot::Users->new({irc_user => $BOTNICK});
+            #        add_log( $botwho, $channel, 'log', $bot_says_pub );
 
     }
     else {
         my $response = bot_heard($who, $channel, $msg);
-        warn "RESPONSE was $response";
+        $response->emit($irc);
     }
 
 }
@@ -145,14 +139,7 @@ sub on_msg {
     my ( $kernel, $who, $what ) = @_[ KERNEL, ARG0, ARG2 ];
 
     my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
-
     bot_addressed($who, undef, $what);
-#    if ($bot_says_priv) {
-#        $irc->yield( privmsg => $who, $bot_says_priv );
-#    }
-#    else {
-#        $irc->yield( privmsg => $who, $bot_says_pub );
-#    }
 }
 
 sub on_invite {

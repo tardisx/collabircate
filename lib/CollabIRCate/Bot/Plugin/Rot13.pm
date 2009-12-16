@@ -5,16 +5,23 @@ use warnings;
 
 use base 'CollabIRCate::Bot::Plugin';
 
-sub answer {
-  my ($class, $question) = @_;
+sub register {
+    return { public => \&answer };
+}
 
-  unless ( $question =~ /^rot13:*\s*(.*)/i ) {
+sub answer {
+  my ($who, $channel, $question) = @_;
+
+  unless ( $question =~ /^rot13\s*(.*)/i ) {
     return;
   }
+
   my $result = $1;
   $result =~ y/A-Za-z/N-ZA-Mn-za-m/;
 
-  return { answer => $result };
+  my $response = CollabIRCate::Bot::Response->new;
+  $response->add_public_response({channel => $channel, text => $result});
+  return $response;
 }
 
 1;

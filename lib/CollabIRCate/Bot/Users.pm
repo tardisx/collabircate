@@ -89,7 +89,9 @@ create a new one if not.
 
 sub from_ircuser {
     my $class = shift;
-    my ( $nick, $username, $hostname ) = @_;
+    my $nick  = shift;
+    my $username = shift;
+    my $hostname = shift;
 
     # do we already know this user?
     foreach my $check_user (@known_users) {
