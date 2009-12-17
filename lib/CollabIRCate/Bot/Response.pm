@@ -106,7 +106,7 @@ sub emit {
 
     if ($self->private_response) {
         foreach ( @{ $self->private_response } ) {
-            die "unimplemented";
+            croak "unimplemented emit with private responses";
         }
     }
 
@@ -116,6 +116,8 @@ sub emit {
             $irc->yield( privmsg => $channel, $text );
         }
     }
+
+    return;
 
 }
 
