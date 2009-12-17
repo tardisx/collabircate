@@ -3,11 +3,37 @@ package CollabIRCate::Bot::Response;
 use Moose;
 use Carp qw/croak/;
 
-# The response that a bot makes may involve zero or more channels, and
-# zero or more private messages. This package encapsulates such responses.
+=head1 NAME 
+
+CollabIRCate::Bot::Response - class for IRC Bot responses.
+
+=head1 SYNOPSIS
+
+  my $response = CollabIRCate::Bot::Response->new();
+
+  $response->add_public_response({channel => '#friends', text => 'hello'});
+  $response->add_private_response({user => $user, text => 'not you'});
+
+  $response->merge($some_other_response_object);
+
+  $response->emit($irc);
+
+=head1 DESCRIPTION
+
+A bot may make multiple responses to a particular query. Some of them may be
+public, some private. A CollabIRCate::Bot::Response object encapsulates them
+in one place.
+
+=cut
 
 has 'public_response'  => ( is => 'rw', isa => 'ArrayRef' );
 has 'private_response' => ( is => 'rw', isa => 'ArrayRef' );
+
+=head2 add_public_response
+
+Add a public response. Requires a hash ref with channel and text keys.
+
+=cut
 
 sub add_public_response {
     my $self = shift;
@@ -23,6 +49,13 @@ sub add_public_response {
     $self->public_response( [ ( @{$current}, [ $channel, $text ] ) ] );
     return $self;
 }
+
+=head2 add_private_response 
+
+Add a private response. Requires a hash ref containing a user object and 
+the text to send.
+
+=cut
 
 sub add_private_response {
     my $self = shift;
@@ -42,6 +75,12 @@ sub add_private_response {
     return $self;
 }
 
+=head2 merge
+
+Merges this L<CollabIRCate::Bot::Response> object with another.
+
+=cut
+
 sub merge {
     my $self = shift;
     my $other_response = shift;
@@ -54,6 +93,12 @@ sub merge {
                               @{ $other_response->public_response || [] } ] );
     return $self;
 }
+
+=head2 emit
+
+Emits the responses, public and private, to an IRC server.
+
+=cut
 
 sub emit {
     my $self = shift;
