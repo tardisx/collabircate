@@ -1,7 +1,7 @@
 Testing the system
 ------------------
 
-[skaro:~/collabircate] justin% script/collabircate_testharness.pl
+[hostname:~/collabircate] justin% script/collabircate_testharness.pl
 ...
 All tests successful.
 Files=8, Tests=29,  3 wallclock secs ( 0.04 usr  0.03 sys +  2.30 cusr  0.34 csys =  2.71 CPU)
@@ -19,6 +19,11 @@ Configuration
 -------------
 
 All configuration is within collabircate.conf
+
+Deploy the DB schema
+--------------------
+
+Run bin/deploy.pl to deploy the sqlite db schema.
 
 Installing the web component as a CGI
 -------------------------------------
@@ -49,11 +54,6 @@ $HTTP["url"] =~ "^/urlprefix" {
 Where 'urlprefix' is whatever you choose for the CollabIRCate URL's - the 
 system is happy to be rooted wherever you like.
 
-Deploy the DB schema
---------------------
-
-Run bin/deploy.pl to deploy the sqlite db schema.
-
 Running the IRC server and bot
 ------------------------------
 
@@ -71,3 +71,4 @@ Trying it out
 
 Log in with your favourite client. Join the #channel of your choice and
 /invite the bot to your channel.
+
