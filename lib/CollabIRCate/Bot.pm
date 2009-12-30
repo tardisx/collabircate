@@ -4,6 +4,8 @@ use strict;
 use warnings;
 
 use CollabIRCate::Config;
+use CollabIRCate::Bot::Response;
+
 use Carp qw/croak/;
 use Module::Pluggable require => 1;
 
