@@ -10,26 +10,28 @@ use lib dir( $Bin, '..', 'lib' )->stringify;
 use Config::General;
 use Carp qw/croak/;
 
-use Config::General;
-
 my  $config;
 my  $schema;
 
 sub config {
-
     return $config if defined $config;
 
     eval {
-    $config = { Config::General->new("$Bin/../collabircate.conf")->getall }
-        unless defined $config;
+        foreach ( "$Bin/../collabircate.conf",
+                  "$Bin/collabircate.conf",
+                  "$Bin/../../collabircate.conf" ) {
+          if ( -e ) {
+            $config = { Config::General->new($_)->getall };
+            last;
+          }
+        }
     };
 
     if ($@) {
-    $config = { Config::General->new("$Bin/../../collabircate.conf")->getall }
-        unless defined $config;
+        croak "cannot load config file: $@";
     }
-
-    croak "cannot load config file" unless defined $config;
+    
+    croak "cannot load config file - empty?" unless defined $config;
 
     # update config from ENV
     foreach my $key (keys %ENV) {
@@ -52,13 +54,15 @@ sub schema {
     my $config = config();
 
     # require this here to avoid a problem
-    require CollabIRCate::Schema;
-    
+    eval {
+        require CollabIRCate::Schema;
+    };
+    croak $@ if $@;
+
     $schema = CollabIRCate::Schema->connect($config->{dsn})
         || croak "cannot connect to schema";
 
     return $schema;
-
 }
 
 1;
