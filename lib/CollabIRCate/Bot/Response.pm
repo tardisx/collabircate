@@ -9,6 +9,18 @@ use Carp qw/croak/;
 has 'public_response'  => ( is => 'rw', isa => 'ArrayRef' );
 has 'private_response' => ( is => 'rw', isa => 'ArrayRef' );
 
+sub add_response {
+    my $self = shift;
+    my $args = shift || {};
+
+    if ($args->{channel}) {
+        return $self->add_public_response($args);
+    }
+    else {
+        return $self->add_private_response($args);
+    }
+}
+
 sub add_public_response {
     my $self = shift;
     my $args = shift || {};
@@ -43,31 +55,58 @@ sub add_private_response {
 }
 
 sub merge {
-    my $self = shift;
+    my $self           = shift;
     my $other_response = shift;
 
     croak "not a CollabIRCate::Bot::Response object"
         unless ( ref $other_response eq 'CollabIRCate::Bot::Response' );
-    $self->private_response( [ @{ $self->private_response || [] },
-                               @{ $other_response->private_response || [] } ] );
-    $self->public_response( [ @{ $self->public_response || [] },
-                              @{ $other_response->public_response || [] } ] );
+    $self->private_response(
+        [   @{ $self->private_response || [] },
+            @{ $other_response->private_response || [] }
+        ]
+    );
+    $self->public_response(
+        [   @{ $self->public_response || [] },
+            @{ $other_response->public_response || [] }
+        ]
+    );
     return $self;
+}
+
+sub has_response {
+    my $self = shift;
+
+    if ( $self->private_response
+        && @{ $self->private_response } )
+    {
+        return 1;
+    }
+
+    if ( $self->public_response
+        && @{ $self->public_response } )
+    {
+        return 1;
+    }
+    return 0;
 }
 
 sub emit {
     my $self = shift;
     my $irc  = shift;
 
-    if ($self->private_response) {
+    return unless $self->has_response;
+
+    if ( $self->private_response ) {
         foreach ( @{ $self->private_response } ) {
-            die "unimplemented";
-        }
+            my ( $user, $text ) = @$_;
+            my $nick = $user->nick();
+            $irc->yield( privmsg => $nick, $text );
+         }
     }
 
-    if ($self->public_response) {
+    if ( $self->public_response ) {
         foreach ( @{ $self->public_response } ) {
-            my ($channel, $text) = @$_;
+            my ( $channel, $text ) = @$_;
             $irc->yield( privmsg => $channel, $text );
         }
     }
