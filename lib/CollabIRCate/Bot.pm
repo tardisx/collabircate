@@ -45,7 +45,8 @@ my @plugins = plugins();
 
 @plugins = (#'CollabIRCate::Bot::Plugin::Statistics',
             'CollabIRCate::Bot::Plugin::Rot13',
-            'CollabIRCate::Bot::Plugin::Math');
+            'CollabIRCate::Bot::Plugin::Math',
+            'CollabIRCate::Bot::Plugin::WorldTime');
 
 my @sorry_messages = (
     "sorry NICK, I'm not sure what you mean by 'MSG'",
@@ -68,9 +69,7 @@ sub bot_heard {
     # check plugins
     my $all_responses = CollabIRCate::Bot::Response->new();
     foreach my $plugin (@plugins) {
-        warn "HRD: Checking $plugin";
         if ($plugin->register->{public}) {
-            warn "RUNNING";
             my $response = &{ $plugin->register->{public} }($who, $channel, $message);
             # XXX do something with the response
 
@@ -90,9 +89,7 @@ sub bot_addressed {
 
     my $all_responses = CollabIRCate::Bot::Response->new();
     foreach my $plugin (@plugins) {
-        warn "ADD: Checking $plugin";
         if ($plugin->register->{addressed}) {
-            warn "RUNNING";
             my $response = &{ $plugin->register->{addressed} }($who, $channel, $message);
             $all_responses->merge($response) if ($response);
         }
