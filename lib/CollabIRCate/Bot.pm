@@ -4,6 +4,8 @@ use strict;
 use warnings;
 
 use CollabIRCate::Config;
+use CollabIRCate::Bot::Response;
+
 use Carp qw/croak/;
 use Module::Pluggable require => 1;
 
@@ -41,8 +43,10 @@ our @tell;
 my $schema = CollabIRCate::Config->schema;
 my @plugins = plugins();
 
-@plugins = ('CollabIRCate::Bot::Plugin::Statistics',
-            'CollabIRCate::Bot::Plugin::Rot13');
+@plugins = (#'CollabIRCate::Bot::Plugin::Statistics',
+            'CollabIRCate::Bot::Plugin::Rot13',
+            'CollabIRCate::Bot::Plugin::Math',
+            'CollabIRCate::Bot::Plugin::WorldTime');
 
 my @sorry_messages = (
     "sorry NICK, I'm not sure what you mean by 'MSG'",

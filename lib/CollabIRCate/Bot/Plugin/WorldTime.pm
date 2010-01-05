@@ -5,6 +5,13 @@ use warnings;
 
 use base 'CollabIRCate::Bot::Plugin';
 
+sub register {
+  return {
+    public => \&answer,
+    addressed => \&answer
+  };
+}
+
 my %timezones = (
     'london',   'Europe/London',      'adelaide',  'Australia/Adelaide',
     'brisbane', 'Australia/Brisbane', 'melbourne', 'Australia/Melbourne',
@@ -12,7 +19,9 @@ my %timezones = (
 );
 
 sub answer {
-    my ( $class, $question ) = @_;
+  my $user    = shift;
+  my $channel = shift;
+  my $question  = shift;
 
     if (   $question =~ /time.*in.*\s(\w{4,})\?*/i
         || $question =~ /(\w{4,}) time/i )
@@ -31,7 +40,11 @@ sub answer {
             $result = 'sorry, don\'t know about the time in ' . $place;
         }
 
-        return { answer => $result };
+        my $response = CollabIRCate::Bot::Response->new;
+        $response->add_response({channel => $channel,
+                                 user => $user,
+                                 text => $result});
+        return $response;
     }
     else {
         return;
