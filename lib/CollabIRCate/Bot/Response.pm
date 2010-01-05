@@ -29,13 +29,12 @@ in one place.
 has 'public_response'  => ( is => 'rw', isa => 'ArrayRef' );
 has 'private_response' => ( is => 'rw', isa => 'ArrayRef' );
 
-<<<<<<< HEAD:lib/CollabIRCate/Bot/Response.pm
 =head2 add_public_response
 
 Add a public response. Requires a hash ref with channel and text keys.
 
 =cut
-=======
+
 sub add_response {
     my $self = shift;
     my $args = shift || {};
