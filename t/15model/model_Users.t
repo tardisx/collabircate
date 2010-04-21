@@ -1,14 +1,10 @@
 use strict;
 use warnings;
-use CollabIRCate::Config;
 
-use Test::More tests => 2;
+use Test::More tests => 3;
 
-my $schema = CollabIRCate::Config->schema;
+use_ok('CollabIRCate::DB::User');
 
-ok( defined $schema, 'got schema object' );
-
-my $user = $schema->resultset('Users')->create({email => 'justin@hawkins.id.au',
-                                                password => 'justin'});
+my $user = CollabIRCate::DB::User->new(email => 'justin@hawkins.id.au');
 ok( defined $user, 'created user');
-                                                
+ok ($user->save, 'could save it');
