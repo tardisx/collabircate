@@ -3,7 +3,7 @@
 DROP TABLE tag;
 DROP TABLE log;
 DROP TABLE channel;
-DROP TABLE users;
+DROP TABLE user;
 
 CREATE TABLE channel (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
