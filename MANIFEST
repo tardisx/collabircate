@@ -14,7 +14,6 @@ doc/collabircate.txt
 doc/irc_auth.txt
 etc/schema.sql
 INSTALL
-lib/CollabIRCate.pm
 lib/CollabIRCate/Bot.pm
 lib/CollabIRCate/Config.pm
 lib/CollabIRCate/Controller/File.pm
@@ -23,15 +22,8 @@ lib/CollabIRCate/Controller/Root.pm
 lib/CollabIRCate/File.pm
 lib/CollabIRCate/Log.pm
 lib/CollabIRCate/Model/CollabIRCateDB.pm
-lib/CollabIRCate/Schema.pm
-lib/CollabIRCate/Schema/Channel.pm
-lib/CollabIRCate/Schema/ChannelReport.pm
 lib/CollabIRCate/Schema/File.pm
-lib/CollabIRCate/Schema/Log.pm
 lib/CollabIRCate/Schema/Request.pm
-lib/CollabIRCate/Schema/Tag.pm
-lib/CollabIRCate/Schema/Users.pm
-lib/CollabIRCate/View/Site.pm
 Makefile.PL
 MANIFEST			This list of files
 META.yml
