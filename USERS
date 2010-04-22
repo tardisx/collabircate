@@ -23,7 +23,10 @@ The user@host.name section identifies a user at that particular point in time.
 
 At any time we should allow a user to authenticate and this would immediately
 tag any previous records with the correct username. To be reasonable this would
-perhaps only go back a certain amount of time (configurable).
+perhaps only go back a certain amount of time (configurable). Since the bot is
+'keeping tabs' on existing unauthenticated users, it can choose when to
+invalidate old unauthenticated entries based on the user logging off or otherwise
+being uncommunicative.
 
 Since the only (semi) trustworthy part of the signature is the hostname, in the
 day of shared hosts and proxy servers, it may be required by some admins that
