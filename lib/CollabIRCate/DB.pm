@@ -21,6 +21,18 @@ __PACKAGE__->register_db(
   database => 'collabircate_dev.db',
 );
 
+# XXX TODO remove hard coded username/password
+# Development (Pg):
+__PACKAGE__->register_db(
+  domain   => 'development_pg',
+  driver   => 'pg',
+  database => 'collabircate_dev',
+  host     => 'localhost',
+  username => 'justin',
+  password => 'justin',
+);
+
+# Production:
 __PACKAGE__->register_db(
   domain   => 'production',
   driver   => 'pg',
