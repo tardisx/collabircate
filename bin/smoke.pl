@@ -4,12 +4,13 @@ use File::Temp qw/tempfile/;
 use LWP::UserAgent;
 use HTTP::Cookies;
 
-my $username = $ENV{SMOLDER_USERNAME};
-my $password = $ENV{SMOLDER_PASSWORD};
-my $server   = $ENV{SMOLDER_SERVER};
-my $port     = $ENV{SMOLDER_PORT};
+my $username  = $ENV{SMOLDER_USERNAME};
+my $password  = $ENV{SMOLDER_PASSWORD};
+my $server    = $ENV{SMOLDER_SERVER};
+my $port      = $ENV{SMOLDER_PORT};
+my $projectid = $ENV{SMOLDER_PROJECTID};
 
-die unless ($username && $password && $server && $port);
+die unless ($username && $password && $server && $port && $projectid);
 
 my ($fh, $filename) = tempfile(  TEMPLATE => 'tempXXXXX',
                                  SUFFIX => '.tar.gz');
@@ -30,7 +31,7 @@ $response  = $agent->post(
 die "bad login" unless $response->code == 302;
 
 $response = $agent->post(
-  "http://$server:$port/app/projects/process_add_report/2",
+  "http://$server:$port/app/projects/process_add_report/$projectid",
   Content_Type => 'multipart/form-data',
   Content      => [
     platform     => $platform,
