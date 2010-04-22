@@ -4,6 +4,7 @@ DROP TABLE tag;
 DROP TABLE log;
 DROP TABLE channel;
 DROP TABLE user;
+DROP TABLE irc_user;
 
 CREATE TABLE channel (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -13,14 +14,23 @@ CREATE TABLE channel (
 
 CREATE TABLE user (
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
-  email      TEXT UNIQUE
+  email      TEXT UNIQUE,
+  username   TEXT UNIQUE,
+  password   TEXT UNIQUE
+);
+
+CREATE TABLE irc_user (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  irc_user   TEXT NOT NULL,
+  ts         TIMESTAMP NOT NULL
 );
 
 CREATE TABLE log (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   ts          TIMESTAMP NOT NULL,
   channel_id  INT NOT NULL REFERENCES channel(id),
-  user_id    INT NOT NULL REFERENCES user(id),
+  user_id     INT          REFERENCES user(id),
+  irc_user_id INT          REFERENCES irc_user(id),
   type        TEXT NOT NULL,
   entry       TEXT NOT NULL
 );
