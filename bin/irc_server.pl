@@ -1,6 +1,5 @@
 #!/usr/bin/perl
 
-# A fairly simple example:
 use strict;
 use warnings;
 
@@ -12,9 +11,10 @@ use lib dir( $Bin, '..', 'lib' )->stringify;
 
 use POE qw(Component::Server::IRC);
 
-use CollabIRCate::Config;
+use Config::Any;
+my $configs = Config::Any->load_files({files => ["collabircate.conf"]});
+my $config = $configs->[0]->{'collabircate.conf'};
 
-my $config = CollabIRCate::Config->config;
 my $PORT = $config->{irc_server_port} || 6669;
 my $debug = 0;
 
@@ -46,9 +46,6 @@ sub _start {
         spoof    => 'm33p.com',
         no_tilde => 1
     );
-
-# We have to add an auth as we have specified one above.
-#    $heap->{ircd}->add_auth( mask => '~justin@hawkins.id.au@*', password => 'fungula', no_tilde => 1 );
 
     $heap->{ircd}->add_auth( mask => '*@*' );
 
