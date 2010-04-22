@@ -1,7 +1,9 @@
 Requirements
 ------------
 
-Mojolicious framework
+Mojolicious framework:
+
+$ sudo cpan Mojolicious
 
 Testing the system
 ------------------
