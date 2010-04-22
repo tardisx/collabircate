@@ -367,6 +367,7 @@ sub on_names {
 sub whois {
     my $info = $_[ARG0];
 
+    return if (! $info->{channels});
     my @channels = @{ $info->{channels} };
 
     s/^@// foreach @channels;    # remove oper crap
