@@ -5,7 +5,6 @@ use inc::Module::Install;
 name 'CollabIRCate';
 
 requires 'Mojolicious';
-requires 'SQL::Translator';
 
 requires 'Module::Pluggable';
 requires 'REST::Google';
