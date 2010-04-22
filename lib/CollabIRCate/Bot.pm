@@ -40,7 +40,6 @@ it under the same terms as Perl itself.
 our @EXPORT_OK = qw/bot_addressed bot_heard/;
 our @tell;
 
-my $schema = CollabIRCate::Config->schema;
 my @plugins = plugins();
 
 @plugins = (#'CollabIRCate::Bot::Plugin::Statistics',

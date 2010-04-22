@@ -4,20 +4,16 @@ use strict;
 use warnings;
 use Carp;
 
-require CollabIRCate::Config;
-require CollabIRCate::Schema;
-
-#require CollabIRCate::Schema::Channel;
-#require CollabIRCate::Schema::Tag;
+use CollabIRCate::Config;
 
 use Exporter qw/import/;
-our @EXPORT_OK = qw/accept_file/;
+# our @EXPORT_OK = qw/accept_file/;
 
 our $config = CollabIRCate::Config->config();
-our $schema = CollabIRCate::Config->schema();
+
+=pod
 
 # accept a file that has been sent to us, with a request hash
-
 sub accept_file {
     my ( $files, $hash, $requested_filename ) = @_;
 
@@ -64,3 +60,6 @@ sub accept_file {
     
 }
 
+=cut
+
+1;

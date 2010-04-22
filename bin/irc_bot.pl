@@ -8,18 +8,19 @@ use FindBin qw/$Bin/;
 use Path::Class;
 use lib dir( $Bin, '..', 'lib' )->stringify;
 
+
 use CollabIRCate::Config;
 use CollabIRCate::Log qw/add_log/;
 use CollabIRCate::Bot qw/bot_heard bot_addressed/;
 use CollabIRCate::Bot::Users;
-use CollabIRCate::File qw/accept_file/;
+# use CollabIRCate::File qw/accept_file/;
 
-my $config = CollabIRCate::Config->config();
-my $schema = CollabIRCate::Config->schema();
+my $config = CollabIRCate::Config->config;
 
 my $HOST    = $config->{irc_bot_server_host} || croak "no server host";
 my $PORT    = $config->{irc_bot_server_port} || croak "no server port";
 my $BOTNICK = $config->{irc_bot_nickname}    || 'undefBOT';
+
 
 use POE;
 use POE::Component::IRC;
@@ -240,6 +241,10 @@ sub check_tells {
 sub check_requests {
     my ($kernel) = @_[ KERNEL, ARG0 ];
 
+}
+
+=pod
+
     # check the database to see if we have any new requests that
     # have been uploaded
     my %requests_logged = ();
@@ -293,10 +298,17 @@ sub check_requests {
     $kernel->delay( check_requests => 10 );
 }
 
+=cut
+
 sub dcc_request {
     my $heap = $_[HEAP];
     my ( $who, $type, $port, $cookie, $file, $size, $addr )
         = @_[ ARG0 .. $#_ ];
+
+}
+
+=pod
+    
     return if $type ne 'SEND';
 
     my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
@@ -324,6 +336,8 @@ sub dcc_request {
 
     $irc->yield( dcc_accept => $cookie, "/tmp/" . $req->hash );
 }
+
+=cut
 
 sub dcc_get {
     # for now we just ignore these, they are noise.

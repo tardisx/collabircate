@@ -4,10 +4,12 @@ use strict;
 use warnings;
 use Carp qw/croak confess/;
 
-require CollabIRCate::Config;
-require CollabIRCate::Schema;
-require CollabIRCate::Schema::Channel;
-require CollabIRCate::Schema::Tag;
+use CollabIRCate::Config;
+
+use CollabIRCate::DB::Channel;
+use CollabIRCate::DB::Log;
+
+use CollabIRCate::Bot::Users;
 
 use DateTime;
 
@@ -15,7 +17,6 @@ use Exporter qw/import/;
 our @EXPORT_OK = qw/add_log/;
 
 our $config = CollabIRCate::Config->config();
-our $schema = CollabIRCate::Config->schema();
 
 sub add_log {
     my ( $who, $where, $type, $what ) = @_;
@@ -37,25 +38,27 @@ sub add_log {
 
 =cut
     my $irc_user = $who;
-    my $users_id = undef;
+    my $user_id = undef;
 
-    my $channel
-        = $schema->resultset('Channel')->find_or_create( { name => $where } );
-    my $log = $schema->resultset('Log')->create(
-        {   channel_id => $channel->id,
-            users_id   => $users_id,
-            irc_user   => $irc_user,
-            entry      => $what,
-            type       => $type,
-            ts         => DateTime->now(),
-        }
-    );
+    my $channel = CollabIRCate::DB::Channel->new( name => $where );
+    $channel->insert_or_update();
+    
+    my $log = CollabIRCate::DB::Log->new(
+          channel_id => $channel->id,
+          user_id    => $user_id,
+          entry      => $what,
+          type       => $type,
+          ts         => DateTime->now(),
+      )->save;
 
-    _add_tags( $what, $log->id );
+
+#    _add_tags( $what, $log->id );
 
     return $log->id;
 
 }
+
+=pod
 
 sub _add_tags {
     my $msg    = shift;
@@ -74,5 +77,7 @@ sub _add_tags {
     }
     return;
 }
+
+=cut
 
 1;
