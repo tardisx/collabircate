@@ -1,0 +1,37 @@
+Dealing with users
+
+Users on IRC are unauthenticated. We could force them to authenticate (via IRC
+server auth mechanisms), but this is undesirable:
+
+* it would mean only using our IRC server, never an existing one
+* IRC doesn't 'work that way' and it would prove a hurdle for users
+  to overcome
+
+So we need to provide an alternative. The first goal here is to not get in
+people's way. Initially we want people to log on and take part without having
+to go to the trouble of obtaining a username/password. In addition, some server
+admins may want the system to work this way always. In this case, the system is
+simply 'open' and users never authenticate.
+
+We should not throw away their entries because they are unauthenticated. We
+should keep them, and let them be 'tagged' with the correct username once we
+have identified them.
+
+An IRC user is represented as nick!user@host.name. The username part of
+easily changed by the user, and of course the nick can be changed at any time.
+The user@host.name section identifies a user at that particular point in time.
+
+At any time we should allow a user to authenticate and this would immediately
+tag any previous records with the correct username. To be reasonable this would
+perhaps only go back a certain amount of time (configurable).
+
+Since the only (semi) trustworthy part of the signature is the hostname, in the
+day of shared hosts and proxy servers, it may be required by some admins that
+all log messages from non authenticated users are discarded and retro-active
+tagging is simply not possible.
+
+Authentication should be as easy as possible:
+
+* via a private message to the bot auth USERNAME PASSWORD
+* via a web page link (with hash to identify this nick!user@host.name)
+
