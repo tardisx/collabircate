@@ -34,11 +34,8 @@ system ("cp", "collabircate.conf.sample", "collabircate.conf");
 mkdir $store;
 mkdir $queue;
 
-# set up
-system ("perl", "Makefile.PL");
-
 # deploy sql
-system ("bin/deploy.pl");
+# XXX need a new solution for this
 
 # start the server and bot
 my $spid = start_server();
