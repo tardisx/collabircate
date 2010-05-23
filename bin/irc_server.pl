@@ -11,7 +11,9 @@ use lib dir( $Bin, '..', 'lib' )->stringify;
 
 use POE qw(Component::Server::IRC);
 
+use CollabIRCate::Logger;
 use Config::Any;
+
 my $configs = Config::Any->load_files({files => ["collabircate.conf"]});
 my $config = $configs->[0]->{'collabircate.conf'};
 
@@ -27,12 +29,16 @@ my %config = (
 
 my $pocosi = POE::Component::Server::IRC->spawn( config => \%config );
 
+my $logger = CollabIRCate::Logger->get('irc_server');
+
+$logger->info("creating session");
 POE::Session->create(
     package_states =>
         [ 'main' => [qw(_start _default ircd_listener_failure   )], ],
     heap => { ircd => $pocosi },
 );
 
+$logger->info("starting kernel");
 $poe_kernel->run();
 exit 0;
 

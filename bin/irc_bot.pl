@@ -8,12 +8,13 @@ use FindBin qw/$Bin/;
 use Path::Class;
 use lib dir( $Bin, '..', 'lib' )->stringify;
 
-
 use CollabIRCate::Config;
 use CollabIRCate::Log qw/add_log/;
 use CollabIRCate::Bot qw/bot_heard bot_addressed/;
 use CollabIRCate::Bot::Users;
 # use CollabIRCate::File qw/accept_file/;
+
+use CollabIRCate::Logger;
 
 my $config = CollabIRCate::Config->config;
 
@@ -21,19 +22,22 @@ my $HOST    = $config->{irc_bot_server_host} || croak "no server host";
 my $PORT    = $config->{irc_bot_server_port} || croak "no server port";
 my $BOTNICK = $config->{irc_bot_nickname}    || 'undefBOT';
 
-
 use POE;
 use POE::Component::IRC;
 use POE::Component::IRC::Common qw/parse_user/;
 use POE::Component::IRC::Plugin::BotAddressed;
 
+my $logger = CollabIRCate::Logger->get('irc_bot');
+
 my $seen = {};
 
 # Create the component that will represent an IRC network.
+$logger->info('creating irc component');
 my ($irc) = POE::Component::IRC->spawn();
 
 # Create the bot session.  The new() call specifies the events the bot
 # knows about and the functions that will handle those events.
+$logger->info('creating session');
 POE::Session->create(
     inline_states => {
         _start     => \&bot_start,
@@ -71,6 +75,8 @@ sub bot_start {
     my $heap    = $_[HEAP];
     my $session = $_[SESSION];
 
+    $logger->info('bot starting');
+    
     $irc->yield( register => "all" );
     $irc->plugin_add( 'BotAddressed', POE::Component::IRC::Plugin::BotAddressed->new() );
 
@@ -92,6 +98,7 @@ sub bot_start {
 
 # The bot has successfully connected to a server.  Join a channel.
 sub on_connect {
+    $logger->info('bot connected');
     $irc->yield( oper => '~peoplebot' => 'fishdontbreathe' );
 
 }
@@ -102,6 +109,8 @@ sub on_public {
     my ( $kernel, $who, $where, $msg ) = @_[ KERNEL, ARG0, ARG1, ARG2 ];
     my $channel = $where->[0];
 
+    $logger->info('bot saw public message');
+    
     my $ts   = scalar localtime;
     my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
 

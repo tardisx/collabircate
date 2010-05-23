@@ -3,6 +3,7 @@ package CollabIRCate::Bot;
 use strict;
 use warnings;
 
+use CollabIRCate::Logger;
 use CollabIRCate::Config;
 use CollabIRCate::Bot::Response;
 
@@ -10,7 +11,6 @@ use Carp qw/croak/;
 use Module::Pluggable require => 1;
 
 use Exporter qw/import/;
-
 
 =head1 NAME
 
@@ -39,6 +39,8 @@ it under the same terms as Perl itself.
 
 our @EXPORT_OK = qw/bot_addressed bot_heard/;
 our @tell;
+
+our $logger = CollabIRCate::Logger->get('bot');
 
 my @plugins = plugins();
 
