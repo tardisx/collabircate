@@ -25,7 +25,6 @@ my $BOTNICK = $config->{irc_bot_nickname}    || 'undefBOT';
 use POE;
 use POE::Component::IRC;
 use POE::Component::IRC::Common qw/parse_user/;
-use POE::Component::IRC::Plugin::BotAddressed;
 
 my $logger = CollabIRCate::Logger->get('irc_bot');
 
@@ -78,7 +77,6 @@ sub bot_start {
     $logger->info('bot starting');
     
     $irc->yield( register => "all" );
-    $irc->plugin_add( 'BotAddressed', POE::Component::IRC::Plugin::BotAddressed->new() );
 
     $irc->yield(
         connect => {
