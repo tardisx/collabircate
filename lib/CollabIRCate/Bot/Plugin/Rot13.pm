@@ -5,9 +5,22 @@ use warnings;
 
 use base 'CollabIRCate::Bot::Plugin';
 
+=head2 register
+
+Registers the Rot13 plugin. The Rot13 plugin answers requests to rot13
+strings.
+
+=cut
+
 sub register {
     return { public => \&answer };
 }
+
+=head2 answer
+
+Answer a request.
+
+=cut
 
 sub answer {
   my ($who, $channel, $question) = @_;

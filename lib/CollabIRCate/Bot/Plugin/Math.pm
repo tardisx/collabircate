@@ -5,12 +5,24 @@ use warnings;
 
 use base 'CollabIRCate::Bot::Plugin';
 
+=head2 register
+
+Registers the Math plugin.
+
+=cut
+
 sub register {
     return {
         public    => \&answer,
         addressed => \&answer
     };
 }
+
+=head2 answer
+
+Answers a math question.
+
+=cut
 
 sub answer {
     my $user    = shift;
