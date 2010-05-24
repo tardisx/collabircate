@@ -21,10 +21,9 @@ CollabIRCate::Bot::Users
   # return his nickname
   my $nick = $user->get_nick();
 
-  # 
-
   # get a token to provide the user so we can authenticate them
   my $token = $user->get_token();
+  # (give them $token)
 
   # [time passes]
   # do we know them now?
@@ -99,7 +98,7 @@ sub from_ircuser {
             && $hostname eq $check_user->hostname() )
         {
 
-         # update the nick, they might have changed while we weren't watching!
+            # update the nick, they might have changed while we weren't watching!
             $check_user->nick($nick);
             $check_user->last_seen( time() );
             return $check_user;
