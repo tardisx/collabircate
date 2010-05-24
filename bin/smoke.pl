@@ -20,7 +20,6 @@ $revision =~ s/^commit\s+//;
 my $platform = `uname`;
 chomp $platform;
 
-system ("perl", "Makefile.PL");
 system ("/usr/bin/prove","-Ilib", "-r","--archive",$filename);
 
 my $agent = LWP::UserAgent->new(cookie_jar=> {});
