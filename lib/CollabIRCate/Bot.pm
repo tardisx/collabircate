@@ -40,25 +40,15 @@ it under the same terms as Perl itself.
 our @EXPORT_OK = qw/bot_addressed bot_heard/;
 our @tell;
 
-our $logger = CollabIRCate::Logger->get('bot');
+our $logger = CollabIRCate::Logger->get(__PACKAGE__);
 
 my @plugins = plugins();
 
-@plugins = (#'CollabIRCate::Bot::Plugin::Statistics',
-            'CollabIRCate::Bot::Plugin::Rot13',
-            'CollabIRCate::Bot::Plugin::Math',
-            'CollabIRCate::Bot::Plugin::WorldTime');
-
-my @sorry_messages = (
-    "sorry NICK, I'm not sure what you mean by 'MSG'",
-    "NICK, I'm having trouble following you",
-    "what do you mean by 'MSG', NICK?",
-    "I'd love to help with 'MSG', but I'm not sure what it's about",
-    "'MSG'? What do you mean NICK?",
-    "an interesting concept I'm sure, NICK",
-    "NICK, that makes little sense to me :-(",
-    "I'm not sure what you mean NICK",
-    "I don't have enough brains to work that out, NICK",
+# XXX override plugins 
+@plugins = (    #'CollabIRCate::Bot::Plugin::Statistics',
+    'CollabIRCate::Bot::Plugin::Rot13',
+    'CollabIRCate::Bot::Plugin::Math',
+    'CollabIRCate::Bot::Plugin::WorldTime'
 );
 
 # someone said something to anyone, the bot 'heard' it
@@ -69,12 +59,17 @@ sub bot_heard {
 
     # check plugins
     my $all_responses = CollabIRCate::Bot::Response->new();
+    $logger->debug("considering plugins for '$message' - heard publically");
+    
     foreach my $plugin (@plugins) {
-        if ($plugin->register->{public}) {
-            my $response = &{ $plugin->register->{public} }($who, $channel, $message);
-            # XXX do something with the response
+        if ( $plugin->register->{public} ) {
+            $logger->debug("checking $plugin");
+            my $response = &{ $plugin->register->{public} }( $who, $channel,
+                $message );
 
+            # XXX do something with the response
             if ($response) {
+                $logger->debug("received response");
                 $all_responses->merge($response);
             }
         }
@@ -89,10 +84,18 @@ sub bot_addressed {
     my $message = shift;
 
     my $all_responses = CollabIRCate::Bot::Response->new();
+    $logger->debug("considering plugins for '$message' - addressed to me");
+    
     foreach my $plugin (@plugins) {
-        if ($plugin->register->{addressed}) {
-            my $response = &{ $plugin->register->{addressed} }($who, $channel, $message);
-            $all_responses->merge($response) if ($response);
+        if ( $plugin->register->{addressed} ) {
+            $logger->debug("checking $plugin");
+            my $response
+                = &{ $plugin->register->{addressed} }( $who, $channel,
+                $message );
+            if ($response) {
+                $logger->debug("received a response");
+                $all_responses->merge($response);
+            }
         }
     }
 
