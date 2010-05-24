@@ -14,7 +14,7 @@ use POE qw(Component::Server::IRC);
 use CollabIRCate::Logger;
 use Config::Any;
 
-my $configs = Config::Any->load_files({files => ["collabircate.conf"]});
+my $configs = Config::Any->load_files({files => ["collabircate.conf"], use_ext => 1});
 my $config = $configs->[0]->{'collabircate.conf'};
 
 my $PORT = $config->{irc_server_port} || 6669;
