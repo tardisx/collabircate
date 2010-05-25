@@ -223,6 +223,18 @@ sub one_channel {
     }
 }
 
+=head2 id
+
+Return the id for this user
+
+=cut
+
+sub id {
+    my $self = shift;
+    return 1;  # XXX
+    
+}
+
 sub dump {
     use Data::Dumper;
     print Dumper \@known_users;

@@ -16,7 +16,7 @@ CollabIRCate::Bot - Implement the brains of an IRC bot.
 
 =head1 SYNOPSIS
 
-See L<CollabIRCate>
+  my $bot = CollabIRCate::Bot->new();
 
 =head1 DESCRIPTION
 
@@ -58,7 +58,7 @@ Tell the Bot that it heard something, what it heard and who said it.
 
 sub bot_heard {
     my $self    = shift;
-    my $who     = shift;
+    my $user    = shift;
     my $channel = shift;
     my $message = shift;
 
@@ -69,10 +69,9 @@ sub bot_heard {
     foreach my $plugin (@plugins) {
         if ( $plugin->register->{public} ) {
             $logger->debug("checking $plugin");
-            my $response = &{ $plugin->register->{public} }( $who, $channel,
+            my $response = &{ $plugin->register->{public} }( $user, $channel,
                 $message );
 
-            # XXX do something with the response
             if ($response) {
                 $logger->debug("received response");
                 $all_responses->merge($response);
@@ -88,10 +87,10 @@ Tell the Bot that it someone told it something, either directly (privately)
 or addressed by name in a channel.
 
 =cut
-    
+
 sub bot_addressed {
     my $self    = shift;
-    my $who     = shift;
+    my $user    = shift;
     my $channel = shift;    # undef if private
     my $message = shift;
 
@@ -102,7 +101,7 @@ sub bot_addressed {
         if ( $plugin->register->{addressed} ) {
             $logger->debug("checking $plugin");
             my $response
-                = &{ $plugin->register->{addressed} }( $who, $channel,
+                = &{ $plugin->register->{addressed} }( $user, $channel,
                 $message );
             if ($response) {
                 $logger->debug("received a response");

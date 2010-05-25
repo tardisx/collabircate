@@ -22,30 +22,15 @@ sub add_log {
     my ( $who, $where, $type, $what ) = @_;
     $where = lc($where);
 
-=pod
-
     confess "not a CollabIRCate::Bot::Users"
         unless $who->isa('CollabIRCate::Bot::Users');
-
-    # If this user if known to us, use them, otherwise use their nick.
-    my ( $user_id, $irc_user );
-    if ( $who->is_identified ) {
-        $user_id = $who->user;
-    }
-    else {
-        $irc_user = $who->irc_user;
-    }
-
-=cut
-    my $irc_user = $who;
-    my $user_id = undef;
 
     my $channel = CollabIRCate::DB::Channel->new( name => $where );
     $channel->insert_or_update();
     
     my $log = CollabIRCate::DB::Log->new(
           channel_id => $channel->id,
-          user_id    => $user_id,
+          user_id    => $who->id,
           entry      => $what,
           type       => $type,
           ts         => DateTime->now(),

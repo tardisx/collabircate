@@ -12,11 +12,12 @@ use CollabIRCate::Config;
 use CollabIRCate::Log qw/add_log/;
 use CollabIRCate::Bot;
 use CollabIRCate::Bot::Users;
+
 # use CollabIRCate::File qw/accept_file/;
 
 use CollabIRCate::Logger;
 
-my $bot = CollabIRCate::Bot->new();  # create a bot
+my $bot = CollabIRCate::Bot->new();    # create a bot
 
 my $config = CollabIRCate::Config->config;
 
@@ -30,7 +31,6 @@ use POE::Component::IRC::Common qw/parse_user/;
 
 my $logger = CollabIRCate::Logger->get('irc_bot');
 
-my $seen = {};
 
 # Create the component that will represent an IRC network.
 $logger->info('creating irc component');
@@ -41,17 +41,17 @@ my ($irc) = POE::Component::IRC->spawn();
 $logger->info('creating session');
 POE::Session->create(
     inline_states => {
-        _start     => \&bot_start,
-        irc_001    => \&on_connect,
-        irc_public => \&on_public,
-        irc_invite => \&on_invite,
-        irc_join   => \&on_join,
-        irc_topic  => \&on_topic,
-        irc_part   => \&on_part,
-        irc_quit   => \&on_quit,
-        irc_msg    => \&on_msg,
-        irc_ctcp_action    => \&on_ctcp_action,
-        irc_353    => \&on_names,
+        _start          => \&bot_start,
+        irc_001         => \&on_connect,
+        irc_public      => \&on_public,
+        irc_invite      => \&on_invite,
+        irc_join        => \&on_join,
+        irc_topic       => \&on_topic,
+        irc_part        => \&on_part,
+        irc_quit        => \&on_quit,
+        irc_msg         => \&on_msg,
+        irc_ctcp_action => \&on_ctcp_action,
+        irc_353         => \&on_names,
 
         _default => \&unknown,
 
@@ -62,7 +62,7 @@ POE::Session->create(
         irc_whois => \&whois,
         irc_nick  => \&nick,
 
-#        check_tells    => \&check_tells,
+        #        check_tells    => \&check_tells,
         check_requests => \&check_requests,
 
         debug => \&debug,
@@ -77,7 +77,7 @@ sub bot_start {
     my $session = $_[SESSION];
 
     $logger->info('bot starting');
-    
+
     $irc->yield( register => "all" );
 
     $irc->yield(
@@ -88,7 +88,8 @@ sub bot_start {
             Ircname  => 'POE::Component::IRC cookbook bot',
             Server   => $HOST,
             Port     => $PORT,
-#            Debug    => 1,
+
+            #            Debug    => 1,
         }
     );
     $kernel->delay( check_tells    => 10 );
@@ -100,7 +101,6 @@ sub bot_start {
 sub on_connect {
     $logger->info('bot connected');
     $irc->yield( oper => '~peoplebot' => 'fishdontbreathe' );
-
 }
 
 # The bot has received a public message.  Parse it for commands, and
@@ -110,27 +110,22 @@ sub on_public {
     my $channel = $where->[0];
 
     $logger->info('bot saw public message');
-    
+
     my $ts   = scalar localtime;
     my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
 
-    add_log( $who, $channel, 'log', $msg );
+    add_log( $user, $channel, 'log', $msg );
 
     if (   $msg =~ /^$BOTNICK,\s*(.*)/i
         || $msg =~ /^$BOTNICK\s+(.*)/i
         || $msg =~ /^${BOTNICK}:\s*(.*)/i
         || $msg =~ /^(.*)\s+${BOTNICK}\s*\?*$/i )
-        {
-            my $response = $bot->bot_addressed($who, $channel, $1);
-            $response->emit($irc);
-
-            # and fake the log
-            #        my $botwho = CollabIRCate::Bot::Users->new({irc_user => $BOTNICK});
-            #        add_log( $botwho, $channel, 'log', $bot_says_pub );
-
+    {
+        my $response = $bot->bot_addressed( $user, $channel, $1 );
+        $response->emit($irc);
     }
     else {
-        my $response = $bot->bot_heard($who, $channel, $msg);
+        my $response = $bot->bot_heard( $user, $channel, $msg );
         $response->emit($irc);
     }
 
@@ -141,7 +136,7 @@ sub on_ctcp_action {
 
     my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
 
-    add_log( $who, $where->[0], 'action', $what );
+    add_log( $user, $where->[0], 'action', $what );
 }
 
 # private msg
@@ -149,12 +144,13 @@ sub on_msg {
     my ( $kernel, $who, $what ) = @_[ KERNEL, ARG0, ARG2 ];
 
     my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
-    $bot->bot_addressed($who, undef, $what);
+    $bot->bot_addressed( $user, undef, $what );
 }
 
 sub on_invite {
     my ( $kernel, $who, $where ) = @_[ KERNEL, ARG0, ARG1 ];
 
+    $logger->info( 'bot invited to channel ' . $where );
     my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
 
     $irc->yield( join => $where );
@@ -170,19 +166,15 @@ sub on_join {
     $irc->yield( 'names' => $where );
 
     my $channel = $where;
-    $seen->{$channel}->{$who} = 1;
 
-    add_log( $who, $channel, 'join', 'joined' );
-    if ( $who =~ /justin|garner|nick|adam|ev|mwp/i ) {
-        $irc->yield( 'mode' => $channel => '+o' => $who );
-    }
+    add_log( $user, $channel, 'join', 'joined' );
 }
 
 sub on_topic {
     my ( $kernel, $who, $where, $topic ) = @_[ KERNEL, ARG0, ARG1, ARG2 ];
 
     my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
-    add_log( $who, $where, 'topic', $topic );
+    add_log( $user, $where, 'topic', $topic );
 }
 
 sub on_part {
@@ -192,8 +184,7 @@ sub on_part {
     $user->remove_channel($where);
 
     my $channel = $where;
-    $seen->{$channel}->{$who} = 0;
-    add_log( $who, $channel, 'part', $why );
+    add_log( $user, $channel, 'part', $why );
 }
 
 sub on_quit {
@@ -201,13 +192,7 @@ sub on_quit {
 
     my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
 
-    # this is perhaps wrong in some edge cases?
-    foreach my $channel ( keys %$seen ) {
-        if ( $seen->{$channel}->{$who} ) {
-            $seen->{$channel}->{$who} = 0;
-            add_log( $who, $channel, 'quit', $why );
-        }
-    }
+    # tell the bot that a user quit
 }
 
 sub unknown {
@@ -228,86 +213,12 @@ sub unknown {
     return 0;
 }
 
-sub check_tells {
-    my ($kernel) = @_[ KERNEL, ARG0, ARG1 ];
-    my @tells = get_tells();
-    foreach my $a_tell (@tells) {
-        my ( $who, $msg, $time ) = @$a_tell;
-        foreach my $channel ( keys %$seen ) {
-            if ( $seen->{$channel}->{$who} ) {
-                $irc->yield(
-                    privmsg => $channel,
-                    "someone told me to tell you '$msg', $who"
-                );
-                del_tell( $who, $msg, $time );
-                last;
-            }
-        }
-    }
-    $kernel->delay( check_tells => 10 );
-}
 
 sub check_requests {
     my ($kernel) = @_[ KERNEL, ARG0 ];
 
 }
 
-=pod
-
-    # check the database to see if we have any new requests that
-    # have been uploaded
-    my %requests_logged = ();
-    my $files           = $schema->resultset('File')->search(
-        { 'request.logged' => 'f', },
-        { join             => { request => 'channel' } }
-    );
-
-    #                  { join      => { 'request' => 'file' },
-    #                    '+select' => [ 'request.id' ],
-    #                    '+as'     => [ 'request_id' ]
-    #                }
-    #              );
-
-    while ( my $unlogged = $files->next ) {
-
-        # we have a file for a channel
-        my $channel = $unlogged->request->channel;
-        if (! $channel) {
-          warn "No channel ??";
-          next;
-        }
-        my $channel_name = $channel->name;
-        my $url 
-            = 'http://' 
-            . $config->{http_server_host}
-            . (
-            $config->{http_server_port}
-            ? ':' . $config->{http_server_port}
-            : ''
-            )
-            . $config->{http_server_path} . "file/"
-            . $unlogged->id;
-        my $filename = $unlogged->filename;
-        $filename =~ s/.*\///;
-        my $message
-            = $filename . " has been uploaded, download it at " . $url;
-
-        $irc->yield( privmsg => $channel, $message );
-
-        # fake the log
-        add_log( $BOTNICK, $channel, 'log', $message );
-        $requests_logged{ $unlogged->request->id } = 1;
-    }
-
-    foreach ( keys %requests_logged ) {
-        $schema->resultset('Request')->search( { id => $_ } )
-            ->update( { logged => 't' } );
-    }
-
-    $kernel->delay( check_requests => 10 );
-}
-
-=cut
 
 sub dcc_request {
     my $heap = $_[HEAP];
@@ -316,39 +227,8 @@ sub dcc_request {
 
 }
 
-=pod
-    
-    return if $type ne 'SEND';
-
-    my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
-    my $nick = $user->nick();
-
-    # get the channel
-    my $channel;
-    unless ( $channel = $user->one_channel ) {
-        my $message = "I don't know which channel to send your file. You are "
-            . "not on any channels I know about, or more than one. Sorry.";
-        $irc->yield( privmsg => $user->nick, $message );
-        return;
-    }
-
-    # make a request
-    my $chan
-        = $schema->resultset('Channel')->search( { name => $channel } )->next;
-    my $chan_id;
-    $chan_id = $chan->id if ($chan);
-    my $req
-        = $schema->resultset('Request')->create( { channel_id => $chan_id } );
-
-    # remember the filename they originally desired
-    $heap->{dcc}->{transfers}->{ $req->hash } = $file;
-
-    $irc->yield( dcc_accept => $cookie, "/tmp/" . $req->hash );
-}
-
-=cut
-
 sub dcc_get {
+
     # for now we just ignore these, they are noise.
 }
 
@@ -390,13 +270,13 @@ sub on_names {
 sub whois {
     my $info = $_[ARG0];
 
-    return if (! $info->{channels});
+    return if ( !$info->{channels} );
     my @channels = @{ $info->{channels} };
 
     s/^@// foreach @channels;    # remove oper crap
 
     # get the bot user and this user objects
-    my $botU  = CollabIRCate::Bot::Users->from_nick($BOTNICK);
+    my $botU = CollabIRCate::Bot::Users->from_nick($BOTNICK);
     my $user = CollabIRCate::Bot::Users->from_ircuser( $info->{nick},
         $info->{user}, $info->{host} );
 
@@ -422,12 +302,12 @@ sub debug {
 }
 
 sub irc_bot_addressed {
-  my ($kernel, $heap) = @_[KERNEL, HEAP];
-  my $nick = ( split /!/, $_[ARG0] )[0];
-  my $channel = $_[ARG1]->[0];
-  my $what = $_[ARG2];
+    my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
+    my $nick    = ( split /!/, $_[ARG0] )[0];
+    my $channel = $_[ARG1]->[0];
+    my $what    = $_[ARG2];
 
-  print "$nick addressed me in channel $channel with the message '$what'\n";
+    print "$nick addressed me in channel $channel with the message '$what'\n";
 }
 
 # Run the bot until it is done.
