@@ -10,11 +10,9 @@ use CollabIRCate::Bot::Response;
 use Carp qw/croak/;
 use Module::Pluggable require => 1;
 
-use Exporter qw/import/;
-
 =head1 NAME
 
-CollabIRCate::Bot - Functions for the CollabIRCate Bot
+CollabIRCate::Bot - Implement the brains of an IRC bot.
 
 =head1 SYNOPSIS
 
@@ -22,9 +20,7 @@ See L<CollabIRCate>
 
 =head1 DESCRIPTION
 
-The L<CollabIRCate::Bot> helps us deal with users, specifically
-L<CollabIRCate::Bot::Users>, who may or may not be identified real
-users of the CollabIRCate system.
+Encapsulates a bot.
 
 =head1 AUTHOR
 
@@ -37,12 +33,11 @@ it under the same terms as Perl itself.
 
 =cut
 
-our @EXPORT_OK = qw/bot_addressed bot_heard/;
-our @tell;
-
-our $logger = CollabIRCate::Logger->get(__PACKAGE__);
+use Moose;
 
 my @plugins = plugins();
+
+our $logger = CollabIRCate::Logger->get(__PACKAGE__);
 
 # XXX override plugins 
 @plugins = (    #'CollabIRCate::Bot::Plugin::Statistics',
@@ -53,6 +48,7 @@ my @plugins = plugins();
 
 # someone said something to anyone, the bot 'heard' it
 sub bot_heard {
+    my $self    = shift;
     my $who     = shift;
     my $channel = shift;
     my $message = shift;
@@ -79,6 +75,7 @@ sub bot_heard {
 
 # someone said something to the bot (publically or privately)
 sub bot_addressed {
+    my $self    = shift;
     my $who     = shift;
     my $channel = shift;    # undef if private
     my $message = shift;

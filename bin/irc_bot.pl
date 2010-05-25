@@ -10,11 +10,13 @@ use lib dir( $Bin, '..', 'lib' )->stringify;
 
 use CollabIRCate::Config;
 use CollabIRCate::Log qw/add_log/;
-use CollabIRCate::Bot qw/bot_heard bot_addressed/;
+use CollabIRCate::Bot;
 use CollabIRCate::Bot::Users;
 # use CollabIRCate::File qw/accept_file/;
 
 use CollabIRCate::Logger;
+
+my $bot = CollabIRCate::Bot->new();  # create a bot
 
 my $config = CollabIRCate::Config->config;
 
@@ -119,7 +121,7 @@ sub on_public {
         || $msg =~ /^${BOTNICK}:\s*(.*)/i
         || $msg =~ /^(.*)\s+${BOTNICK}\s*\?*$/i )
         {
-            my $response = bot_addressed($who, $channel, $1);
+            my $response = $bot->bot_addressed($who, $channel, $1);
             $response->emit($irc);
 
             # and fake the log
@@ -128,7 +130,7 @@ sub on_public {
 
     }
     else {
-        my $response = bot_heard($who, $channel, $msg);
+        my $response = $bot->bot_heard($who, $channel, $msg);
         $response->emit($irc);
     }
 
@@ -147,7 +149,7 @@ sub on_msg {
     my ( $kernel, $who, $what ) = @_[ KERNEL, ARG0, ARG2 ];
 
     my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
-    bot_addressed($who, undef, $what);
+    $bot->bot_addressed($who, undef, $what);
 }
 
 sub on_invite {
@@ -394,12 +396,12 @@ sub whois {
     s/^@// foreach @channels;    # remove oper crap
 
     # get the bot user and this user objects
-    my $bot  = CollabIRCate::Bot::Users->from_nick($BOTNICK);
+    my $botU  = CollabIRCate::Bot::Users->from_nick($BOTNICK);
     my $user = CollabIRCate::Bot::Users->from_ircuser( $info->{nick},
         $info->{user}, $info->{host} );
 
     # only consider the channels that the bot is also on
-    my %bot_channels = map { $_ => 1 } @{ $bot->channels() };
+    my %bot_channels = map { $_ => 1 } @{ $botU->channels() };
 
     foreach (@channels) {
         $user->add_channel($_) if ( $bot_channels{$_} );
