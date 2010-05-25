@@ -9,6 +9,7 @@ This file documents the revision history for the CollabIRCate system.
         - log CTCP ACTION messages
         - encapsulate bot responses in C::B::Response
         - improve plugin features
+        - migrate to Mojolicious and Rose::DB::Object
 
 0.02  2009-07-09 
         - basic bot plug-ability
