@@ -39,14 +39,23 @@ my @plugins = plugins();
 
 our $logger = CollabIRCate::Logger->get(__PACKAGE__);
 
-# XXX override plugins 
-@plugins = (    #'CollabIRCate::Bot::Plugin::Statistics',
+# XXX override plugins
+@plugins = (
+
+    # 'CollabIRCate::Bot::Plugin::Statistics',
     'CollabIRCate::Bot::Plugin::Rot13',
     'CollabIRCate::Bot::Plugin::Math',
     'CollabIRCate::Bot::Plugin::WorldTime'
 );
 
 # someone said something to anyone, the bot 'heard' it
+
+=head2 bot_heard
+
+Tell the Bot that it heard something, what it heard and who said it.
+
+=cut
+
 sub bot_heard {
     my $self    = shift;
     my $who     = shift;
@@ -56,7 +65,7 @@ sub bot_heard {
     # check plugins
     my $all_responses = CollabIRCate::Bot::Response->new();
     $logger->debug("considering plugins for '$message' - heard publically");
-    
+
     foreach my $plugin (@plugins) {
         if ( $plugin->register->{public} ) {
             $logger->debug("checking $plugin");
@@ -73,7 +82,13 @@ sub bot_heard {
     return $all_responses;
 }
 
-# someone said something to the bot (publically or privately)
+=head2 bot_addressed
+
+Tell the Bot that it someone told it something, either directly (privately)
+or addressed by name in a channel.
+
+=cut
+    
 sub bot_addressed {
     my $self    = shift;
     my $who     = shift;
@@ -82,7 +97,7 @@ sub bot_addressed {
 
     my $all_responses = CollabIRCate::Bot::Response->new();
     $logger->debug("considering plugins for '$message' - addressed to me");
-    
+
     foreach my $plugin (@plugins) {
         if ( $plugin->register->{addressed} ) {
             $logger->debug("checking $plugin");
