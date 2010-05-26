@@ -15,9 +15,15 @@ __PACKAGE__->meta->setup(
 
         irc_user    => { type => 'text',      not_null => 1 },
         ts          => { type => 'timestamp', not_null => 1 },
+        user_id     => { type => 'integer',  },
         
     ],
 
+    foreign_keys => [
+        user => { class => 'CollabIRCate::DB::User',
+                  key_columns => { user_id => 'id' }, },
+    ],
+    
     relationships => [
         keywords => {
             type       => 'one to many',

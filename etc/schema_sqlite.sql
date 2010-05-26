@@ -22,7 +22,8 @@ CREATE TABLE user (
 CREATE TABLE irc_user (
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
   irc_user   TEXT NOT NULL,
-  ts         TIMESTAMP NOT NULL
+  ts         TIMESTAMP NOT NULL,
+  user_id    INTEGER REFERENCES user(id)
 );
 
 CREATE TABLE log (

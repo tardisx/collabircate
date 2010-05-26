@@ -125,6 +125,37 @@ sub from_ircuser {
     return $user;
 }
 
+=head2 link
+
+Link this IRC user to a real user.
+
+=cut
+
+sub link {
+    my $self = shift;
+    my $user_id = shift;
+
+    croak "already linked!" if ($self->db_user);
+    croak "no ircuser!"     if (! $self->db_irc_user);
+    
+    my $users = CollabIRCate::DB::User::Manager->get_users(
+        query => [
+            id => $user_id ]);
+
+    if (! @$users) {
+        croak "no user found";
+    }
+    elsif (! @$users > 1) {
+        croak "too many users found";
+    }
+    my $user = $users->[0];
+    $self->db_user($user);
+    $self->db_irc_user->user_id($user_id);
+    $self->db_irc_user->ts(time);
+    $self->db_irc_user->save;
+    return 1;
+}
+
 =head2 add_channel
 
 Adds one channel to the list of channels that this user is on.
