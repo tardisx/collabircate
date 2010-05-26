@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 10;
+use Test::More tests => 12;
 
 BEGIN {
     use_ok 'CollabIRCate::Bot';
@@ -23,13 +23,22 @@ $response = $bot->bot_addressed( $user, '#foobar', 'hello' );
 ok( defined $response && ! $response->has_response, 'empty response' );
 
 # do some math
+
+# privately
 $response = $bot->bot_addressed( $user, undef, 'what is 2+2?' );
 # first response, text part
-ok( $response->private_response->[0]->[1] =~ /4/, 'adds 2+2' );
+ok( $response->private_response->[0]->[1] =~ /4/, 'adds privately' );
 
 $response = $bot->bot_addressed( $user, undef, 'what is 1/0?' );
 # first response, text part
-ok( $response->private_response->[0]->[1] =~ /nice try/, 'refuses 1/0' );
+ok( $response->private_response->[0]->[1] =~ /nice try/, 'refuses divide by zero, privately' );
+
+# publically, indirectly and directly
+$response = $bot->bot_heard( $user, '#testchannel', 'what is 2+9?' );
+ok( $response->public_response->[0]->[1] =~ /11/, 'adds publically, indirectly' );
+
+$response = $bot->bot_addressed( $user, '#testchannel', 'what is 2+10?' );
+ok( $response->public_response->[0]->[1] =~ /12/, 'adds publically, directly' );
 
 # world time
 $response = $bot->bot_addressed( $user, undef, 'what is the time in london?' );
