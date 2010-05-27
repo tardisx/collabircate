@@ -14,7 +14,6 @@ __PACKAGE__->meta->setup(
         id          => { type => 'serial', not_null => 1, primary_key => 1 },
         ts        => { type => 'timestamp',   not_null => 1 },
         channel_id => { type => 'integer', not_null => 1 },
-        user_id    => { type => 'integer', not_null => 1 },
         type      => { type => 'text', not_null => 1 },
         entry     => { type => 'text', not_null => 1 },
     ],
@@ -22,8 +21,6 @@ __PACKAGE__->meta->setup(
     foreign_keys =>
         [ channel => { class => 'CollabIRCate::DB::Channel',
                        key_columns => { channel_id => 'id' }, },
-          user    => { class => 'CollabIRCate::DB::User',
-                       key_columns => { user_id => 'id' }, },
       ],
 );
 

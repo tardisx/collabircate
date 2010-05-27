@@ -118,7 +118,7 @@ sub from_ircuser {
             ts       => time()
         )->save;
     }
-    
+
     my $user = __PACKAGE__->new();
     $user->db_irc_user($irc_user);
 
@@ -127,30 +127,29 @@ sub from_ircuser {
 
 =head2 link
 
-Link this IRC user to a real user.
+Link this IRC user to a real user, by username.
 
 =cut
 
 sub link {
-    my $self = shift;
-    my $user_id = shift;
+    my $self     = shift;
+    my $username = shift;
 
-    croak "already linked!" if ($self->db_user);
-    croak "no ircuser!"     if (! $self->db_irc_user);
-    
+    croak "already linked!" if ( $self->db_user );
+    croak "no ircuser!"     if ( !$self->db_irc_user );
+
     my $users = CollabIRCate::DB::User::Manager->get_users(
-        query => [
-            id => $user_id ]);
+        query => [ username => $username ] );
 
-    if (! @$users) {
+    if ( !@$users ) {
         croak "no user found";
     }
-    elsif (! @$users > 1) {
+    elsif ( !@$users > 1 ) {
         croak "too many users found";
     }
     my $user = $users->[0];
     $self->db_user($user);
-    $self->db_irc_user->user_id($user_id);
+    $self->db_irc_user->user_id($user->id);
     $self->db_irc_user->ts(time);
     $self->db_irc_user->save;
     return 1;

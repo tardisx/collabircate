@@ -30,7 +30,6 @@ CREATE TABLE log (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   ts          TIMESTAMP NOT NULL,
   channel_id  INT NOT NULL REFERENCES channel(id),
-  user_id     INT          REFERENCES user(id),
   irc_user_id INT          REFERENCES irc_user(id),
   type        TEXT NOT NULL,
   entry       TEXT NOT NULL
