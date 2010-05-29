@@ -14,6 +14,13 @@ irc_server_motd * | |_| | | | | | | (_| | |  __/ |  _| *
 irc_server_motd *  \__,_| |_| |_|  \__,_|  \___| |_|   *
 irc_server_motd ****************************************
 
+# define all three of these below if you want to provide the ability
+# for users to become IRCOP's. See 'add_operator' in 
+# POE::Component::IRC::Server for more information.
+# irc_server_op_username someoppername
+# irc_server_op_password changeme
+# irc_server_op_ipmask *
+
 # these are the options for the irc bot irc_bot.pl
 irc_bot_server_host localhost
 irc_bot_server_port 6668

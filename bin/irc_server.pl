@@ -14,7 +14,8 @@ use POE qw(Component::Server::IRC);
 use CollabIRCate::Logger;
 use Config::Any;
 
-my $configs = Config::Any->load_files({files => ["collabircate.conf"], use_ext => 1});
+my $configs = Config::Any->load_files(
+    { files => ["collabircate.conf"], use_ext => 1 } );
 my $config = $configs->[0]->{'collabircate.conf'};
 
 my $PORT = $config->{irc_server_port} || 6669;
@@ -46,17 +47,22 @@ sub _start {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
     $heap->{ircd}->yield('register');
 
-    # Anyone connecting from the loopback gets spoofed hostname
-    $heap->{ircd}->add_auth(
-        mask     => '*@localhost',
-        spoof    => 'm33p.com',
-        no_tilde => 1
-    );
-
-    $heap->{ircd}->add_auth( mask => '*@*' );
-
     # Start a listener on the 'standard' IRC port.
     $heap->{ircd}->add_listener( port => $PORT );
+
+    # Add an operator who can connect from localhost
+
+    if (   $config->{irc_server_op_username}
+        && $config->{irc_server_op_password}
+        && $config->{irc_server_op_ipmask} )
+    {
+        $heap->{ircd}->add_operator(
+            {   username => $config->{irc_server_op_username},
+                password => $config->{irc_server_op_password},
+                ipmask   => $config->{irc_server_op_ipmask},
+            }
+        );
+    }
 
     undef;
 }
@@ -88,7 +94,7 @@ sub _default {
 }
 
 sub ircd_listener_failure {
-   my ($reason) = $_[ARG3];
+    my ($reason) = $_[ARG3];
 
-   croak "Could not start server: $reason";
+    croak "Could not start server: $reason";
 }
