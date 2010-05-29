@@ -1,0 +1,54 @@
+Sat May 29 21:47:42 2010 debug Mojolicious:28 [36193]: Your secret passphrase needs to be changed!!!
+Sat May 29 21:47:42 2010 debug Mojolicious:119 [36193]: *** Request for "/" from "Mozilla/5.0 (compatible; Mojolicious; Perl)". ***
+Sat May 29 21:47:42 2010 debug MojoX::Dispatcher::Routes:143 [36193]: Dispatching "CollabIRCate::Web::Example::welcome".
+Sat May 29 21:47:42 2010 debug Mojolicious::Plugin::EpRenderer:46 [36193]: Caching template "/Users/justin/Documents/projects/collabircate/templates/example/welcome.html.ep" with stash "action, content, controller, extends, id, layout, message, mojo.started, params, rendered".
+Sat May 29 21:47:42 2010 debug Mojolicious::Plugin::EpRenderer:46 [36193]: Caching template "/Users/justin/Documents/projects/collabircate/templates/layouts/default.html.ep" with stash "action, content, controller, id, message, mojo.started, params, rendered".
+Sat May 29 21:47:42 2010 debug Mojolicious::Plugin::RequestTimer:34 [36193]: Request took 0.010406 seconds (96.098/s).
+Sat May 29 21:47:52 2010 debug Mojolicious:28 [36218]: Your secret passphrase needs to be changed!!!
+Sat May 29 21:47:52 2010 debug Mojolicious:119 [36218]: *** Request for "/" from "Mozilla/5.0 (compatible; Mojolicious; Perl)". ***
+Sat May 29 21:47:52 2010 debug MojoX::Dispatcher::Routes:143 [36218]: Dispatching "CollabIRCate::Web::Example::welcome".
+Sat May 29 21:47:52 2010 debug Mojolicious::Plugin::EpRenderer:46 [36218]: Caching template "/Users/justin/Documents/projects/collabircate/templates/example/welcome.html.ep" with stash "action, content, controller, extends, id, layout, message, mojo.started, params, rendered".
+Sat May 29 21:47:52 2010 debug Mojolicious::Plugin::EpRenderer:46 [36218]: Caching template "/Users/justin/Documents/projects/collabircate/templates/layouts/default.html.ep" with stash "action, content, controller, id, message, mojo.started, params, rendered".
+Sat May 29 21:47:52 2010 debug Mojolicious::Plugin::RequestTimer:34 [36218]: Request took 0.008800 seconds (113.636/s).
+Sat May 29 21:48:40 2010 info Mojo::Server::Daemon:349 [36240]: Server listening (http://skaro.local:3000)
+Sat May 29 21:48:50 2010 info Mojo::Server::Daemon:349 [36244]: Server listening (http://skaro.local:3000)
+Sat May 29 21:48:59 2010 debug Mojolicious:28 [36244]: Your secret passphrase needs to be changed!!!
+Sat May 29 21:48:59 2010 debug Mojolicious:119 [36244]: *** Request for "/" from "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-au) AppleWebKit/531.22.7 (KHTML, like Gecko) Version/4.0.5 Safari/531.22.7". ***
+Sat May 29 21:48:59 2010 debug MojoX::Dispatcher::Routes:143 [36244]: Dispatching "CollabIRCate::Web::Example::welcome".
+Sat May 29 21:48:59 2010 debug Mojolicious::Plugin::EpRenderer:46 [36244]: Caching template "/Users/justin/Documents/projects/collabircate/script/../templates/example/welcome.html.ep" with stash "action, content, controller, extends, id, layout, message, mojo.started, params, rendered".
+Sat May 29 21:48:59 2010 debug Mojolicious::Plugin::EpRenderer:46 [36244]: Caching template "/Users/justin/Documents/projects/collabircate/script/../templates/layouts/default.html.ep" with stash "action, content, controller, id, message, mojo.started, params, rendered".
+Sat May 29 21:48:59 2010 debug Mojolicious::Plugin::RequestTimer:34 [36244]: Request took 0.008527 seconds (117.275/s).
+Sat May 29 21:48:59 2010 debug Mojolicious:119 [36244]: *** Request for "/favicon.ico" from "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-au) AppleWebKit/531.22.7 (KHTML, like Gecko) Version/4.0.5 Safari/531.22.7". ***
+Sat May 29 21:49:00 2010 debug MojoX::Dispatcher::Routes:143 [36244]: Dispatching "CollabIRCate::Web::Favicon::welcome".
+Sat May 29 21:49:00 2010 debug Mojolicious::Plugin::EpRenderer:46 [36244]: Caching template "/Users/justin/Documents/projects/collabircate/script/../templates/favicon/welcome.ico.ep" with stash "action, content, controller, extends, format, id, layout, mojo.started, params, rendered".
+Sat May 29 21:49:00 2010 error Mojolicious::Plugin::EplRenderer:53 [36244]: Template "favicon/welcome.ico.ep" missing or not readable.
+Sat May 29 21:49:00 2010 debug Mojolicious::Plugin::EpRenderer:46 [36244]: Caching template "/Users/justin/Documents/projects/collabircate/script/../templates/not_found.html.ep" with stash "action, content, controller, extends, format, id, layout, mojo.started, not_found, params, rendered, status".
+Sat May 29 21:49:00 2010 debug Mojolicious::Plugin::RequestTimer:34 [36244]: Request took 0.147275 seconds (6.790/s).
+Sat May 29 21:49:00 2010 debug Mojolicious:119 [36244]: *** Request for "/" from "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-au) AppleWebKit/531.22.7 (KHTML, like Gecko) Version/4.0.5 Safari/531.22.7". ***
+Sat May 29 21:49:00 2010 debug MojoX::Dispatcher::Routes:143 [36244]: Dispatching "CollabIRCate::Web::Example::welcome".
+Sat May 29 21:49:00 2010 debug Mojolicious::Plugin::RequestTimer:34 [36244]: Request took 0.003114 seconds (321.130/s).
+Sat May 29 21:49:00 2010 debug Mojolicious:119 [36244]: *** Request for "/favicon.ico" from "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-au) AppleWebKit/531.22.7 (KHTML, like Gecko) Version/4.0.5 Safari/531.22.7". ***
+Sat May 29 21:49:00 2010 debug MojoX::Dispatcher::Routes:143 [36244]: Dispatching "CollabIRCate::Web::Favicon::welcome".
+Sat May 29 21:49:00 2010 error Mojolicious::Plugin::EplRenderer:53 [36244]: Template "favicon/welcome.ico.ep" missing or not readable.
+Sat May 29 21:49:00 2010 debug Mojolicious::Plugin::RequestTimer:34 [36244]: Request took 0.003120 seconds (320.513/s).
+Sat May 29 21:49:00 2010 debug Mojolicious:119 [36244]: *** Request for "/" from "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-au) AppleWebKit/531.22.7 (KHTML, like Gecko) Version/4.0.5 Safari/531.22.7". ***
+Sat May 29 21:49:00 2010 debug MojoX::Dispatcher::Routes:143 [36244]: Dispatching "CollabIRCate::Web::Example::welcome".
+Sat May 29 21:49:00 2010 debug Mojolicious::Plugin::RequestTimer:34 [36244]: Request took 0.002887 seconds (346.380/s).
+Sat May 29 21:49:00 2010 debug Mojolicious:119 [36244]: *** Request for "/favicon.ico" from "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-au) AppleWebKit/531.22.7 (KHTML, like Gecko) Version/4.0.5 Safari/531.22.7". ***
+Sat May 29 21:49:00 2010 debug MojoX::Dispatcher::Routes:143 [36244]: Dispatching "CollabIRCate::Web::Favicon::welcome".
+Sat May 29 21:49:00 2010 error Mojolicious::Plugin::EplRenderer:53 [36244]: Template "favicon/welcome.ico.ep" missing or not readable.
+Sat May 29 21:49:00 2010 debug Mojolicious::Plugin::RequestTimer:34 [36244]: Request took 0.003451 seconds (289.771/s).
+Sat May 29 21:49:01 2010 debug Mojolicious:119 [36244]: *** Request for "/" from "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-au) AppleWebKit/531.22.7 (KHTML, like Gecko) Version/4.0.5 Safari/531.22.7". ***
+Sat May 29 21:49:01 2010 debug MojoX::Dispatcher::Routes:143 [36244]: Dispatching "CollabIRCate::Web::Example::welcome".
+Sat May 29 21:49:01 2010 debug Mojolicious::Plugin::RequestTimer:34 [36244]: Request took 0.003039 seconds (329.056/s).
+Sat May 29 21:49:01 2010 debug Mojolicious:119 [36244]: *** Request for "/favicon.ico" from "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-au) AppleWebKit/531.22.7 (KHTML, like Gecko) Version/4.0.5 Safari/531.22.7". ***
+Sat May 29 21:49:01 2010 debug MojoX::Dispatcher::Routes:143 [36244]: Dispatching "CollabIRCate::Web::Favicon::welcome".
+Sat May 29 21:49:01 2010 error Mojolicious::Plugin::EplRenderer:53 [36244]: Template "favicon/welcome.ico.ep" missing or not readable.
+Sat May 29 21:49:01 2010 debug Mojolicious::Plugin::RequestTimer:34 [36244]: Request took 0.003349 seconds (298.597/s).
+Sat May 29 21:49:01 2010 debug Mojolicious:119 [36244]: *** Request for "/" from "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-au) AppleWebKit/531.22.7 (KHTML, like Gecko) Version/4.0.5 Safari/531.22.7". ***
+Sat May 29 21:49:01 2010 debug MojoX::Dispatcher::Routes:143 [36244]: Dispatching "CollabIRCate::Web::Example::welcome".
+Sat May 29 21:49:01 2010 debug Mojolicious::Plugin::RequestTimer:34 [36244]: Request took 0.002609 seconds (383.289/s).
+Sat May 29 21:49:01 2010 debug Mojolicious:119 [36244]: *** Request for "/favicon.ico" from "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-au) AppleWebKit/531.22.7 (KHTML, like Gecko) Version/4.0.5 Safari/531.22.7". ***
+Sat May 29 21:49:01 2010 debug MojoX::Dispatcher::Routes:143 [36244]: Dispatching "CollabIRCate::Web::Favicon::welcome".
+Sat May 29 21:49:01 2010 error Mojolicious::Plugin::EplRenderer:53 [36244]: Template "favicon/welcome.ico.ep" missing or not readable.
+Sat May 29 21:49:01 2010 debug Mojolicious::Plugin::RequestTimer:34 [36244]: Request took 0.003385 seconds (295.421/s).
