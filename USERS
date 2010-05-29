@@ -39,16 +39,26 @@ becomes (when linked):
 Authentication (linking of an irc user instance with a real user)
 should be as easy as possible:
 
-* via a private message to the bot auth USERNAME PASSWORD
+* via a private message to the bot auth TOKEN USERNAME PASSWORD (security issue?)
 * via a web page link (with hash to identify this nick!user@host.name)
+* via email (for users who can't easily switch to a browser)
 
-The latter (or perhaps others, like email etc) would require a token to
-identify the link request. Thus:
+These all require some sort of token (though perhaps the first private message does
+not). In each case:
+
+Web:
 
 * foonick tells the bot "I want to be identified" 
 * the bot gives the foonick a token which has a unique id, associated with
   the irc user instance
 * the user clicks a link like "/link/abcdef12345"
 * the user logs in as foo with the correct password
+* the system links that irc user instance with the real user
+
+Email:
+
+* foonick tells the bot "I want to be identified, I am foo, email me"
+* the bot emails foo's registered email address
+* the email provides the web link, or a token mailback option
 * the system links that irc user instance with the real user
 
