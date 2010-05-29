@@ -5,6 +5,8 @@ use warnings;
 
 use base 'CollabIRCate::Bot::Plugin';
 
+use CollabIRCate::DB::Token;
+
 =head2 register
 
 Registers the link plugin.
@@ -30,8 +32,11 @@ sub answer {
 
   my $result = "hello link requester!! ";
 
+  my $token = CollabIRCate::DB::Token->new_link_token($who->db_irc_user()->irc_user());
+  $token->save();
+
   my $response = CollabIRCate::Bot::Response->new;
-  $response->add_private_response({user => $who, text => $result});
+  $response->add_private_response({user => $who, text => $token->token});
   return $response;
 }
 

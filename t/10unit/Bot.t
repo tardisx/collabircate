@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 12;
+use Test::More tests => 14;
 
 BEGIN {
     use_ok 'CollabIRCate::Bot';
@@ -49,3 +49,9 @@ $response = $bot->bot_addressed( $user, undef, 'what is the time in london now?'
 ok( $response->private_response->[0]->[1] =~ /\d\d:\d\d:\d\d/, 'got some london time #3' );
 $response = $bot->bot_addressed( $user, undef, 'what is the time in timbuctoo now?' );
 ok( $response->private_response->[0]->[1] =~ /sorry/, 'unknown place' );
+
+
+# linking
+$response = $bot->bot_addressed( $user, '#testchannel', 'link me' );
+ok ( $response->private_response->[0]->[1] =~ /\b[0-9a-f]{32}\b/, 'has a token' );
+ok ( ! defined $response->public_response->[0], 'no public response' );
