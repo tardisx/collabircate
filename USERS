@@ -1,40 +1,54 @@
 Dealing with users
 
-Users on IRC are unauthenticated. We could force them to authenticate (via IRC
-server auth mechanisms), but this is undesirable:
+Users on IRC are unauthenticated. We could force them to authenticate
+(via IRC server auth mechanisms), but this is undesirable:
 
 * it would mean only using our IRC server, never an existing one
 * IRC doesn't 'work that way' and it would prove a hurdle for users
   to overcome
 
-So we need to provide an alternative. The first goal here is to not get in
-people's way. Initially we want people to log on and take part without having
-to go to the trouble of obtaining a username/password. In addition, some server
-admins may want the system to work this way always. In this case, the system is
-simply 'open' and users never authenticate.
+So we need to provide an alternative. The first goal here is to not
+get in people's way. Initially we want people to log on and take part
+without having to go to the trouble of obtaining a
+username/password. In addition, some server admins may want the system
+to work this way always. In this case, the system is simply 'open' and
+users never authenticate.
 
-We should not throw away their entries because they are unauthenticated. We
-should keep them, and let them be 'tagged' with the correct username once we
-have identified them.
+We should not throw away their entries because they are
+unauthenticated. We should keep them, and let them be 'tagged' with
+the correct username once we have identified them.
 
-An IRC user is represented as nick!user@host.name. The username part of
-easily changed by the user, and of course the nick can be changed at any time.
-The user@host.name section identifies a user at that particular point in time.
+An IRC user is represented as nick!user@host.name. The username part
+of easily changed by the user, and of course the nick can be changed
+at any time.  The user@host.name section identifies a user at that
+particular point in time. This is an IRC user instance.
 
-At any time we should allow a user to authenticate and this would immediately
-tag any previous records with the correct username. To be reasonable this would
-perhaps only go back a certain amount of time (configurable). Since the bot is
-'keeping tabs' on existing unauthenticated users, it can choose when to
-invalidate old unauthenticated entries based on the user logging off or otherwise
-being uncommunicative.
+All IRC logs are identified with a link to the IRC user instance. This
+is the only link, and never goes away.
 
-Since the only (semi) trustworthy part of the signature is the hostname, in the
-day of shared hosts and proxy servers, it may be required by some admins that
-all log messages from non authenticated users are discarded and retro-active
-tagging is simply not possible.
+At any time we should allow a user to authenticate and this would
+immediately tag any previous records with the correct username. This
+would link the IRC user instance with the correct username. Thus:
 
-Authentication should be as easy as possible:
+  log record => irc user instance
+
+becomes (when linked):
+
+  log record => irc user instance => real user
+
+Authentication (linking of an irc user instance with a real user)
+should be as easy as possible:
 
 * via a private message to the bot auth USERNAME PASSWORD
 * via a web page link (with hash to identify this nick!user@host.name)
+
+The latter (or perhaps others, like email etc) would require a token to
+identify the link request. Thus:
+
+* foonick tells the bot "I want to be identified" 
+* the bot gives the foonick a token which has a unique id, associated with
+  the irc user instance
+* the user clicks a link like "/link/abcdef12345"
+* the user logs in as foo with the correct password
+* the system links that irc user instance with the real user
 
