@@ -8,4 +8,4 @@ pm_to_blib
 *.bak
 collabircate.conf
 collabircate_dev.db
-collabircate.log
+log
