@@ -1,0 +1,4 @@
+% layout 'default';
+<h2>You little login champion!</h2>
+
+<p><%= $message %></p>
