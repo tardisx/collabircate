@@ -30,7 +30,7 @@ sub add_log {
     
     my $log = CollabIRCate::DB::Log->new(
           channel_id => $channel->id,
-          user_id    => $who->id,
+          irc_user   => $who->db_irc_user->id,
           entry      => $what,
           type       => $type,
           ts         => DateTime->now(),

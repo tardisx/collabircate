@@ -31,7 +31,6 @@ use POE::Component::IRC::Common qw/parse_user/;
 
 my $logger = CollabIRCate::Logger->get('irc_bot');
 
-
 # Create the component that will represent an IRC network.
 $logger->info('creating irc component');
 my ($irc) = POE::Component::IRC->spawn();
@@ -135,7 +134,6 @@ sub on_ctcp_action {
     my ( $kernel, $who, $where, $what ) = @_[ KERNEL, ARG0, ARG1, ARG2 ];
 
     my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
-
     add_log( $user, $where->[0], 'action', $what );
 }
 
@@ -213,12 +211,10 @@ sub unknown {
     return 0;
 }
 
-
 sub check_requests {
     my ($kernel) = @_[ KERNEL, ARG0 ];
 
 }
-
 
 sub dcc_request {
     my $heap = $_[HEAP];

@@ -41,11 +41,12 @@ our $logger = CollabIRCate::Logger->get(__PACKAGE__);
 
 # XXX override plugins
 @plugins = (
-
+    'CollabIRCate::Bot::Plugin::Link',
+   
     # 'CollabIRCate::Bot::Plugin::Statistics',
     'CollabIRCate::Bot::Plugin::Rot13',
     'CollabIRCate::Bot::Plugin::Math',
-    'CollabIRCate::Bot::Plugin::WorldTime'
+    'CollabIRCate::Bot::Plugin::WorldTime',
 );
 
 # someone said something to anyone, the bot 'heard' it

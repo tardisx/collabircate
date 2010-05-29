@@ -7,6 +7,7 @@ use Moose;
 
 use Carp qw/croak/;
 
+use CollabIRCate::Logger;
 use CollabIRCate::DB::User;
 use CollabIRCate::DB::IRCUser;
 use CollabIRCate::DB::User::Manager;
@@ -26,21 +27,14 @@ CollabIRCate::Bot::Users
   # return his nickname
   my $nick = $user->get_nick();
 
-  # get a token to provide the user so we can authenticate them
-  my $token = $user->get_token();
-  # (give them $token)
-
-  # [time passes]
-  # do we know them now?
-  if ($user->is_identified) {
-    # update the logs now that we know who they are
-    $user->update_logs();
-  }
+  # link this IRC user to a real user
+  $user->link($real_username);
 
 =head1 DESCRIPTION
 
-Methods to allow the CollabIRCate Bot to deal with users, including the
-uncertainity of their identification.
+This module provides an abstraction for dealing with IRC user instances - a
+particular user logged in at a particular time, who may be identified as as
+real authenticated user at some point.
 
 Instead of trying to enforce the identity of the user at some IRC level, we
 put the onus on the user themselves. Using methods here, the bot can determine
@@ -52,20 +46,35 @@ During the lifetime of the IRC server, users will come and go. Each user that
 the bot needs to deal with will be one of these objects. It may be linked to
 a real user, if we have some somehow authenticated them.
 
+=head1 CAUTIONS
+
+Since some of the information about the user lives in the database (for access
+by outside processes, and to maintain persistence) we need to take care when
+data may be used by 'the outside world'. For instance an email may arrive which
+links an IRC user instance to a real user, invalidating some of the data on the
+object stored here. Where appropriate, objects should refresh data from the
+database before use.
+
 =cut
 
 # IRC components
+# their current nick
 has 'nick'      => ( is => 'rw', isa => 'Str' );
-has 'username'  => ( is => 'rw', isa => 'Str' );
-has 'hostname'  => ( is => 'rw', isa => 'Str' );
-has 'last_seen' => ( is => 'rw', isa => 'Int' );
 
 # where we can see them
-has 'channels' => ( is => 'rw', isa => 'ArrayRef' );
+has 'channels' => ( is => 'rw', isa => 'ArrayRef', default => sub { [] } );
 
 # User object
-has 'db_user'     => ( is => 'rw', isa => 'CollabIRCate::DB::User' );
 has 'db_irc_user' => ( is => 'rw', isa => 'CollabIRCate::DB::IRCUser' );
+
+# timeout - how long we believe a user to be the same, if username and hostname
+# match
+my $timeout = 600; # XXX needs to be configurable
+
+my $logger = CollabIRCate::Logger->get(__PACKAGE__);
+
+# who we know about
+my @known_users = ();
 
 =head2 from_ircuser
 
@@ -95,33 +104,56 @@ sub from_ircuser {
     my $username = shift;
     my $hostname = shift;
 
-    # do we already know this user?
+    $logger->debug("from_ircuser for '$username!$hostname' ('$nick')");
+
+    # do we already know about this user?
+    foreach my $a_user (@known_users) {
+        if ($a_user->db_irc_user()->irc_user() eq "$username!$hostname") {
+            $logger->debug("'$username!$hostname' is known to us, updating");
+            $a_user->db_irc_user()->load;
+            $a_user->db_irc_user()->ts(time());
+            $a_user->db_irc_user()->save();
+            $a_user->nick($nick);  # update nick just in case
+            return $a_user;
+        }
+    }
+
+    # do we already know this user (in the db but not in memory)?
     my $users = CollabIRCate::DB::IRCUser::Manager->get_ircusers(
         query => [
             irc_user => "$username!$hostname",
-            ts       => { gt => time() - 600 },
+            ts       => { gt => time() - $timeout },
         ]
     );
 
     my $irc_user;
     if (@$users) {
+        $logger->debug("found in db");
         croak "more than one user found?" if ( @$users > 1 );
         $irc_user = $users->[0];
 
         # update their timestamp
+        $logger->debug("updating db timestamp and saving");
         $irc_user->ts( time() );
         $irc_user->save;
     }
     else {
+        $logger->debug("not in db - create a new record");
         $irc_user = CollabIRCate::DB::IRCUser->new(
             irc_user => "$username!$hostname",
             ts       => time()
         )->save;
     }
 
+    $logger->debug("creating a new object");
     my $user = __PACKAGE__->new();
     $user->db_irc_user($irc_user);
 
+    $logger->debug("setting the nick to '$nick'");
+    $user->nick($nick);
+
+    push @known_users, $user;
+    
     return $user;
 }
 
@@ -135,8 +167,8 @@ sub link {
     my $self     = shift;
     my $username = shift;
 
-    croak "already linked!" if ( $self->db_user );
-    croak "no ircuser!"     if ( !$self->db_irc_user );
+    croak "no ircuser!" if ( !$self->db_irc_user );
+    croak "already linked!" if ( $self->db_irc_user->user_id );
 
     my $users = CollabIRCate::DB::User::Manager->get_users(
         query => [ username => $username ] );
@@ -148,8 +180,7 @@ sub link {
         croak "too many users found";
     }
     my $user = $users->[0];
-    $self->db_user($user);
-    $self->db_irc_user->user_id($user->id);
+    $self->db_irc_user->user_id( $user->id );
     $self->db_irc_user->ts(time);
     $self->db_irc_user->save;
     return 1;
@@ -197,14 +228,20 @@ sub update_logs {
 
 =head2 id
 
-Return the id for this user
+Return the id for this irc user
 
 =cut
 
 sub id {
     my $self = shift;
-    return 1;    # XXX
+    croak "No db_irc_user" unless $self->db_irc_user;
 
+    return $self->db_irc_user->id;
+}
+
+sub from_nick {
+    my $class = shift;
+    return __PACKAGE__->from_ircuser( shift, 'na', 'na' );
 }
 
 1;
