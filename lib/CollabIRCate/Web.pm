@@ -21,6 +21,8 @@ sub startup {
     $r->route('/user/login')->to('user#login');
     $r->route('/user/logout')->to('user#logout');
 
+    # tokens
+    $r->route('/token/:token')->to('token#index');
     
 }
 
