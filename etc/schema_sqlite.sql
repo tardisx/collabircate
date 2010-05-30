@@ -17,7 +17,7 @@ CREATE TABLE user (
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
   email      TEXT UNIQUE,
   username   TEXT UNIQUE,
-  password   TEXT UNIQUE
+  password   TEXT
 );
 
 CREATE TABLE irc_user (

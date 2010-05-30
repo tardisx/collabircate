@@ -9,6 +9,8 @@ use base 'Mojolicious';
 sub startup {
     my $self = shift;
 
+    $self->plugin('simple_session');
+    
     # Routes
     my $r = $self->routes;
 
@@ -17,6 +19,9 @@ sub startup {
 
     # user auth stuff
     $r->route('/user/login')->to('user#login');
+    $r->route('/user/logout')->to('user#logout');
+
+    
 }
 
 1;
