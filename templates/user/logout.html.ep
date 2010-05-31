@@ -3,3 +3,5 @@
 <h2>Logout</h2>
 
 <p>You are now logged out.</p>
+
+<p><a href="/user/login">login?</a></p>
