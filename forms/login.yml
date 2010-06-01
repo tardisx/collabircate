@@ -14,6 +14,9 @@ element:
     label: Password
     constraints:
       - Required
+
+  - type: Hidden
+    name: return
       
   - type: Submit
     name: submit

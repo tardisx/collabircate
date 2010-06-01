@@ -3,6 +3,10 @@
 
 <p><%= $message %></p>
 
+% if ($return) {
+<a href="<%== $return %>">go back to whence you came</a>
+% }
+
 % if (! $session->{logged_in}) {
 <p><%== $form %></p>
 % } else {

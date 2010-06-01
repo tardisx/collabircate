@@ -18,9 +18,13 @@ sub login {
     my $form = HTML::FormFu->new({action => "/user/login"});
 
     $self->stash->{message} = '';
+    $self->stash->{return} = '';
     
     $form->load_config_file('forms/login.yml');
     $form->process($self->req->params->to_hash);
+
+    my $hidden = $form->get_all_element( { name => 'return' } );
+    $hidden->default( $self->req->param('return') );
 
     if ($form->submitted_and_valid) {
         my $username = $self->req->param('username');
@@ -35,6 +39,9 @@ sub login {
         if ($users && $users->[0]) {
             $self->stash->{message} = 'login success';
             $self->stash->{session}->{logged_in} = $username;
+            if ($form->param('return')) {
+              $self->stash->{return} = $form->param('return');
+            }
         }
         else {
             $self->stash->{message} = 'login failure';
