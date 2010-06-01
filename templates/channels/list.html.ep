@@ -1,0 +1,10 @@
+% layout 'default';
+
+<table>
+% foreach (@$channels) {
+  <tr>
+    <td><%= $_->id %></td>
+    <td><%= $_->name %></td>
+  </tr>
+% }
+</table>

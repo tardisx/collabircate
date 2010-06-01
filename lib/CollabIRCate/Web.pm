@@ -21,6 +21,11 @@ sub startup {
     # tokens
     $r->route('/token/:token')->to('token#index');
 
+    # channels list
+    $r->route('/channels')->to('channels#list');
+    $r->route('/channels/:channel')->to('channels#show');
+    
+    
     # Default route
     $r->route('/:controller/:action/:id')->to('root#welcome', id => 1);
 }
