@@ -12,6 +12,10 @@ use CollabIRCate::DB::User::Manager;
 use CollabIRCate::DB::Token;
 use CollabIRCate::Bot::Users;
 
+use CollabIRCate::Logger;
+
+my $logger = CollabIRCate::Logger->get(__PACKAGE__);
+
 # Deal with logins (and logouts)
 sub index {
     my $self = shift;
@@ -30,6 +34,7 @@ sub index {
 
     if ($@ || ! $tokendb) {
       $self->stash->{message} = 'invalid token';
+      $logger->error("token '$token' is invalid");
       return;
     }
 
@@ -42,9 +47,16 @@ sub index {
     # link these bastards
     my $buser = CollabIRCate::Bot::Users->from_ircuser('xxx', #fake nick
                                                        split /!/, $data);
-    $buser->link($username);
-    $self->stash->{message} = 'ok - session linked to you';
 
+    eval {
+        $buser->link($username);
+    };
+    if ($@) {
+        $self->stash->{message} = 'failed to link';
+        $logger->error("got $@ when trying to link");
+        return;
+    }
+    $self->stash->{message} = 'ok - session linked to you';
 }
 
 1;
