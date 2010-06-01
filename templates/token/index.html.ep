@@ -1,1 +1,11 @@
-Hi
+%layout 'default';
+
+% if (! $session->{logged_in}) {
+<p>You gotta log in for this, then go
+<a href="/user/login?return=<%= $self->url_for() %>">here</a>.</p>
+% } else {
+
+% # tell them what happened
+<%= $message %>
+
+% }

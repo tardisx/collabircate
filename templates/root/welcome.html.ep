@@ -2,3 +2,7 @@
 <h2>Welcome to the CollabIRCate system</h2>
 
 <p>Hope you enjoy it.</p>
+
+% if ($session->{logged_in}) {
+<p>Hi there <%= $session->{logged_in} %></p>
+% }

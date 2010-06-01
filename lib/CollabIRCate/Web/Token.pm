@@ -16,11 +16,22 @@ use CollabIRCate::Bot::Users;
 sub index {
     my $self = shift;
     my $token = $self->stash->{token};
+    my $message;
 
-    warn "TOKEN is $token";
+    if (! $self->stash->{session}->{logged_in}) {
+      $self->stash->{message} = 'you need to login first';
+      return;
+    }
 
-    my $tokendb = CollabIRCate::DB::Token->new(token=>$token)->load;
-    warn $tokendb;
+    my $tokendb;
+    eval {
+      $tokendb = CollabIRCate::DB::Token->new(token=>$token)->load;
+    };
+
+    if ($@ || ! $tokendb) {
+      $self->stash->{message} = 'invalid token';
+      return;
+    }
 
     # ok we have a token - grab the data
     my $data = $tokendb->data;
@@ -32,7 +43,8 @@ sub index {
     my $buser = CollabIRCate::Bot::Users->from_ircuser('xxx', #fake nick
                                                        split /!/, $data);
     $buser->link($username);
-    
+    $self->stash->{message} = 'ok - session linked to you';
+
 }
 
 1;
