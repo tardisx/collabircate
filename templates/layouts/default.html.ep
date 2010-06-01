@@ -2,15 +2,15 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<title>Minimalistic Design Template</title>
+<title>CollabIRCate</title>
 <link rel="stylesheet" type="text/css" href="/style.css" media="screen" />
 </head>
 <body>
 <div id="header">
-<h1>Minimalistic Design Template</h1>
+<h1>CollabIRCate</h1>
  <div id="menu">
   <ul id="nav">
-   <li><a href="#">Home</a></li>
+   <li><a href="/">Home</a></li>
    <li><a href="#">About Me</a></li>
    <li><a href="#">Archives</a></li>
    <li><a href="#">Sitemap</a></li>
@@ -53,7 +53,14 @@ Aenean dapibus, leo vitae eleifend porta, sem ipsum nonummy est, eu fermentum ar
 	</div>
 		
     <div class="box">
-	   <div style="font-size: 0.8em;">Design by <a href="http://www.minimalistic-design.net">Minimalistic Design</a></div>
+        <div style="font-size: 0.8em;">
+% if ($session->{logged_in}) {
+          Logged in as <%= $session->{logged_in} %>
+          [<a href="/user/logout">Logout</a>]
+% } else {
+          Not logged in.
+          [<a href="/user/login">Login</a>]
+% }
 	</div>
 </div>
 </div>
