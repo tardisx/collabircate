@@ -108,7 +108,7 @@ sub on_public {
     my ( $kernel, $who, $where, $msg ) = @_[ KERNEL, ARG0, ARG1, ARG2 ];
     my $channel = $where->[0];
 
-    $logger->info('bot saw public message');
+    $logger->debug("bot saw public message '$msg'");
 
     my $ts   = scalar localtime;
     my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
@@ -158,9 +158,11 @@ sub on_invite {
 sub on_join {
     my ( $kernel, $who, $where ) = @_[ KERNEL, ARG0, ARG1 ];
 
+    $logger->debug("saw '$who' join '$where'");
     my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
     $user->add_channel($where);
 
+    $logger->debug("issueing 'names' request");
     $irc->yield( 'names' => $where );
 
     my $channel = $where;
@@ -254,8 +256,11 @@ sub dcc_done {
 sub on_names {
     my $names = ( split /:/, $_[ARG1] )[1];
 
+    $logger->debug("received 'names' request");
+
     # do a whois on each
     foreach my $nick ( split /\s+/, $names ) {
+        $logger->debug("doing whois for '$nick'");
 
         # remove op symbols from nick and issue a whois
         $nick =~ s/^[^\w]//;
@@ -266,8 +271,11 @@ sub on_names {
 sub whois {
     my $info = $_[ARG0];
 
+    $logger->debug("received irc_whois with '$info'");
+
     return if ( !$info->{channels} );
     my @channels = @{ $info->{channels} };
+    $logger->debug("there are channels: @channels");
 
     s/^@// foreach @channels;    # remove oper crap
 
