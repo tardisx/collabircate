@@ -25,9 +25,9 @@ __PACKAGE__->meta->setup(
     ],
     
     relationships => [
-        keywords => {
+        nick        => {
             type       => 'one to many',
-            class      => 'CollabIRCate::DB::Log',
+            class      => 'CollabIRCate::DB::Nick',
             column_map => { id => 'irc_user_id' },
         },
     ],

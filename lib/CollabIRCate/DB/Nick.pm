@@ -11,9 +11,10 @@ __PACKAGE__->meta->setup(
     table => 'irc_nick',
 
     columns => [
-        id => { type => 'serial',    not_null => 1, primary_key => 1 },
-        irc_user_id => { type => 'integer', not_null => 1 },
-        ts => { type => 'timestamp', not_null => 1 },
+        id          => { type => 'serial',    not_null => 1, primary_key => 1 },
+        nick        => { type => 'text',      not_null => 1 },
+        irc_user_id => { type => 'integer',   not_null => 1 },
+        ts          => { type => 'timestamp', not_null => 1 },
     ],
 
     foreign_keys => [

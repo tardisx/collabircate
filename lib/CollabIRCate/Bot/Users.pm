@@ -10,6 +10,7 @@ use Carp qw/croak/;
 use CollabIRCate::Logger;
 use CollabIRCate::DB::User;
 use CollabIRCate::DB::IRCUser;
+use CollabIRCate::DB::Nick;
 use CollabIRCate::DB::User::Manager;
 use CollabIRCate::DB::IRCUser::Manager;
 
@@ -113,7 +114,9 @@ sub from_ircuser {
             $a_user->db_irc_user()->load;
             $a_user->db_irc_user()->ts(time());
             $a_user->db_irc_user()->save();
-            $a_user->nick($nick);  # update nick just in case
+            $a_user->update_nick($nick);
+            $a_user->db_irc_user()->save();
+ 
             return $a_user;
         }
     }
@@ -132,7 +135,7 @@ sub from_ircuser {
         croak "more than one user found?" if ( @$users > 1 );
         $irc_user = $users->[0];
 
-        # update their timestamp
+        # update their timestamp and nick
         $logger->debug("updating db timestamp and saving");
         $irc_user->ts( time() );
         $irc_user->save;
@@ -141,7 +144,8 @@ sub from_ircuser {
         $logger->debug("not in db - create a new record");
         $irc_user = CollabIRCate::DB::IRCUser->new(
             irc_user => "$username!$hostname",
-            ts       => time()
+            ts       => time(),
+            nick     => { nick => $nick, ts => time() },
         )->save;
     }
 
@@ -150,7 +154,7 @@ sub from_ircuser {
     $user->db_irc_user($irc_user);
 
     $logger->debug("setting the nick to '$nick'");
-    $user->nick($nick);
+    $user->update_nick($nick);
 
     push @known_users, $user;
     
@@ -243,5 +247,23 @@ sub from_nick {
     my $class = shift;
     return __PACKAGE__->from_ircuser( shift, 'na', 'na' );
 }
+
+=head2 update_nick
+
+Update the nick in the database if necessary.
+
+=cut
+
+sub update_nick {
+  my $self = shift;
+  my $nick = shift;
+
+  # XXX fix this - it needs to only add a row if there is not one
+  # for this nick already
+  my $newnick = CollabIRCate::DB::Nick->new(irc_user_id=>$self->db_irc_user()->id(),
+                                            ts => time(),
+                                            nick=>$nick)->save;
+}
+  
 
 1;

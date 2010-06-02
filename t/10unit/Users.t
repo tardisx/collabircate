@@ -1,7 +1,7 @@
-use Test::More tests => 10;
+use Test::More tests => 11;
 
 BEGIN {
-    use_ok 'CollabIRCate::Bot::Users';
+use_ok 'CollabIRCate::Bot::Users';
 }
 
 # fake user
@@ -37,3 +37,7 @@ ok ($now > $ts, 'timestamp updated');
 
 # in fact, they are the same user now
 ok ($user_again eq $user, 'identical user');
+
+# let's change his nick though and make sure he's still the same guy
+my $user_again_new_nick = CollabIRCate::Bot::Users->from_ircuser('brandnewfred', 'freddofrog', 'localhost');
+ok ($user_again_new_nick eq $user, 'identical user');
