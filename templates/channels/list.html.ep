@@ -2,9 +2,12 @@
 
 <table>
 % foreach (@$channels) {
+%   # XXX this is an ugly hack and needs to go
+%   my $chan_name = $_->name;
+%   $chan_name =~ s/^#//;
   <tr>
     <td><%= $_->id %></td>
-    <td><%= $_->name %></td>
+   <td><a href="/channels/<%= $chan_name %>"><%= $_->name %></td>
   </tr>
 % }
 </table>

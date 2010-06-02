@@ -10,7 +10,7 @@ sub startup {
     my $self = shift;
 
     $self->plugin('simple_session');
-    
+
     # Routes
     my $r = $self->routes;
 
@@ -24,10 +24,9 @@ sub startup {
     # channels list
     $r->route('/channels')->to('channels#list');
     $r->route('/channels/:channel')->to('channels#show');
-    
-    
+
     # Default route
-    $r->route('/:controller/:action/:id')->to('root#welcome', id => 1);
+    $r->route('/:controller/:action/:id')->to( 'root#welcome', id => 1 );
 }
 
 1;
