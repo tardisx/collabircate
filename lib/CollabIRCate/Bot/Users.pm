@@ -11,6 +11,7 @@ use CollabIRCate::Logger;
 use CollabIRCate::DB::User;
 use CollabIRCate::DB::IRCUser;
 use CollabIRCate::DB::Nick;
+use CollabIRCate::DB::Nick::Manager;
 use CollabIRCate::DB::User::Manager;
 use CollabIRCate::DB::IRCUser::Manager;
 
@@ -258,12 +259,18 @@ sub update_nick {
   my $self = shift;
   my $nick = shift;
 
-  # XXX fix this - it needs to only add a row if there is not one
-  # for this nick already
-  my $newnick = CollabIRCate::DB::Nick->new(irc_user_id=>$self->db_irc_user()->id(),
-                                            ts => time(),
-                                            nick=>$nick)->save;
+  my $irc_user_id = $self->db_irc_user()->id();
+  my $nicks = CollabIRCate::DB::Nick::Manager->get_nicks(
+    query => [ irc_user_id => $irc_user_id ],
+    sort_by => 'ts'
+  );
+
+  if ($nicks && $nicks->[-1]->nick() ne $nick) {
+    my $newnick = CollabIRCate::DB::Nick->new(
+         irc_user_id=>$self->db_irc_user()->id(),
+         ts => time(),
+         nick=>$nick)->save;
+  }
 }
-  
 
 1;
