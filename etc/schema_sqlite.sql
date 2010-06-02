@@ -27,6 +27,12 @@ CREATE TABLE irc_user (
   user_id    INTEGER REFERENCES user(id)
 );
 
+CREATE TABLE irc_nick (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  irc_user_id INT NOT NULL REFERENCES irc_user(id),
+  ts          TIMESTAMP NOT NULL,
+);
+
 CREATE TABLE log (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   ts          TIMESTAMP NOT NULL,
