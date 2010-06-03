@@ -36,5 +36,18 @@ __PACKAGE__->meta->setup(
     ],
 );
 
+=head2 nick
+
+This method is a synonym for C<nicks>.
+
+This makes sense when we are creating a new IRCUser and nick at the same
+time (ie a setter), but as a getter (since it's many to one), the noun 
+'nicks' makes more sense. 
+
+=cut
+
+sub nick {
+  return shift->nicks(@_);
+}
     
 1;
