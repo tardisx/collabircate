@@ -29,6 +29,25 @@ __PACKAGE__->meta->setup(
             key_columns => { irc_user_id => 'id' },
         },
     ],
+
+    
 );
+
+=head2 nick
+
+Return the nick for this log entry.
+
+=cut
+
+sub nick {
+    my $self = shift;
+    my $irc_user = $self->irc_user;
+
+    my @nicks = $irc_user->nicks();
+    foreach (reverse @nicks) { 
+      return $_->nick if ($_->ts <= $self->ts);
+    }
+    return 'BADNICK';
+}
 
 1;

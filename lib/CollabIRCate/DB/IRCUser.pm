@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Carp qw/croak/;
-
+use CollabIRCate::DB::Nick;
 use base 'CollabIRCate::DB::Object';
 
 __PACKAGE__->meta->setup(
@@ -25,10 +25,13 @@ __PACKAGE__->meta->setup(
     ],
     
     relationships => [
-        nick        => {
+        nicks       => {
             type       => 'one to many',
             class      => 'CollabIRCate::DB::Nick',
             column_map => { id => 'irc_user_id' },
+            manager_args => { 
+                sort_by => CollabIRCate::DB::Nick->meta->table.'.ts',
+            },
         },
     ],
 );

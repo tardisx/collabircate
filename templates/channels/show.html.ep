@@ -4,6 +4,6 @@
 
 <pre>
 % foreach (@$logs) {
-<%= $_->entry %>
+<%= $_->nick %>: <%= $_->entry %>
 % }
 </pre>
