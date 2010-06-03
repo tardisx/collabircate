@@ -1,5 +1,22 @@
 package CollabIRCate::DB::Channel;
 
+=head1 NAME
+
+CollabIRCate::DB::Channel
+
+=head1 SYNOPSIS
+
+  my $channel = CollabIRCate::DB::Channel->new( 
+      name        => '#foo'
+      description => 'the great #foo channel'
+  )->save();
+
+=head1 DESCRIPTION
+
+L<Rose::DB::Object> interface for channels.
+
+=cut
+
 use strict;
 use warnings;
 
