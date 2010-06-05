@@ -2,8 +2,17 @@
 
 <h2><%= $message %></h2>
 
+% # XXX fix this, abstract it away
 <pre>
 % foreach (@$logs) {
-<%= $_->nick %>: <%= $_->entry %>
+%   if ($_->type eq 'log') {
+<%= $_->nice_ts %> - <%= $_->nick %>: <%= $_->entry %>
+%   }
+%   elsif ($_->type eq 'join') {
+<%= $_->nice_ts %> - <%= $_->entry %> joined
+%   }
+%   elsif ($_->type eq 'part') {
+<%= $_->nice_ts %> - <%= $_->entry %> left
+%   }
 % }
 </pre>

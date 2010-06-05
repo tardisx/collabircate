@@ -50,4 +50,10 @@ sub nick {
     return 'BADNICK';
 }
 
+sub nice_ts {
+    my $self = shift;
+    my $ts = $self->ts;
+    return $ts->strftime("%F %H:%M");
+}
+
 1;
