@@ -14,11 +14,11 @@ use Carp;
 use Pod::Usage;
 
 use CollabIRCate::Config;
+use CollabIRCate::DB::Channel::Manager;
+use CollabIRCate::DB::Log::Manager;
 
 my $config = CollabIRCate::Config->config();
-my $dsn    = $config->{dsn};
 my $break  = $config->{irc_log_conversation_break};
-my $schema = CollabIRCate::Config->schema;
 
 my $debug = 0;
 my $email;
@@ -45,33 +45,29 @@ croak "need -e"     unless ( $email || $debug );
 croak "need -m"     unless $minutes;
 
 my $start = DateTime->now->subtract( minutes => $minutes );
-$start =~ s/T/ /;    # ugly hack
 
-my $chan
-    = $schema->resultset('Channel')->search( { name => $channel } )->next;
-if ( !$chan ) {
+my $chan = CollabIRCate::DB::Channel::Manager->get_channels(
+    query => [ name => $channel ]
+);
+
+if ( !$chan || ! @$chan ) {
     croak "No such channel $channel";
 }
 
-my $log = $schema->resultset('Log')->search(
-    {   ts         => { '>=', $start },
-        channel_id => $chan->id,
-
-        # type => 'log',
-    },
-    {   order_by  => 'ts',
-        #join      => 'users',
-        #'+select' => ['users.email'],
-    }
+# load the logs
+my $log = CollabIRCate::DB::Log::Manager->get_logs(
+    query => [ channel_id => $chan->[0]->id,
+               ts => { '>=', $start } ],
+    sort_by => 'ts',
 );
 
 my @entries     = ();
 my $interesting = 0;
 
-while ( my $entry = $log->next ) {
+foreach my $entry ( @$log ) {
 
-    my $nick = $entry->irc_user;
-    $nick =~ s/!.*//x;
+    my $nick = $entry->nick;
+#    $nick =~ s/!.*//x;
     my $line  = $entry->entry;
     my $ts    = $entry->ts;
     my $epoch = $ts->epoch;
