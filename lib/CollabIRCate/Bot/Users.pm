@@ -7,6 +7,7 @@ use Moose;
 
 use Carp qw/croak/;
 
+use CollabIRCate::Config;
 use CollabIRCate::Logger;
 use CollabIRCate::DB::User;
 use CollabIRCate::DB::IRCUser;
@@ -74,6 +75,7 @@ has 'db_irc_user' => ( is => 'rw', isa => 'CollabIRCate::DB::IRCUser' );
 my $timeout = 600; # XXX needs to be configurable
 
 my $logger = CollabIRCate::Logger->get(__PACKAGE__);
+my $config = CollabIRCate::Config->config;
 
 # who we know about
 my @known_users = ();
@@ -117,7 +119,7 @@ sub from_ircuser {
             $a_user->db_irc_user()->save();
             $a_user->update_nick($nick);
             $a_user->db_irc_user()->save();
- 
+
             return $a_user;
         }
     }
@@ -158,7 +160,7 @@ sub from_ircuser {
     $user->update_nick($nick);
 
     push @known_users, $user;
-    
+
     return $user;
 }
 
@@ -271,6 +273,16 @@ sub update_nick {
          ts => time(),
          nick=>$nick)->save;
   }
+  $self->nick($nick);
+
+}
+
+sub bot_ircuser {
+  my $class = shift;
+  my $nick  = $config->{irc_bot_nickname}    || 'undefBOT';
+  my $username = 'bot';
+  my $hostname = 'localhost';
+  return $class->from_ircuser($nick, $username, $hostname);
 }
 
 1;

@@ -9,10 +9,10 @@
 <%= $_->nice_ts %> - <%= $_->nick %>: <%= $_->entry %>
 %   }
 %   elsif ($_->type eq 'join') {
-<%= $_->nice_ts %> - <%= $_->entry %> joined
+<%= $_->nice_ts %> - <%= $_->nick %> joined
 %   }
 %   elsif ($_->type eq 'part') {
-<%= $_->nice_ts %> - <%= $_->entry %> left
+<%= $_->nice_ts %> - <%= $_->nick %> left
 %   }
 % }
 </pre>

@@ -142,7 +142,8 @@ sub on_msg {
     my ( $kernel, $who, $what ) = @_[ KERNEL, ARG0, ARG2 ];
 
     my $user = CollabIRCate::Bot::Users->from_ircuser( parse_user($who) );
-    $bot->bot_addressed( $user, undef, $what );
+    my $response = $bot->bot_addressed( $user, undef, $what );
+    $response->emit($irc);
 }
 
 sub on_invite {

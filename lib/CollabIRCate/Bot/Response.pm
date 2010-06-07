@@ -3,7 +3,12 @@ package CollabIRCate::Bot::Response;
 use Moose;
 use Carp qw/croak/;
 
-=head1 NAME 
+use CollabIRCate::Log qw/add_log/;
+use CollabIRCate::Logger;
+
+my $logger = CollabIRCate::Logger->get(__PACKAGE__);
+
+=head1 NAME
 
 CollabIRCate::Bot::Response - class for IRC Bot responses.
 
@@ -62,9 +67,9 @@ sub add_public_response {
     return $self;
 }
 
-=head2 add_private_response 
+=head2 add_private_response
 
-Add a private response. Requires a hash ref containing a user object and 
+Add a private response. Requires a hash ref containing a user object and
 the text to send.
 
 =cut
@@ -139,20 +144,30 @@ sub emit {
     my $self = shift;
     my $irc  = shift;
 
+    $logger->debug("emit called");
+
     return unless $self->has_response;
 
+    $logger->debug("has response - continuing");
+
     if ( $self->private_response ) {
+      $logger->debug("might contain at least one private response");
         foreach ( @{ $self->private_response } ) {
             my ( $user, $text ) = @$_;
             my $nick = $user->nick();
+            $logger->debug("sending privmsg '$text' to nick '$nick'");
             $irc->yield( privmsg => $nick, $text );
          }
     }
 
     if ( $self->public_response ) {
+      $logger->debug("might contain at least one public response");
         foreach ( @{ $self->public_response } ) {
             my ( $channel, $text ) = @$_;
+            $logger->debug("sending privmsg '$text' to channel '$channel'");
             $irc->yield( privmsg => $channel, $text );
+            add_log( CollabIRCate::Bot::Users->bot_ircuser(),
+                     $channel, 'log', $text );
         }
     }
 
