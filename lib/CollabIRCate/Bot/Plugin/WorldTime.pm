@@ -34,8 +34,8 @@ sub answer {
     my $channel  = shift;
     my $question = shift;
 
-    if (   $question =~ /time.*in.*\s([\w\/]{3,})\?*/i
-        || $question =~ /([\w\/]{3,}) time/i )
+    if (   $question =~ /time.*in\s+([\w\/]{3,})\s*(now)?/i
+        || $question =~ /([\w\/]{3,}) time\s*(now)?/i )
     {
 
         my $place = lc($1);
