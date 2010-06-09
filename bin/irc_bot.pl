@@ -18,6 +18,8 @@ use CollabIRCate::Bot::Users;
 use CollabIRCate::Logger;
 
 my $bot = CollabIRCate::Bot->new();    # create a bot
+my @periodics = $bot->register_periodics();            # figure out what we need to do periodically
+
 
 my $config = CollabIRCate::Config->config;
 
@@ -64,6 +66,8 @@ POE::Session->create(
         #        check_tells    => \&check_tells,
         check_requests => \&check_requests,
 
+        run_periodic => \&run_periodic,
+
         debug => \&debug,
     },
 );
@@ -96,10 +100,18 @@ sub bot_start {
     $kernel->delay( debug          => 5 );
 }
 
-# The bot has successfully connected to a server.  Join a channel.
+# The bot has successfully connected to a server.
+# Setup the periodic stuff.
 sub on_connect {
+    my $kernel  = $_[KERNEL];
     $logger->info('bot connected');
     $irc->yield( oper => '~peoplebot' => 'fishdontbreathe' );
+
+    foreach (@periodics) {
+        my ($delay, $sub) = @$_;
+        $kernel->delay('run_periodic' => $delay, $sub, $delay);
+    }
+    
 }
 
 # The bot has received a public message.  Parse it for commands, and
@@ -313,6 +325,16 @@ sub irc_bot_addressed {
     my $what    = $_[ARG2];
 
     print "$nick addressed me in channel $channel with the message '$what'\n";
+}
+
+sub run_periodic {
+    my ( $kernel, $sub, $delay) = @_[ KERNEL, ARG0, ARG1 ];
+
+    # run the coderef
+    &$sub($irc);
+    
+    # reschedule
+    $kernel->delay('run_periodic' => $delay, $sub, $delay);
 }
 
 # Run the bot until it is done.

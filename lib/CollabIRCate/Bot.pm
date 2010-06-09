@@ -47,6 +47,8 @@ our $logger = CollabIRCate::Logger->get(__PACKAGE__);
     'CollabIRCate::Bot::Plugin::Rot13',
     'CollabIRCate::Bot::Plugin::Math',
     'CollabIRCate::Bot::Plugin::WorldTime',
+    'CollabIRCate::Bot::Plugin::Hailo',
+    
 );
 
 # someone said something to anyone, the bot 'heard' it
@@ -112,6 +114,19 @@ sub bot_addressed {
     }
 
     return $all_responses;
+}
+
+sub register_periodics {
+    my $self = shift;
+    my @out;
+    
+    foreach my $plugin ( @plugins ) {
+        if ($plugin->register->{periodic}) {
+            my ($delay, $sub) = @{ $plugin->register->{periodic} };
+            push @out, [ $delay, $sub ];
+        }
+    }
+    return @out;
 }
 
 1;
