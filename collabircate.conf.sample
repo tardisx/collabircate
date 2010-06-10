@@ -55,3 +55,18 @@ plugin_google_enabled 0
 plugin_help_enabled 0
 plugin_version_enabled 0
 
+# Hailo plugin
+# The Hailo plugin uses the perl module Hailo (available on CPAN) to 'learn'
+# from the conversations on the channel, and occasionally spout something
+# 'interesting'.
+# The settings below determine how likely this is to happen.
+# It is evaluated once per minute, based on how 'noisy' the channel is, and
+# what percentage chance there is of an utterance occuring. If there have been
+# more than 'plugin_hailo_noisy_messages' in one minute, the chance of the bot
+# saying something is equal to 'plugin_hailo_noisy_chance'. If zero, the chance
+# is 'plugin_hailo_quiet_chance'. Otherwise it is in between.
+plugin_hailo_enabled 0
+plugin_hailo_quiet_chance 0.01  # 1% chance per minute
+plugin_hailo_noisy_chance 0.90  # 90% chance per minute
+plugin_hailo_noisy_messages 20  # 20 messages a minute == noisy
+
