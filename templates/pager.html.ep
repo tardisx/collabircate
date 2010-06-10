@@ -1,0 +1,18 @@
+<hr />
+[
+% if ($pager->previous_page) {
+<a href="<%= url_for(page=>$pager->previous_page) %>">prev</a>
+% }
+% else {
+prev
+% }
+]
+[
+% if ($pager->next_page) {
+<a href="<%= url_for(page=>$pager->next_page) %>">next</a>
+% }
+% else {
+next
+% }
+]
+

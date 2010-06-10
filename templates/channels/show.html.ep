@@ -2,6 +2,11 @@
 
 <h2><%= $message %></h2>
 
+[ <a href="<%= $self->url_for(date => $yesterday, page => 1)
+           %>">previous day</a> ]
+[ <a href="<%= $self->url_for(date => $tomorrow, page => 1)
+           %>">next day</a> ]
+
 % # XXX fix this, abstract it away
 <pre>
 % foreach (@$logs) {
@@ -16,3 +21,5 @@
 %   }
 % }
 </pre>
+
+<%== include 'pager' %>

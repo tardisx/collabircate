@@ -23,7 +23,11 @@ sub startup {
 
     # channels list
     $r->route('/channels')->to('channels#list');
-    $r->route('/channels/:channel')->to('channels#show');
+    $r->route(
+        '/channels/:channel/:date/:page',
+        page => qr/\d+/,
+        date => qr/today|\d\d\d\d\-\d\d\-\d\d/
+    )->to('channels#show', page => 1, date => 'today');
 
     # Default route
     $r->route('/:controller/:action/:id')->to( 'root#welcome', id => 1 );

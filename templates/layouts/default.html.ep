@@ -11,10 +11,8 @@
  <div id="menu">
   <ul id="nav">
    <li><a href="/">Home</a></li>
-   <li><a href="#">About Me</a></li>
-   <li><a href="#">Archives</a></li>
-   <li><a href="#">Sitemap</a></li>
-  </ul>
+   <li><a href="/channels">Channels</a></li>
+ </ul>
  </div>
 </div>
 <div id="content">
