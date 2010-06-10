@@ -6,8 +6,10 @@ use warnings;
 use Config::Any;
 
 sub config {
-    my $configs = Config::Any->load_files({files => ["collabircate.conf"], use_ext => 1});
-    my $config = $configs->[0]->{'collabircate.conf'};
+    my $filename = "collabircate.conf";
+    $filename .= $ENV{'COLLABIRCATE_CONFIG_SUFFIX'} || ''; 
+    my $configs = Config::Any->load_files({files => [$filename], use_ext => 1, force_plugins=>['Config::Any::General']});
+    my $config = $configs->[0]->{$filename};
 
     return $config;
 }

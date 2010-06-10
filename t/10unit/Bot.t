@@ -3,6 +3,7 @@ use warnings;
 use Test::More tests => 15;
 
 BEGIN {
+    $ENV{'COLLABIRCATE_CONFIG_SUFFIX'} = '.sample';
     use_ok 'CollabIRCate::Bot';
     use_ok 'CollabIRCate::Bot::Users';
 }
