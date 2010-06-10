@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 14;
+use Test::More tests => 15;
 
 BEGIN {
     use_ok 'CollabIRCate::Bot';
@@ -49,6 +49,10 @@ $response = $bot->bot_addressed( $user, undef, 'what is the time in london now?'
 ok( $response->private_response->[0]->[1] =~ /\d\d:\d\d:\d\d/, 'got some london time #3' );
 $response = $bot->bot_addressed( $user, undef, 'what is the time in timbuctoo now?' );
 ok( $response->private_response->[0]->[1] =~ /sorry/, 'unknown place' );
+
+# not world time
+$response = $bot->bot_addressed( $user, undef, 'he should talk shit up, big time');
+ok( !defined $response->private_response, 'not really a time request');
 
 # linking
 $response = $bot->bot_addressed( $user, '#testchannel', 'link me' );
