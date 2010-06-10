@@ -12,4 +12,19 @@ sub config {
     return $config;
 }
 
+sub plugin_enabled {
+    my $class = shift;
+    my $plugin_name = shift;
+    my $config = config();
+ 
+    $plugin_name =~ s/^CollabIRCate::Bot:://;
+    $plugin_name =~ s/::/_/g;
+    $plugin_name = lc ($plugin_name);
+
+    if (defined $config->{"$plugin_name"."_enabled"}) {
+      return $config->{"$plugin_name"."_enabled"};
+    }
+    return 1;  # assume enabled
+}
+
 1;

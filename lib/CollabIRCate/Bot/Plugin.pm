@@ -3,6 +3,9 @@ package CollabIRCate::Bot::Plugin;
 use strict;
 use warnings;
 
+use CollabIRCate::Config;
+
+
 =head1 NAME
 
 CollabIRCate::Bot::Plugin - base class for plugins
@@ -43,6 +46,11 @@ use Carp qw/croak/;
 sub register {
 
     croak "abstract register called!";
+}
+
+sub enabled {
+    my $class = shift;
+    return CollabIRCate::Config->plugin_enabled($class);
 }
 
 1;
