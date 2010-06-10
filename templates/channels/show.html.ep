@@ -7,11 +7,13 @@
 [ <a href="<%= $self->url_for(date => $tomorrow, page => 1)
            %>">next day</a> ]
 
+% use CollabIRCate::Colours;
+% my $colours = CollabIRCate::Colours->new();
 % # XXX fix this, abstract it away
 <pre>
 % foreach (@$logs) {
 %   if ($_->type eq 'log') {
-<%= $_->nice_ts %> - <%= $_->nick %>: <%= $_->entry %>
+<%= $_->nice_ts %> - <font color="<%= $colours->colour($_->nick) %>"><%= $_->nick %></font>: <%= $_->entry %>
 %   }
 %   elsif ($_->type eq 'join') {
 <%= $_->nice_ts %> - <%= $_->nick %> joined
