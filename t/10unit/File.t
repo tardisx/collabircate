@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 12;
+use Test::More tests => 18;
 
 BEGIN {
     $ENV{'COLLABIRCATE_CONFIG_SUFFIX'} = '.sample';
@@ -75,5 +75,28 @@ my $user = CollabIRCate::DB::IRCUser->new(
     ok ($db->id, 'has an id');
     ok ($db->size == 3222, 'has the right size');
     ok ($db->mime_type eq 'image/jpeg', 'right mime type');
+}
+
+# rtf file
+{
+    my $db = CollabIRCate::DB::File->new_from_file('testdata/sample_rtf.rtf',
+                                                   $channel->id,
+                                                   $user->id);
+
+    ok ($db->id, 'has an id');
+    ok ($db->size == 407, 'has the right size');
+    warn $db->mime_type;
+    ok ($db->mime_type eq 'application/rtf', 'right mime type');
+}
+
+# pdf file
+{
+    my $db = CollabIRCate::DB::File->new_from_file('testdata/sample_pdf.pdf',
+                                                   $channel->id,
+                                                   $user->id);
+
+    ok ($db->id, 'has an id');
+    ok ($db->size == 50190, 'has the right size');
+    ok ($db->mime_type eq 'application/pdf', 'right mime type');
 }
 
