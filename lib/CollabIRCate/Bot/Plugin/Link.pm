@@ -30,8 +30,6 @@ sub answer {
     return;
   }
 
-  my $result = "hello link requester!! ";
-
   my $token = CollabIRCate::DB::Token->new_link_token($who->db_irc_user()->irc_user());
   $token->save();
 
