@@ -1,12 +1,12 @@
 use strict;
 use warnings;
-use Test::More tests => 3;
+use Test::More tests => 12;
 
 BEGIN {
     $ENV{'COLLABIRCATE_CONFIG_SUFFIX'} = '.sample';
 }
 
-# use File::Temp qw/tempfile/;
+use File::Temp qw/tempfile/;
 #use CollabIRCate::Config;
 use CollabIRCate::DB::File;
 use CollabIRCate::DB::Channel;
@@ -36,8 +36,44 @@ my $user = CollabIRCate::DB::IRCUser->new(
     ok( $file,       "got a file" );
     ok( $file->id,   "has an id" );
     ok( $file->path, "has a path" );
+}
 
-    warn $file->path;
+# text file
+{
+    my ($fh, $filename) = tempfile();
+    print $fh "this is just plain text\n";
+    print $fh "quite boring really!\n";
+    print $fh "EOF\n";
+    close $fh;
+    my $db = CollabIRCate::DB::File->new_from_file($filename,
+                                                   $channel->id,
+                                                   $user->id);
 
+    ok ($db->id, 'has an id');
+    ok ($db->size == 49, 'has the right size');
+    ok ($db->mime_type eq 'text/plain', 'right mime type');
+}
+
+
+# gif file
+{
+    my $db = CollabIRCate::DB::File->new_from_file('testdata/testgif.gif',
+                                                   $channel->id,
+                                                   $user->id);
+
+    ok ($db->id, 'has an id');
+    ok ($db->size == 800, 'has the right size');
+    ok ($db->mime_type eq 'image/gif', 'right mime type');
+}
+
+# jpg file
+{
+    my $db = CollabIRCate::DB::File->new_from_file('testdata/testjpg.jpg',
+                                                   $channel->id,
+                                                   $user->id);
+
+    ok ($db->id, 'has an id');
+    ok ($db->size == 3222, 'has the right size');
+    ok ($db->mime_type eq 'image/jpeg', 'right mime type');
 }
 

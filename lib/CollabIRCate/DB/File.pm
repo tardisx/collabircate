@@ -6,10 +6,13 @@ use warnings;
 use Carp qw/croak/;
 use CollabIRCate::Config;
 use File::Spec::Functions qw/catfile catdir/;
+use File::MMagic::XS;
+use File::Copy;
 
 use base 'CollabIRCate::DB::Object';
 
 my $config = CollabIRCate::Config->config();
+my $mime = File::MMagic::XS->new();
 
 __PACKAGE__->meta->setup(
     table => 'file',
@@ -61,12 +64,41 @@ sub path {
     for ( my $i = 0; $i <= $#paths ; $i++) {
         my $part_path = catdir( $root, @paths[ 0 .. $i ] );
         unless ( -d $part_path ) {
-            warn "MAKING! $part_path";
             mkdir $part_path || croak "could not create $part_path: $!";
         }
     }
 
     return catfile( $root, @paths, $id );
+}
+
+sub new_from_file {
+    my $class = shift;
+    my $filename = shift;
+    my $channel_id = shift;
+    my $irc_user_id = shift;
+
+    if (ref $class) {
+        croak "new_from_file called as object method?";
+    }
+
+    if (! -e $filename) {
+        croak "$filename does not exist";
+    }
+
+    my ($size, $ts) = (stat($filename))[7,9];
+    my $mime_type = $mime->get_mime($filename);
+
+    # create the object
+    my $self = __PACKAGE__->new(filename => $filename,
+                                size => $size,
+                                mime_type => $mime_type,
+                                channel_id => $channel_id,
+                                irc_user_id => $irc_user_id,
+                                ts => $ts)->save();
+
+    my $path = $self->path();
+    copy $filename, $path || croak "Could not copy $filename to $path";
+    return $self;
 }
 
 1;
