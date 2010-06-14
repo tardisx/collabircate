@@ -22,21 +22,59 @@ __PACKAGE__->meta->setup(
     ],
 );
 
+# XXX parameters passed in the data part of the these tokens should
+# be made consistent, sometimes we use id, othertimes strings.
+
+=head2 new_link_token
+
+Create a token to link an IRC user to a real user.
+
+=cut
+
 sub new_link_token {
-    my $class = shift;
-    my $link  = shift;    # an IRC user
+    my $class    = shift;
+    my $irc_user = shift;
 
     croak "called as object method" if ( ref $class );
 
     my $md5 = Digest::MD5->new();
     $md5->add($$);
-    $md5->add(time());
+    $md5->add( time() );
     $md5->add($link);
-    
-    my $self  = __PACKAGE__->new(
+
+    my $self = __PACKAGE__->new(
         token   => $md5->hexdigest,
         expires => time() + $expires,
-        data    => $link,
+        data    => $irc_user,
+    );
+
+    return $self;
+}
+
+=head2 new_upload_token
+
+Creates a token for a file upload. Potential file uploads require an IRC user
+and a channel destination for the upload.
+
+=cut
+
+sub new_upload_token {
+    my $class = shift;
+    my $channel_id  = shift;    # a channel id
+    my $irc_user_id = shift;    # an IRC user id
+
+    croak "called as object method" if ( ref $class );
+
+    my $md5 = Digest::MD5->new();
+    $md5->add($$);
+    $md5->add( time() );
+    $md5->add($channel_id);
+    $md5->add($irc_user_id);
+
+    my $self = __PACKAGE__->new(
+        token   => $md5->hexdigest,
+        expires => time() + $expires,
+        data    => "$channel_id|$irc_user_id";
     );
 
     return $self;
