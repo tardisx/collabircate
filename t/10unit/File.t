@@ -1,67 +1,43 @@
 use strict;
 use warnings;
-# use Test::More tests => 6;
-use Test::More skip_all => 'need to remove all dbix::class stuff';
+use Test::More tests => 3;
 
+BEGIN {
+    $ENV{'COLLABIRCATE_CONFIG_SUFFIX'} = '.sample';
+}
 
-use File::Temp qw/tempfile/;
+# use File::Temp qw/tempfile/;
+#use CollabIRCate::Config;
+use CollabIRCate::DB::File;
+use CollabIRCate::DB::Channel;
+use CollabIRCate::DB::User;
+use DateTime;
 
-use CollabIRCate::Config;
-
-my $schema   = CollabIRCate::Config->schema;
-my $template = "TESTXXXXXXXXXX";
-
-ok( defined $schema, 'got schema object' );
-
-my $files = $schema->resultset('File');
-ok( defined $files, 'got some File resultset' );
+# create some fake people and places.
+my $channel
+    = CollabIRCate::DB::Channel->new( name => '#filetest' . $$ )->save();
+my $user = CollabIRCate::DB::IRCUser->new(
+    irc_user => 'justin!localhost',
+    ts       => DateTime->now()
+)->save();
 
 # test storing some files
 {
-    my ( $fh, $filename ) = tempfile($template);
-    rename $filename, "$filename.txt";
-    $filename .= ".txt";
 
-    my $files = $schema->resultset('File');
-    my $file = $files->create( { filename => $filename, } );
+    my $file = CollabIRCate::DB::File->new(
+        ts          => DateTime->now(),
+        filename    => 'foobar.txt',
+        irc_user_id => $user->id,
+        channel_id  => $channel->id,
+        mime_type   => 'text/plain',
+        size        => 100
 
-    ok( defined $file->id && $file->id > 0, 'got a good file id, from file' );
-    unlink($filename);
-}
+    )->save;
+    ok( $file,       "got a file" );
+    ok( $file->id,   "has an id" );
+    ok( $file->path, "has a path" );
 
-SKIP: {
-    skip "mime types for filehandles not handled yet", 1;
+    warn $file->path;
 
-    my ( $fh, $filename ) = tempfile($template);
-    rename $filename, "$filename.txt";
-    $filename .= ".txt";
-
-    my $files = $schema->resultset('File');
-    my $file = $files->create( { filename => $fh, } );
-
-    ok( defined $file->id && $file->id > 0,
-        'got a good file id, from filehandle'
-    );
-
-}
-
-# test getting a files content back
-{
-    my ( $fh, $filename ) = tempfile($template);
-    rename $filename, "$filename.txt";
-    $filename .= ".txt";
-    print $fh "abc123\n";
-    close $fh;
-
-    my $files = $schema->resultset('File');
-    my $file = $files->create( { filename => $filename, } );
-
-    ok( defined $file->id && $file->id > 0, 'got a good file id, from file' );
-    unlink($filename);
-
-    my $fh_back = $file->fh;
-
-    my $data    = <$fh_back>;
-    ok( $data =~ /abc123/, 'got data back, via fh' );
 }
 

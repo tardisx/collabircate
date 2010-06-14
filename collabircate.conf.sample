@@ -40,8 +40,12 @@ irc_log_tag_regexp \[([\w\S]+?)\]
 # how many seconds until we think it's a new conversation?
 irc_log_conversation_break 300
 
-# file stuff
+# file storage stuff
+# where do we store uploads?
 file_store_path ./store
+# how many levels of directory hashing should we use?
+file_store_depth 3
+
 upload_url http://example.org/upload/HASH/
 upload_email uploads+HASH@example.org
 

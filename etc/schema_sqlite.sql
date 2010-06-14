@@ -5,7 +5,9 @@ DROP TABLE tag;
 DROP TABLE log;
 DROP TABLE channel;
 DROP TABLE user;
+DROP TABLE file;
 DROP TABLE irc_user;
+DROP TABLE irc_nick;
 
 CREATE TABLE channel (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -53,4 +55,14 @@ CREATE TABLE token (
   token   TEXT PRIMARY KEY,
   expires TIMESTAMP NOT NULL,
   data    TEXT NOT NULL
+);
+
+CREATE TABLE file (
+  id        INTEGER PRIMARY KEY AUTOINCREMENT,
+  ts          TIMESTAMP NOT NULL,
+  channel_id  INT NOT NULL REFERENCES channel(id),
+  irc_user_id INTEGER NOT NULL REFERENCES irc_user(id),
+  filename  TEXT NOT NULL,
+  mime_type TEXT NOT NULL,
+  size      INT NOT NULL
 );
