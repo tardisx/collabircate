@@ -10,7 +10,8 @@ Log::Log4perl::init_and_watch('etc/log4perl.conf', 10);
 
 sub get {
     my $class = shift;
-    return Log::Log4perl->get_logger(shift);
+    my $logger = Log::Log4perl->get_logger(shift);
+    return $logger;
 }
 
 1;
