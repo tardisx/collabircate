@@ -1,4 +1,4 @@
-package CollabIRCate::Bot::Plugin::Link;
+package CollabIRCate::Bot::Plugin::Upload;
 
 use strict;
 use warnings;
@@ -26,15 +26,16 @@ Answer a request.
 sub answer {
   my ($who, $channel, $question) = @_;
 
-  unless ( $question =~ /^link/i ) {
+  unless ( $question =~ /^upload/i ) {
     return;
   }
 
-  my $token = CollabIRCate::DB::Token->new_link_token($who->db_irc_user()->irc_user());
+  my $token = CollabIRCate::DB::Token->new_upload_token($who->db_irc_user()->irc_user(),
+                                                        $channel);
   $token->save();
 
   my $response = CollabIRCate::Bot::Response->new;
-  my $link_url = "http://localhost:3000/token/link/".$token->token;
+  my $link_url = "http://localhost:3000/token/upload/".$token->token;
   $response->add_private_response({user => $who, text => $link_url});
   return $response;
 }

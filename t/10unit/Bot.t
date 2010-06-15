@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 26;
+use Test::More tests => 30;
 
 BEGIN {
     $ENV{'COLLABIRCATE_CONFIG_SUFFIX'} = '.sample';
@@ -71,6 +71,14 @@ foreach my $test ('link me',
                   'link me please',
                   'link me up',
                   'link') {
+  $response = $bot->bot_addressed( $user, '#testchannel', $test );
+  ok ( defined $response->private_response &&  $response->private_response->[0]->[1] =~ /\b[0-9a-f]{32}\b/, 'has a token: '.$test );
+  ok ( ! defined $response->public_response || ! defined $response->public_response->[0], 'no public response: '.$test );
+}
+
+# upload token
+foreach my $test ('upload',
+                  'upload token') {
   $response = $bot->bot_addressed( $user, '#testchannel', $test );
   ok ( defined $response->private_response &&  $response->private_response->[0]->[1] =~ /\b[0-9a-f]{32}\b/, 'has a token: '.$test );
   ok ( ! defined $response->public_response || ! defined $response->public_response->[0], 'no public response: '.$test );

@@ -19,7 +19,8 @@ sub startup {
     $r->route('/user/logout')->to('user#logout');
 
     # tokens
-    $r->route('/token/:token')->to('token#index');
+    $r->route('/token/link/:token')->to('token#link');
+    $r->route('/token/upload/:token')->to('token#upload');
 
     # channels list
     $r->route('/channels')->to('channels#list');
