@@ -35,7 +35,7 @@ sub answer {
     my $question = shift;
 
     if (   $question =~ /time.*in\s+([\w\/]{3,})\s*(now)?/i
-        || $question =~ /([\w\/]{3,}) time\s*(now)?/i )
+        || $question =~ /^.{0,2}\b([\w\/]{3,}) time\s*(now)?/i )
     {
 
         my $place = lc($1);

@@ -42,10 +42,14 @@ $response = $bot->bot_addressed( $user, '#testchannel', 'what is 2+10?' );
 ok( $response->public_response->[0]->[1] =~ /12/, 'adds publically, directly' );
 
 # world time
-$response = $bot->bot_addressed( $user, undef, 'what is the time in london?' );
+$response = $bot->bot_addressed( $user, undef, 'london time?' );
 ok( $response->private_response->[0]->[1] =~ /\d\d:\d\d:\d\d/, 'got some london time #1' );
 $response = $bot->bot_addressed( $user, undef, 'time in london?' );
 ok( $response->private_response->[0]->[1] =~ /\d\d:\d\d:\d\d/, 'got some london time #2' );
+$response = $bot->bot_addressed( $user, undef, 'what is the time in london?' );
+ok( $response->private_response->[0]->[1] =~ /\d\d:\d\d:\d\d/, 'got some london time #3' );
+$response = $bot->bot_addressed( $user, undef, 'time in london?' );
+ok( $response->private_response->[0]->[1] =~ /\d\d:\d\d:\d\d/, 'got some london time #4' );
 $response = $bot->bot_addressed( $user, undef, 'what is the time in london now?' );
 ok( $response->private_response->[0]->[1] =~ /\d\d:\d\d:\d\d/, 'got some london time #3' );
 $response = $bot->bot_addressed( $user, undef, 'what is the time in timbuctoo now?' );
