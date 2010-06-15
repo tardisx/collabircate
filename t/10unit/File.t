@@ -85,7 +85,6 @@ my $user = CollabIRCate::DB::IRCUser->new(
 
     ok ($db->id, 'has an id');
     ok ($db->size == 407, 'has the right size');
-    warn $db->mime_type;
     ok ($db->mime_type eq 'application/rtf', 'right mime type');
 }
 
