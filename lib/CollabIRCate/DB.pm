@@ -6,17 +6,23 @@ use warnings;
 use Rose::DB;
 use base 'Rose::DB';
 
+use CollabIRCate::Config;
+
+my $config = CollabIRCate::Config->config();
+
 # Use a private registry for this class
 __PACKAGE__->use_private_registry;
 
 # Set the default domain and type
-__PACKAGE__->default_domain('development');
+__PACKAGE__->default_domain($config->{database_domain} || 'development');
+__PACKAGE__->default_type($config->{database_type} || 'sqlite');
 
 # Register the data sources
 
 # Development:
 __PACKAGE__->register_db(
   domain   => 'development',
+  type     => 'sqlite',
   driver   => 'SQLite',
   database => 'collabircate_dev.db',
 );
@@ -24,7 +30,8 @@ __PACKAGE__->register_db(
 # XXX TODO remove hard coded username/password
 # Development (Pg):
 __PACKAGE__->register_db(
-  domain   => 'development_pg',
+  domain   => 'development',
+  type     => 'pg',
   driver   => 'pg',
   database => 'collabircate_dev',
   host     => 'localhost',

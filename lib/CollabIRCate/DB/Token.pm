@@ -40,7 +40,7 @@ sub new_link_token {
     my $md5 = Digest::MD5->new();
     $md5->add($$);
     $md5->add( time() );
-    $md5->add($link);
+    $md5->add($irc_user);
 
     my $self = __PACKAGE__->new(
         token   => $md5->hexdigest,
@@ -74,7 +74,7 @@ sub new_upload_token {
     my $self = __PACKAGE__->new(
         token   => $md5->hexdigest,
         expires => time() + $expires,
-        data    => "$channel_id|$irc_user_id";
+        data    => "$channel_id|$irc_user_id",
     );
 
     return $self;

@@ -1,7 +1,8 @@
 # rename this file to CollabIRCate.yml and put a : in front of "name" if
 # you want to use yaml like in old versions of Catalyst
 name CollabIRCate
-dsn dbi:SQLite:dbname=/full/path/to/database
+database_domain development
+database_type sqlite
 
 # define the below if you want to run the builtin irc server
 irc_server_name undefNET
