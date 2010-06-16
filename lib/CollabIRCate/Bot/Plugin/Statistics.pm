@@ -19,8 +19,18 @@ statistics, and to report them to the user when asked.
 use CollabIRCate::Bot::Response;
 
 use Carp qw/croak/;
+use Storable qw/store retrieve/;
 
 use base 'CollabIRCate::Bot::Plugin';
+
+our $data;
+
+BEGIN {
+  eval { $data = retrieve('stats.sb'); };
+  if ($@) {
+    $data = {};
+  }
+}
 
 sub register {
     return {
@@ -36,9 +46,17 @@ Record details on every single public mesage we see.
 =cut
 
 sub record {
-    my ($who, $where, $message) = @_;
-    warn "$who said $message at $where";
-    return undef; # no response
+    my ($who, $channel, $message) = @_;
+    my $day = sprintf("%04d-%02d-%02d", (localtime())[5]+1900,
+                                        (localtime())[4]+1,
+                                        (localtime())[3]);
+    my $hour = sprintf("%02d", (localtime())[2]);
+
+    $data->{$channel}->{by_hour}->{$hour}++;
+    $data->{$channel}->{by_date}->{$day}++;
+
+    store($data, 'stats.sb');
+    return;
 }
 
 =head2 stats
@@ -48,13 +66,16 @@ Report statistics to the channel or user.
 =cut
 
 sub stats {
-    my ($who, $where, $message) = @_;
+    my ($who, $channel, $message) = @_;
     return unless $message =~ /stats/i;
+    use Data::Dumper;
 
-    my $response = CollabIRCate::Bot::Response->new();
-    $response->public_response(['thats nice']);
+    my $response = CollabIRCate::Bot::Response->new;
+    $response->add_public_response(
+        { channel => $channel,
+          text    => Dumper($data),
+        });
     return $response;
-
 }
 
 1;
