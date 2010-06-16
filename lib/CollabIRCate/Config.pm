@@ -29,4 +29,11 @@ sub plugin_enabled {
     return 1;  # assume enabled
 }
 
+sub http_root {
+    my $output = "";
+    $output = config()->{http_server_host};
+    $output .= ":" . config()->{http_server_port} if (config()->{http_server_port});
+    return $output;
+}
+
 1;

@@ -6,6 +6,7 @@ use warnings;
 use base 'CollabIRCate::Bot::Plugin';
 
 use CollabIRCate::DB::Token;
+use CollabIRCate::Config;
 
 =head2 register
 
@@ -34,7 +35,7 @@ sub answer {
   $token->save();
 
   my $response = CollabIRCate::Bot::Response->new;
-  my $link_url = "http://localhost:3000/token/".$token->token;
+  my $link_url = CollabIRCate::Config->http_root() . "/token/link/" . $token->token;
   $response->add_private_response({user => $who, text => $link_url});
   return $response;
 }
