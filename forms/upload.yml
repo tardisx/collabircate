@@ -1,0 +1,16 @@
+---
+indicator: submit
+auto_fieldset: 1
+
+element:
+  - type: File
+    name: upload
+    label: Upload
+
+  - type: Hidden
+    name: token
+      
+  - type: Submit
+    name: submit
+
+ 

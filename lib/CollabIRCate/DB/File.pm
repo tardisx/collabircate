@@ -6,13 +6,13 @@ use warnings;
 use Carp qw/croak/;
 use CollabIRCate::Config;
 use File::Spec::Functions qw/catfile catdir/;
-use File::MMagic::XS;
+#use File::MMagic::XS;
 use File::Copy;
 
 use base 'CollabIRCate::DB::Object';
 
 my $config = CollabIRCate::Config->config();
-my $mime = File::MMagic::XS->new();
+# my $mime = File::MMagic::XS->new('/usr/share/file/magic');
 
 __PACKAGE__->meta->setup(
     table => 'file',
@@ -76,6 +76,7 @@ sub new_from_file {
     my $filename = shift;
     my $channel_id = shift;
     my $irc_user_id = shift;
+    my $desired_filename = shift || $filename;
 
     if (ref $class) {
         croak "new_from_file called as object method?";
@@ -86,10 +87,12 @@ sub new_from_file {
     }
 
     my ($size, $ts) = (stat($filename))[7,9];
-    my $mime_type = $mime->get_mime($filename);
+    my $mime_type = `file --mime-type -b $filename`;
+    chomp $mime_type;
+    warn $mime_type . " for " . $filename;
 
     # create the object
-    my $self = __PACKAGE__->new(filename => $filename,
+    my $self = __PACKAGE__->new(filename => $desired_filename,
                                 size => $size,
                                 mime_type => $mime_type,
                                 channel_id => $channel_id,
@@ -98,6 +101,10 @@ sub new_from_file {
 
     my $path = $self->path();
     copy $filename, $path || croak "Could not copy $filename to $path";
+    if ($desired_filename) {
+        $self->filename($desired_filename);
+        $self->save();
+    }
     return $self;
 }
 
