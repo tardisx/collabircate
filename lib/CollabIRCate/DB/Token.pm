@@ -5,6 +5,7 @@ use warnings;
 
 use Digest::MD5;
 use Time::HiRes qw/time/;
+use Storable;
 
 use Carp qw/croak/;
 
@@ -18,6 +19,7 @@ __PACKAGE__->meta->setup(
     columns => [
         token   => { type => 'text',      not_null => 1, primary_key => 1 },
         expires => { type => 'timestamp', not_null => 1 },
+        type    => { type => 'text',      not_null => 1 },
         data    => { type => 'text',      not_null => 1 },
     ],
 );
@@ -45,6 +47,7 @@ sub new_link_token {
     my $self = __PACKAGE__->new(
         token   => $md5->hexdigest,
         expires => time() + $expires,
+        type => 'link',
         data    => $irc_user,
     );
 
@@ -59,7 +62,7 @@ and a channel destination for the upload.
 =cut
 
 sub new_upload_token {
-    my $class = shift;
+    my $class       = shift;
     my $channel_id  = shift;    # a channel id
     my $irc_user_id = shift;    # an IRC user id
 
@@ -74,6 +77,7 @@ sub new_upload_token {
     my $self = __PACKAGE__->new(
         token   => $md5->hexdigest,
         expires => time() + $expires,
+        type    => 'upload',
         data    => "$channel_id|$irc_user_id",
     );
 

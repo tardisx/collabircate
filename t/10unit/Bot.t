@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 26;
+use Test::More tests => 30;
 
 BEGIN {
     $ENV{'COLLABIRCATE_CONFIG_SUFFIX'} = '.sample';
@@ -42,10 +42,14 @@ $response = $bot->bot_addressed( $user, '#testchannel', 'what is 2+10?' );
 ok( $response->public_response->[0]->[1] =~ /12/, 'adds publically, directly' );
 
 # world time
-$response = $bot->bot_addressed( $user, undef, 'what is the time in london?' );
+$response = $bot->bot_addressed( $user, undef, 'london time?' );
 ok( $response->private_response->[0]->[1] =~ /\d\d:\d\d:\d\d/, 'got some london time #1' );
 $response = $bot->bot_addressed( $user, undef, 'time in london?' );
 ok( $response->private_response->[0]->[1] =~ /\d\d:\d\d:\d\d/, 'got some london time #2' );
+$response = $bot->bot_addressed( $user, undef, 'what is the time in london?' );
+ok( $response->private_response->[0]->[1] =~ /\d\d:\d\d:\d\d/, 'got some london time #3' );
+$response = $bot->bot_addressed( $user, undef, 'time in london?' );
+ok( $response->private_response->[0]->[1] =~ /\d\d:\d\d:\d\d/, 'got some london time #4' );
 $response = $bot->bot_addressed( $user, undef, 'what is the time in london now?' );
 ok( $response->private_response->[0]->[1] =~ /\d\d:\d\d:\d\d/, 'got some london time #3' );
 $response = $bot->bot_addressed( $user, undef, 'what is the time in timbuctoo now?' );
@@ -67,6 +71,14 @@ foreach my $test ('link me',
                   'link me please',
                   'link me up',
                   'link') {
+  $response = $bot->bot_addressed( $user, '#testchannel', $test );
+  ok ( defined $response->private_response &&  $response->private_response->[0]->[1] =~ /\b[0-9a-f]{32}\b/, 'has a token: '.$test );
+  ok ( ! defined $response->public_response || ! defined $response->public_response->[0], 'no public response: '.$test );
+}
+
+# upload token
+foreach my $test ('upload',
+                  'upload token') {
   $response = $bot->bot_addressed( $user, '#testchannel', $test );
   ok ( defined $response->private_response &&  $response->private_response->[0]->[1] =~ /\b[0-9a-f]{32}\b/, 'has a token: '.$test );
   ok ( ! defined $response->public_response || ! defined $response->public_response->[0], 'no public response: '.$test );

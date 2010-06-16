@@ -54,6 +54,7 @@ CREATE TABLE tag (
 CREATE TABLE token (
   token   TEXT PRIMARY KEY,
   expires TIMESTAMP NOT NULL,
+  type    TEXT NOT NULL,
   data    TEXT NOT NULL
 );
 
