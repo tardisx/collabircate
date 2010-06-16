@@ -61,7 +61,7 @@ foreach my $test ('he should talk shit up, big time',
                   'anytime is good for me',
                   'what time?'
                  ) {
-                 
+
   $response = $bot->bot_addressed( $user, undef, $test);
   ok( !defined $response->private_response, 'not really a time request: '.$test);
 }
@@ -72,7 +72,7 @@ foreach my $test ('link me',
                   'link me up',
                   'link') {
   $response = $bot->bot_addressed( $user, '#testchannel', $test );
-  ok ( defined $response->private_response &&  $response->private_response->[0]->[1] =~ /\b[0-9a-f]{32}\b/, 'has a token: '.$test );
+  ok ( defined $response->private_response &&  $response->private_response->[0]->[1] =~ m|token/link/[0-9a-f]{32}$|, 'has a token: '.$test );
   ok ( ! defined $response->public_response || ! defined $response->public_response->[0], 'no public response: '.$test );
 }
 
@@ -80,6 +80,6 @@ foreach my $test ('link me',
 foreach my $test ('upload',
                   'upload token') {
   $response = $bot->bot_addressed( $user, '#testchannel', $test );
-  ok ( defined $response->private_response &&  $response->private_response->[0]->[1] =~ /\b[0-9a-f]{32}\b/, 'has a token: '.$test );
+  ok ( defined $response->private_response &&  $response->private_response->[0]->[1] =~ m|token/upload/[0-9a-f]{32}$|, 'has a token: '.$test );
   ok ( ! defined $response->public_response || ! defined $response->public_response->[0], 'no public response: '.$test );
 }

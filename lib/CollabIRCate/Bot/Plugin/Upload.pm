@@ -35,7 +35,7 @@ sub answer {
   $token->save();
 
   my $response = CollabIRCate::Bot::Response->new;
-  my $link_url = "http://localhost:3000/token/upload/".$token->token;
+  my $link_url = CollabIRCate::Config->http_root() . "/token/upload/" . $token->token;
   $response->add_private_response({user => $who, text => $link_url});
   return $response;
 }
