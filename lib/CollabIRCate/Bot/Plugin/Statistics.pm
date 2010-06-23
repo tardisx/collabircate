@@ -69,7 +69,8 @@ sub stats {
     my ($who, $channel, $message) = @_;
     return unless $message =~ /stats/i;
     use Data::Dumper;
-
+    $Data::Dumper::Sortkeys = 1;
+   
     my $response = CollabIRCate::Bot::Response->new;
     $response->add_public_response(
         { channel => $channel,
