@@ -27,13 +27,19 @@ sub collect_and_emit {
     my $channel  = shift;
     my $text     = shift;
 
-    if ($text =~ /^say something/) {
+    if ($text =~ /^say something/i) {
         my $hailo = _get_brain($channel);
 
+        $text =~ /(about|on|regarding|relating to)\s+(.*)/i;
+        my $about = $1;
+
         my $response = CollabIRCate::Bot::Response->new;
+        my $text;
+        $text = $hailo->reply($about) if ($about);
+        $text = $hailo->reply()       if (! $about);
         $response->add_public_response(
             {   channel => $channel,
-                text    => $hailo->reply(),  # this could supply $text
+                text    => $text,
             });
         return $response;
     }
