@@ -89,7 +89,6 @@ sub new_from_file {
     my ($size, $ts) = (stat($filename))[7,9];
     my $mime_type = `file --mime-type -b $filename`;
     chomp $mime_type;
-    warn $mime_type . " for " . $filename;
 
     # create the object
     my $self = __PACKAGE__->new(filename => $desired_filename,

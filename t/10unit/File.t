@@ -51,7 +51,7 @@ my $user = CollabIRCate::DB::IRCUser->new(
 
     ok ($db->id, 'has an id');
     ok ($db->size == 49, 'has the right size');
-    ok ($db->mime_type eq 'text/plain', 'right mime type');
+    ok ($db->mime_type eq 'text/plain', 'right mime type - text/plain');
 }
 
 
@@ -63,7 +63,7 @@ my $user = CollabIRCate::DB::IRCUser->new(
 
     ok ($db->id, 'has an id');
     ok ($db->size == 800, 'has the right size');
-    ok ($db->mime_type eq 'image/gif', 'right mime type');
+    ok ($db->mime_type eq 'image/gif', 'right mime type - image/gif');
 }
 
 # jpg file
@@ -85,7 +85,7 @@ my $user = CollabIRCate::DB::IRCUser->new(
 
     ok ($db->id, 'has an id');
     ok ($db->size == 407, 'has the right size');
-    ok ($db->mime_type eq 'application/rtf', 'right mime type');
+    ok ($db->mime_type =~ /\/rtf$/, 'right mime type - */rtf');
 }
 
 # pdf file
@@ -96,6 +96,6 @@ my $user = CollabIRCate::DB::IRCUser->new(
 
     ok ($db->id, 'has an id');
     ok ($db->size == 50190, 'has the right size');
-    ok ($db->mime_type eq 'application/pdf', 'right mime type');
+    ok ($db->mime_type eq 'application/pdf', 'right mime type - application/pdf');
 }
 
