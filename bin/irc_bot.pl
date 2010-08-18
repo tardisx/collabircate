@@ -18,8 +18,8 @@ use CollabIRCate::Bot::Users;
 use CollabIRCate::Logger;
 
 my $bot = CollabIRCate::Bot->new();    # create a bot
-my @periodics = $bot->register_periodics();            # figure out what we need to do periodically
-
+my @periodics =
+  $bot->register_periodics();    # figure out what we need to do periodically
 
 my $config = CollabIRCate::Config->config;
 
@@ -72,8 +72,7 @@ POE::Session->create(
     },
 );
 
-# The bot session has started.  Register this bot with the "magnet"
-# IRC component.  Select a nickname.  Connect to a server.
+# The bot session has started. Select a nickname.  Connect to a server.
 sub bot_start {
     my $kernel  = $_[KERNEL];
     my $heap    = $_[HEAP];
@@ -92,7 +91,7 @@ sub bot_start {
             Server   => $HOST,
             Port     => $PORT,
 
-            #            Debug    => 1,
+            # Debug    => 1,
         }
     );
     $kernel->delay( check_tells    => 10 );
@@ -111,7 +110,7 @@ sub on_connect {
         my ($delay, $sub) = @$_;
         $kernel->delay('run_periodic' => $delay, $sub, $delay);
     }
-    
+
 }
 
 # The bot has received a public message.  Parse it for commands, and
@@ -139,7 +138,6 @@ sub on_public {
         my $response = $bot->bot_heard( $user, $channel, $msg );
         $response->emit($irc);
     }
-
 }
 
 sub on_ctcp_action {
@@ -332,7 +330,7 @@ sub run_periodic {
 
     # run the coderef
     &$sub($irc);
-    
+
     # reschedule
     $kernel->delay('run_periodic' => $delay, $sub, $delay);
 }
