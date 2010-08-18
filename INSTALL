@@ -1,9 +1,11 @@
 Requirements
 ------------
 
-Mojolicious framework:
-
-$ sudo cpan Mojolicious
+* Mojolicious
+* HTML::FormFu
+* Rose::DB
+* Rose::DB::Object
+* Hailo (optional)
 
 Testing the system
 ------------------
