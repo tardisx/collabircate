@@ -3,6 +3,6 @@
 
 <p>Hope you enjoy it.</p>
 
-% if ($session->{logged_in}) {
-<p>Hi there <%= $session->{logged_in} %></p>
-% }
+%# if ($session->{logged_in}) {
+%# <p> Hi there <%= $session->{logged_in} %></p>
+%# }

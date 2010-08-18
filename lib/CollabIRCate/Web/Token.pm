@@ -25,7 +25,7 @@ sub link {
     my $token = $self->stash->{token};
     my $message;
 
-    if ( !$self->stash->{session}->{logged_in} ) {
+    if ( !$self->session('logged_in') ) {
         $self->stash->{message} = 'you need to login first';
         return;
     }
@@ -47,7 +47,7 @@ sub link {
     my $data = $tokendb->data;
 
     # are we logged in?
-    my $username = $self->stash->{session}->{logged_in};
+    my $username = $self->session('logged_in');
 
     # link these bastards
     my $buser = CollabIRCate::Bot::Users->from_ircuser(

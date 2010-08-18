@@ -7,10 +7,10 @@
 <a href="<%== $return %>">go back to whence you came</a>
 % }
 
-% if (! $session->{logged_in}) {
+% if (! $self->session->{logged_in}) {
 <p><%== $form %></p>
 % } else {
-<p>Hello: <%= $session->{logged_in} =%></p>
+<p>Hello: <%= $self->session->{logged_in} =%></p>
 <p><a href="/user/logout">logout?</a></p>
 % }
 

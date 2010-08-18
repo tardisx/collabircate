@@ -38,14 +38,14 @@ sub login {
         
         if ($users && $users->[0]) {
             $self->stash->{message} = 'login success';
-            $self->stash->{session}->{logged_in} = $username;
+            $self->session->{logged_in} = $username;
             if ($form->param('return')) {
               $self->stash->{return} = $form->param('return');
             }
         }
         else {
             $self->stash->{message} = 'login failure';
-            $self->stash->{session}->{logged_in} = undef;
+            delete $self->session->{logged_in};
         }
     }
 
@@ -54,8 +54,8 @@ sub login {
 
 sub logout {
     my $self = shift;
-    
-    $self->stash->{session}->{logged_in} = undef;
+
+    delete $self->session->{logged_in};
 }
 
 1;

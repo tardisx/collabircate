@@ -9,8 +9,6 @@ use base 'Mojolicious';
 sub startup {
     my $self = shift;
 
-    $self->plugin('simple_session');
-
     # Routes
     my $r = $self->routes;
 
