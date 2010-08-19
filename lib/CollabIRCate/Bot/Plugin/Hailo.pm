@@ -9,10 +9,31 @@ use CollabIRCate::Logger;
 
 use base 'CollabIRCate::Bot::Plugin';
 
+=head1 NAME
+
+CollabIRCate::Bot::Plugin::Hailo
+
+=head1 DESCRIPTION
+
+A plugin using L<Hailo> to give the bot amazing powers of AI. Or at least, amazing
+powers of occasionally saying stupidly funny things.
+
+=cut
+
 my $logger = CollabIRCate::Logger->get(__PACKAGE__);
 my $hailo_brains = {};
 my $last_channel = undef;
 my $channel_noise = {};
+
+=head2 register
+
+Register the plugin. The bot collects all public messages, when directly addressed
+it can also emit a message (via Hailo). 
+
+Additionally, there is a random chance of the bot saying something each minute, the
+probability of which is determined by how much activity is in the channel.
+
+=cut
 
 sub register {
     return {
@@ -21,6 +42,13 @@ sub register {
         periodic  => [ 60, \&spurt ],
     };
 }
+
+=head2 collect_and_emit
+
+Collect what the user just said, and say something back, if the right
+thing was said.
+
+=cut
 
 sub collect_and_emit {
     my $user     = shift;
@@ -49,6 +77,12 @@ sub collect_and_emit {
     }
 }
 
+=head2 collect
+
+Simply collect the message that was said.
+
+=cut
+
 sub collect {
     my $user     = shift;
     my $channel  = shift;
@@ -65,6 +99,12 @@ sub collect {
     $hailo->save();
     return;
 }
+
+=head2 spurt
+
+Say something to the channel, randomly.
+
+=cut
 
 sub spurt {
     my $irc = shift;
