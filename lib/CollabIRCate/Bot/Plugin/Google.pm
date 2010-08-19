@@ -7,6 +7,21 @@ use REST::Google;
 
 use base 'CollabIRCate::Bot::Plugin';
 
+=head1 NAME
+
+CollabIRCate::Bot::Plugin::Google - allow the bot to search google for you.
+
+=head1 DESCRIPTION
+
+This plugin allows the bot to answer requests like 'google foo'. The response is 
+the top hit for that Google search request.
+
+=head2 answer
+
+Respond to a google request.
+
+=cut 
+
 sub answer {
   my $class = shift;
   my $question = shift;
