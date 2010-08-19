@@ -113,6 +113,12 @@ sub bot_addressed {
     return $all_responses;
 }
 
+=head2 register_periodics
+
+Return a list of the plugins which requite periodic calls.
+
+=cut
+
 sub register_periodics {
     my $self = shift;
     my @out;

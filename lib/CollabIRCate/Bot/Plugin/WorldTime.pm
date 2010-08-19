@@ -5,6 +5,21 @@ use warnings;
 
 use base 'CollabIRCate::Bot::Plugin';
 
+=head1 NAME 
+
+CollabIRCate::Bot::Plugin::WorldTime
+
+=head1 DESCRIPTION
+
+This plugin lets the bot answer requests for the current time in different parts
+of the world.
+
+=head2 register
+
+Registers the plugin with the bot.
+
+=cut
+
 sub register {
     return {
         public    => \&answer,
@@ -28,6 +43,14 @@ BEGIN {
     }
     close $fh;
 }
+
+=head2 answer
+
+Answer a request for the current time, somewhere. 
+
+Requests look something like 'what is the time in Adelaide?'.
+
+=cut
 
 sub answer {
     my $user     = shift;

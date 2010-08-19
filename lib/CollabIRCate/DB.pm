@@ -8,6 +8,18 @@ use base 'Rose::DB';
 
 use CollabIRCate::Config;
 
+=head1 NAME
+
+CollabIRCate::DB
+
+=head1 DESCRIPTION
+
+Provide DB connectivity to the CollabIRCate system.
+
+See L<Rose::DB> for details.
+
+=cut
+
 my $config = CollabIRCate::Config->config();
 
 # Use a private registry for this class
