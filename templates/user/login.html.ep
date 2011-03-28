@@ -10,7 +10,7 @@
 % if (! $self->session->{logged_in}) {
 <p><%== $form %></p>
 % } else {
-<p>Hello: <%= $self->session->{logged_in} =%></p>
+<p>logged in as <%= $self->session->{logged_in} %></p>
 <p><a href="/user/logout">logout?</a></p>
 % }
 
