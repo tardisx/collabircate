@@ -36,7 +36,7 @@ $t->post_form_ok('/user/login', {username => 'foo', password => 'bar', submit =>
   ->content_type_like(qr/text\/html/)
   ->content_like(qr/login success/i)
   ->content_like(qr/logged in as foo/i);
-    
+
 # now we can upload?
 $t->get_ok($url)
     ->status_is(200)
@@ -44,4 +44,4 @@ $t->get_ok($url)
     # it should say we are logged in
     ->content_like(qr/logged in as foo/)
     # and also that we are the wrong user?
-#    ->content_like(qr{fuckers}i);
+;
