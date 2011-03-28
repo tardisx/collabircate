@@ -37,8 +37,8 @@
 		
     <div class="box">
         <div style="font-size: 0.8em;">
-% if ($self->session->{logged_in}) {
-          Logged in as <%= $self->session->{logged_in} %>
+% if (stash('session') && stash('session')->{logged_in}) {
+          Logged in as <%= stash('session')->{logged_in} %>
           [<a href="/user/logout">Logout</a>]
 % } else {
           Not logged in.
