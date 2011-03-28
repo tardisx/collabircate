@@ -26,13 +26,13 @@ use_ok('CollabIRCate::Web');
 my $t = Test::Mojo->new(app => 'CollabIRCate::Web');
 $t->get_ok('/channels/')
   ->status_is(200)
-  ->content_type_is('text/html')
+  ->content_type_like(qr/text\/html/)
   ->content_like(qr/webtest$$/)
 
 # now the channel    
   ->get_ok('/channels/webtest'.$$)
   ->status_is(200)
-  ->content_type_is('text/html')
+  ->content_type_like(qr/text\/html/)
   ->content_like(qr/test1/)
   ->content_like(qr/test2/)
   ->content_like(qr/test3/)
