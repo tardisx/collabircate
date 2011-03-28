@@ -9,6 +9,7 @@ my $config = CollabIRCate::Config->config();
 if ($config->{database_type} eq 'sqlite') {
   unlink 'collabircate_dev.db';
   unlink 'hailo_all.db';
+  unlink 'stats.db';
   system ('sqlite3 collabircate_dev.db < etc/schema_sqlite.sql');
   system ('sqlite3 collabircate_dev.db < etc/testdata.sql');
   ok (-s 'collabircate_dev.db' > 2, 'db looks ok');
