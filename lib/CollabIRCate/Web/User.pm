@@ -59,4 +59,22 @@ sub logout {
     delete $self->session->{logged_in};
 }
 
+sub show {
+    my $self = shift;
+    
+    my $users = CollabIRCate::DB::User::Manager->get_users(
+      query => [ id => $self->param('uid') ],
+    );
+    # should be just one
+    if (@$users == 0) {
+       die "no such user";
+    }
+    if (@$users != 1) {
+       die "huh? multiple users?";
+    }
+    $self->stash->{user} = $users->[0];
+    $self->render();
+    return;
+}
+
 1;

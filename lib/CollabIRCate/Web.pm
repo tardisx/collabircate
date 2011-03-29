@@ -16,6 +16,9 @@ sub startup {
     $r->route('/user/login')->to('user#login');
     $r->route('/user/logout')->to('user#logout');
 
+    # user display stuff
+    $r->route('/user/:uid')->to('user#show');
+
     # tokens
     $r->route('/token/link/:token')->to('token#link');
     $r->route('/token/upload/:token')->to('token#upload');
