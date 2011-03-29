@@ -29,6 +29,21 @@ __PACKAGE__->use_private_registry;
 __PACKAGE__->default_domain($config->{database_domain} || 'development');
 __PACKAGE__->default_type($config->{database_type} || 'sqlite');
 
+# Or maybe we have a custom DSN for test (SQLite only supported)
+if ($config->{dsn}) {
+  # dbi:SQLite:dbname=/tmp/foobar.23 
+  my ($db) = ($config->{dsn} =~ /dbname=(.+)$/);
+  __PACKAGE__->register_db(
+    domain   => 'test',
+    type     => 'sqlite',
+    driver   => 'SQLite',
+    database => $db,
+  );
+  __PACKAGE__->default_domain('test');
+  __PACKAGE__->default_type('sqlite');
+  warn "DONE IT! $db";
+}
+
 # Register the data sources
 
 # Development:

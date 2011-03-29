@@ -16,6 +16,12 @@ sub config {
     );
     my $config = $configs->[0]->{$filename};
 
+    # override with any env settings
+    foreach my $env ( keys %ENV ) {
+      next unless ($env =~ /^COLLABIRCATE_CONFIG_(\w+)$/);
+      $config->{lc($1)} = $ENV{$env};
+    }
+
     return $config;
 }
 

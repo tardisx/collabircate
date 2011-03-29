@@ -35,7 +35,7 @@ mkdir $store;
 mkdir $queue;
 
 # deploy sql
-# XXX need a new solution for this
+system ("sqlite3 $db < etc/schema_sqlite.sql");
 
 # start the server and bot
 my $spid = start_server();
