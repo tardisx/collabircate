@@ -40,6 +40,7 @@ mkdir $queue;
 # start the server and bot
 my $spid = start_server();
 my $bpid = start_bot();
+my $wpid = start_web();
 sleep 5;
 
 # set the variable so that tests can see that they are inside
@@ -59,6 +60,7 @@ else {
 
 kill "TERM", $bpid;
 kill "TERM", $spid;
+kill "TERM", $wpid;
 
 sub start_server {
   if (my $pid = fork()) {
@@ -75,6 +77,15 @@ sub start_bot {
   }
   else {
     exec "bin/irc_bot.pl";
+  }
+}
+
+sub start_web {
+  if (my $pid = fork()) {
+    return $pid;
+  }
+  else {
+    exec "bin/web.pl daemon";
   }
 }
 
