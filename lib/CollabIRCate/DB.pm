@@ -10,7 +10,7 @@ use CollabIRCate::Config;
 
 =head1 NAME
 
-CollabIRCate::DB
+CollabIRCate::DB - Rose::DB subclass to manage CollabIRCate DB connections
 
 =head1 DESCRIPTION
 

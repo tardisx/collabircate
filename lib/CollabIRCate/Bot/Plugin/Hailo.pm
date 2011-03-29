@@ -11,7 +11,7 @@ use base 'CollabIRCate::Bot::Plugin';
 
 =head1 NAME
 
-CollabIRCate::Bot::Plugin::Hailo
+CollabIRCate::Bot::Plugin::Hailo - provide random amusing responses
 
 =head1 DESCRIPTION
 

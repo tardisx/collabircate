@@ -2,7 +2,7 @@ package CollabIRCate::DB::Channel;
 
 =head1 NAME
 
-CollabIRCate::DB::Channel
+CollabIRCate::DB::Channel - DB abstraction for IRC channels
 
 =head1 SYNOPSIS
 
