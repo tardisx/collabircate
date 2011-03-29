@@ -1,11 +1,13 @@
 Requirements
 ------------
 
-* Mojolicious
+* Mojolicious 1.15
 * HTML::FormFu
 * Rose::DB
 * Rose::DB::Object
-* Hailo (optional)
+* Hailo 0.64 (optional)
+* DBI 1.616 
+
 
 Testing the system
 ------------------
