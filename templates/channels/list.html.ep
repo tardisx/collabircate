@@ -1,7 +1,9 @@
 % layout 'default';
+% my $num_channels = 0;
 
 <table>
 % foreach (@$channels) {
+%   $num_channels++;
 %   # XXX this is an ugly hack and needs to go
 %   my $chan_name = $_->name;
 %   $chan_name =~ s/^#//;
@@ -11,3 +13,7 @@
   </tr>
 % }
 </table>
+
+% if (! $num_channels) {
+<p>No channels!</p>
+% }
