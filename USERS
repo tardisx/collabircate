@@ -18,9 +18,9 @@ We should not throw away their entries because they are
 unauthenticated. We should keep them, and let them be 'tagged' with
 the correct username once we have identified them.
 
-An IRC user is represented as nick!user@host.name. The username part
+An IRC user is represented as nick!username@host.name. The username part
 of easily changed by the user, and of course the nick can be changed
-at any time.  The user@host.name section identifies a user at that
+at any time.  The username@host.name section identifies a user at that
 particular point in time. This is an IRC user instance.
 
 All IRC logs are identified with a link to the IRC user instance. This
