@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 17;
+use Test::More tests => 19;
 use Test::Mojo;
 
 BEGIN {
@@ -42,6 +42,9 @@ $t->get_ok($url)
     ->status_is(200)
     ->content_type_like(qr/text\/html/)
     # it should say we are logged in
-    ->content_like(qr/logged in as foo/)
-    # and also that we are the wrong user?
-;
+    ->content_like(qr/logged in as foo/i);
+
+my $file = Mojo::Asset::File->new->add_chunk('lalala');
+$t->post_form_ok($url,
+  {submit => 1, upload => {file => $file, filename => 'xyz'}})->status_is(200)
+  ->content_like(qr/uploaded xyz it is \d+/);
