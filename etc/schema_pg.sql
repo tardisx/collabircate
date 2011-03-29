@@ -17,9 +17,10 @@ CREATE TABLE channel (
 
 CREATE TABLE "user" (
   id         SERIAL PRIMARY KEY,
-  email      TEXT UNIQUE,
-  username   TEXT UNIQUE,
-  password   TEXT
+  email      TEXT NOT NULL UNIQUE,
+  username   TEXT NOT NULL UNIQUE,
+  password   TEXT NOT NULL,
+  admin      BOOLEAN NOT NULL DEFAULT 'f'
 );
 
 CREATE TABLE irc_user (
