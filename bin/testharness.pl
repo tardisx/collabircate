@@ -18,13 +18,11 @@ if ($ENV{COLLABIRCATE_INSIDE_HARNESS}) {
 }
 
 my $store = '/tmp/store' . $$;
-my $queue = '/tmp/queue' . $$;
 my $db = "/tmp/db" . $$;
 
 my $dsn   = "dbi:SQLite:dbname=$db";
 
 $ENV{COLLABIRCATE_CONFIG_FILE_STORE_PATH} = $store;
-$ENV{COLLABIRCATE_CONFIG_EMAIL_QUEUE_PATH} = $queue;
 $ENV{COLLABIRCATE_CONFIG_DSN} = $dsn;
 
 if (-e "collabircate.conf") {
@@ -32,7 +30,6 @@ if (-e "collabircate.conf") {
 }
 system ("cp", "collabircate.conf.sample", "collabircate.conf");
 mkdir $store;
-mkdir $queue;
 
 # deploy sql
 system ("cat etc/schema_sqlite.sql | grep -v DROP | sqlite3 $db");
@@ -99,7 +96,6 @@ END {
   }
   system ("rm", $db) if ($db && -e $db);
   system ("rm", "-rf", $store) if ($store && -d $store);
-  system ("rm", "-rf", $queue) if ($queue && -d $queue);
   print "Cleanup complete\n";
 }
 
