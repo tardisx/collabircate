@@ -35,7 +35,8 @@ mkdir $store;
 mkdir $queue;
 
 # deploy sql
-system ("sqlite3 $db < etc/schema_sqlite.sql");
+system ("cat etc/schema_sqlite.sql | grep -v DROP | sqlite3 $db");
+system ("cat etc/testdata.sql | sqlite3 $db");
 
 # start the server and bot
 my $spid = start_server();
@@ -55,7 +56,7 @@ if ($shell) {
   print "Killing servers and cleaning up\n";
 }
 else {
-  system ("make", "test");
+  system ("prove", "-Ilib", "-r");
 } 
 
 kill "TERM", $bpid;
