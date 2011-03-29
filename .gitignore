@@ -8,7 +8,7 @@ pm_to_blib
 *.bak
 collabircate.conf
 collabircate_dev.db
-stats.db
+stats.sb
 log/collabircate.log
 log/development.log
 store
