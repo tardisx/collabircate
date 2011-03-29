@@ -15,7 +15,6 @@ use CollabIRCate::Config;
 use CollabIRCate::File qw/accept_file/;
 
 my $config = CollabIRCate::Config->config();
-my $queue_dir = $config->{email_queue_path} || croak "no email_queue_path";
 
 my ($debug, $help);
 
