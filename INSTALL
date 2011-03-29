@@ -8,7 +8,6 @@ Requirements
 * Hailo 0.64 (optional)
 * DBI 1.616 
 
-
 Testing the system
 ------------------
 
@@ -19,12 +18,6 @@ Files=8, Tests=29,  3 wallclock secs ( 0.04 usr  0.03 sys +  2.30 cusr  0.34 csy
 Result: PASS
 
 All good!
-
-Installing
-----------
-
-Put the entire directory in the filesystem at the place of your
-choosing.  Note that you probably DO NOT want to run 'make install'.
 
 Configuration
 -------------
@@ -39,31 +32,7 @@ Run bin/deploy.pl to deploy the sqlite db schema.
 Installing the web component as a CGI
 -------------------------------------
 
-It is easy to run the web interface of CollabIRCate as a CGI. This minimal
-configuration is easy to setup, and light on resources *IF* your system
-is very low load.
-
-If you expect to be receiving a lot of hits, a FastCGI setup would be 
-preferable.
-
-To install as a CGI, simply setup your web server to serve requests via
-the CGI script script/collabircate_cgi.pl. A couple of sample configurations
-are provided below:
-
- * Apache
-
-ScriptAlias /urlprefix "/path/to/CollabIRCate/script/collabircate_cgi.pl"
-
- * Lighttpd
-
-$HTTP["url"] =~ "^/urlprefix" {
-  alias.url = ( "/urlprefix" => 
-                  "/path/to/CollabIRCate/script/collabircate_cgi.pl" )
-  cgi.assign = ( "" => "" )
-}
-
-Where 'urlprefix' is whatever you choose for the CollabIRCate URL's - the 
-system is happy to be rooted wherever you like.
+TBD
 
 Running the IRC server and bot
 ------------------------------
