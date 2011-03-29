@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>CollabIRCate::Bot</title>
+<link rel="stylesheet" type="text/css" href="../podstyle.css" /><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <script type="text/javascript">
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  </script></head>
+<body>
+<div class="box">
+  <h1 class="t1">CollabIRCate</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">CollabIRCate is a free, open-source collaboration tool</td>
+    </tr>
+  </table>
+</div>
+<div class="path">
+  <a href="../index.html">CollabIRCate</a> &gt; Perl Modules &gt;
+  CollabIRCate-Bot
+</div>
+<div>
+<a href="../src/CollabIRCate/Bot.pm">Source</a>
+</div>
+
+
+<div class="pod">
+<!-- INDEX START -->
+<h3 id="TOP">Index</h3>
+<ul>
+	<li><a href="#NAME">NAME</a></li>
+	<li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+	<li><a href="#DESCRIPTION">DESCRIPTION</a></li>
+	<li><a href="#AUTHOR">AUTHOR</a></li>
+	<li><a href="#LICENSE">LICENSE</a><br />
+<ul>
+	<li><a href="#bot_heard">bot_heard</a></li>
+	<li><a href="#bot_addressed">bot_addressed</a></li>
+	<li><a href="#register_periodics">register_periodics</a></li>
+</ul>
+</li>
+</ul>
+<hr />
+<!-- INDEX END -->
+
+<h1 id="NAME">NAME <a href="#TOP" class="toplink"><img alt="^" src="../up.gif" /></a></h1>
+
+<p>CollabIRCate::Bot - Implement the brains of an IRC bot.</p>
+
+<h1 id="SYNOPSIS">SYNOPSIS <a href="#TOP" class="toplink"><img alt="^" src="../up.gif" /></a></h1>
+
+<pre>  my $bot = CollabIRCate::Bot-&gt;new();
+
+</pre><h1 id="DESCRIPTION">DESCRIPTION <a href="#TOP" class="toplink"><img alt="^" src="../up.gif" /></a></h1>
+
+<p>Encapsulates a bot.</p>
+
+<h1 id="AUTHOR">AUTHOR <a href="#TOP" class="toplink"><img alt="^" src="../up.gif" /></a></h1>
+
+<p>Justin Hawkins</p>
+
+<h1 id="LICENSE">LICENSE <a href="#TOP" class="toplink"><img alt="^" src="../up.gif" /></a></h1>
+
+<p>This library is free software, you can redistribute it and/or modify
+it under the same terms as Perl itself.</p>
+
+<h2 id="bot_heard">bot_heard</h2>
+
+<p><a href="#" onclick="toggleCode('method_bot_heard');return false;">[Source]</a></p>
+                                        <div class="method-source-code" id="method_bot_heard">
+                                        <pre>
+
+sub bot_heard {
+    my $self    = shift;
+    my $user    = shift;
+    my $channel = shift;
+    my $message = shift;
+
+    # check plugins
+    my $all_responses = CollabIRCate::Bot::Response->new();
+    $logger->debug("considering plugins for '$message' - heard publically");
+
+    foreach my $plugin (@plugins) {
+        if ( $plugin->register->{public} ) {
+            $logger->debug("checking $plugin");
+            my $response = &{ $plugin->register->{public} }( $user, $channel,
+                $message );
+
+            if ($response) {
+                $logger->debug("received response");
+                $all_responses->merge($response);
+            }
+        }
+    }
+    return $all_responses;
+}
+</pre></div>
+
+<p>Tell the Bot that it heard something, what it heard and who said it.</p>
+
+<h2 id="bot_addressed">bot_addressed</h2>
+
+<p><a href="#" onclick="toggleCode('method_bot_addressed');return false;">[Source]</a></p>
+                                        <div class="method-source-code" id="method_bot_addressed">
+                                        <pre>
+
+sub bot_addressed {
+    my $self    = shift;
+    my $user    = shift;
+    my $channel = shift;    # undef if private
+    my $message = shift;
+
+    my $all_responses = CollabIRCate::Bot::Response->new();
+    $logger->debug("considering plugins for '$message' - addressed to me");
+
+    foreach my $plugin (@plugins) {
+        if ( $plugin->register->{addressed} ) {
+            $logger->debug("checking $plugin");
+            my $response
+                = &{ $plugin->register->{addressed} }( $user, $channel,
+                $message );
+            if ($response) {
+                $logger->debug("received a response");
+                $all_responses->merge($response);
+            }
+        }
+    }
+
+    return $all_responses;
+}
+</pre></div>
+
+<p>Tell the Bot that it someone told it something, either directly (privately)
+or addressed by name in a channel.</p>
+
+<h2 id="register_periodics">register_periodics</h2>
+
+<p><a href="#" onclick="toggleCode('method_register_periodics');return false;">[Source]</a></p>
+                                        <div class="method-source-code" id="method_register_periodics">
+                                        <pre>
+
+sub register_periodics {
+    my $self = shift;
+    my @out;
+    
+    foreach my $plugin ( @plugins ) {
+        if ($plugin->register->{periodic}) {
+            my ($delay, $sub) = @{ $plugin->register->{periodic} };
+            push @out, [ $delay, $sub ];
+        }
+    }
+    return @out;
+}
+</pre></div>
+
+<p>Return a list of the plugins which requite periodic calls.</p>
+
+
+</div><div class="footer">generated by <a href="http://search.cpan.org/perldoc?Pod%3A%3AProjectDocs">Pod::ProjectDocs</a></div></body>
+</html>

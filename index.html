@@ -1,77 +1,86 @@
-<!DOCTYPE html>
-<html>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-  <meta charset='utf-8'>
-
-  <title>tardisx/collabircate @ GitHub</title>
-
-  <style type="text/css">
-    body {
-      margin-top: 1.0em;
-      background-color: #a9dad3;
-      font-family: Helvetica, Arial, FreeSans, san-serif;
-      color: #000000;
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>CollabIRCate</title>
+<link rel="stylesheet" type="text/css" href="podstyle.css" />
+<script type="text/javascript">
+//<![CDATA[
+var managers = [{"records":[{"name":"CollabIRCate-Bot","title":"Implement the brains of an IRC bot.","path":"CollabIRCate/Bot.pm.html"},{"name":"CollabIRCate-Bot-Plugin","title":"base class for plugins","path":"CollabIRCate/Bot/Plugin.pm.html"},{"name":"CollabIRCate-Bot-Plugin-Banter","title":"","path":"CollabIRCate/Bot/Plugin/Banter.pm.html"},{"name":"CollabIRCate-Bot-Plugin-Google","title":"allow the bot to search google for you.","path":"CollabIRCate/Bot/Plugin/Google.pm.html"},{"name":"CollabIRCate-Bot-Plugin-Hailo","title":"provide random amusing responses","path":"CollabIRCate/Bot/Plugin/Hailo.pm.html"},{"name":"CollabIRCate-Bot-Plugin-Help","title":"","path":"CollabIRCate/Bot/Plugin/Help.pm.html"},{"name":"CollabIRCate-Bot-Plugin-Link","title":"","path":"CollabIRCate/Bot/Plugin/Link.pm.html"},{"name":"CollabIRCate-Bot-Plugin-Math","title":"","path":"CollabIRCate/Bot/Plugin/Math.pm.html"},{"name":"CollabIRCate-Bot-Plugin-Rot13","title":"","path":"CollabIRCate/Bot/Plugin/Rot13.pm.html"},{"name":"CollabIRCate-Bot-Plugin-Statistics","title":"collect and report channel statistics","path":"CollabIRCate/Bot/Plugin/Statistics.pm.html"},{"name":"CollabIRCate-Bot-Plugin-Upload","title":"","path":"CollabIRCate/Bot/Plugin/Upload.pm.html"},{"name":"CollabIRCate-Bot-Plugin-Version","title":"","path":"CollabIRCate/Bot/Plugin/Version.pm.html"},{"name":"CollabIRCate-Bot-Plugin-WorldTime","title":"","path":"CollabIRCate/Bot/Plugin/WorldTime.pm.html"},{"name":"CollabIRCate-Bot-Response","title":"class for IRC Bot responses.","path":"CollabIRCate/Bot/Response.pm.html"},{"name":"CollabIRCate-Bot-Users","title":"User objects for the bot to handle","path":"CollabIRCate/Bot/Users.pm.html"},{"name":"CollabIRCate-Colours","title":"","path":"CollabIRCate/Colours.pm.html"},{"name":"CollabIRCate-Config","title":"","path":"CollabIRCate/Config.pm.html"},{"name":"CollabIRCate-DB","title":"Rose::DB subclass to manage CollabIRCate DB connections","path":"CollabIRCate/DB.pm.html"},{"name":"CollabIRCate-DB-Channel","title":"DB abstraction for IRC channels","path":"CollabIRCate/DB/Channel.pm.html"},{"name":"CollabIRCate-DB-Channel-Manager","title":"","path":"CollabIRCate/DB/Channel/Manager.pm.html"},{"name":"CollabIRCate-DB-File","title":"","path":"CollabIRCate/DB/File.pm.html"},{"name":"CollabIRCate-DB-IRCUser","title":"","path":"CollabIRCate/DB/IRCUser.pm.html"},{"name":"CollabIRCate-DB-IRCUser-Manager","title":"","path":"CollabIRCate/DB/IRCUser/Manager.pm.html"},{"name":"CollabIRCate-DB-Log","title":"","path":"CollabIRCate/DB/Log.pm.html"},{"name":"CollabIRCate-DB-Log-Manager","title":"","path":"CollabIRCate/DB/Log/Manager.pm.html"},{"name":"CollabIRCate-DB-Nick","title":"","path":"CollabIRCate/DB/Nick.pm.html"},{"name":"CollabIRCate-DB-Nick-Manager","title":"","path":"CollabIRCate/DB/Nick/Manager.pm.html"},{"name":"CollabIRCate-DB-Object","title":"","path":"CollabIRCate/DB/Object.pm.html"},{"name":"CollabIRCate-DB-Tag","title":"","path":"CollabIRCate/DB/Tag.pm.html"},{"name":"CollabIRCate-DB-Token","title":"","path":"CollabIRCate/DB/Token.pm.html"},{"name":"CollabIRCate-DB-User","title":"","path":"CollabIRCate/DB/User.pm.html"},{"name":"CollabIRCate-DB-User-Manager","title":"","path":"CollabIRCate/DB/User/Manager.pm.html"},{"name":"CollabIRCate-File","title":"","path":"CollabIRCate/File.pm.html"},{"name":"CollabIRCate-Log","title":"","path":"CollabIRCate/Log.pm.html"},{"name":"CollabIRCate-Logger","title":"","path":"CollabIRCate/Logger.pm.html"},{"name":"CollabIRCate-Web","title":"","path":"CollabIRCate/Web.pm.html"},{"name":"CollabIRCate-Web-Channels","title":"","path":"CollabIRCate/Web/Channels.pm.html"},{"name":"CollabIRCate-Web-Token","title":"","path":"CollabIRCate/Web/Token.pm.html"},{"name":"CollabIRCate-Web-User","title":"","path":"CollabIRCate/Web/User.pm.html"}],"desc":"Perl Modules"}];
+function render(pattern) {
+    var html = '';
+    for ( var i = 0; i < managers.length; i++ ) {
+        var manager   = managers[i];
+        var rows_html = get_rows_html(manager, pattern);
+        var listbox = "<div class='box'><h2 class='t2'>"
+                    + manager.desc
+                    + "</h2><table width='100%'>"
+                    + rows_html
+                    + "</table></div>";
+        html += listbox;
     }
-    #container {
-      margin: 0 auto;
-      width: 700px;
+    var list = document.getElementById('list');
+    list.innerHTML = html;
+}
+function get_rows_html (manager, pattern) {
+    var html   = '';
+    var regexp = new RegExp( "(" + pattern + ")", "gi");
+    var seq    = 0;
+    for (var i = 0; i < manager.records.length; i++) {
+        var record = manager.records[i];
+        if ( record.name.match(regexp) ) {
+            var module_name = manager.records[i].name;
+            if(pattern != '' ) {
+                var replace_text = "<span class='search_highlight'>$1</span>";
+                module_name = module_name.replace(regexp, replace_text);
+            }
+            html += get_record_html(record, module_name, seq);
+            seq++;
+        }
     }
-    h1 { font-size: 3.8em; color: #56252c; margin-bottom: 3px; }
-    h1 .small { font-size: 0.4em; }
-    h1 a { text-decoration: none }
-    h2 { font-size: 1.5em; color: #56252c; }
-    h3 { text-align: center; color: #56252c; }
-    a { color: #56252c; }
-    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-    .download { float: right; }
-    pre { background: #000; color: #fff; padding: 15px;}
-    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
-  </style>
+    return html;
+}
+function get_record_html (record, name, i) {
+    var row_class  = ( i % 2 == 0 ) ? 'r' : 's';
+    var row_html   = "<tr class='"
+                   + row_class
+                   + "'><td nowrap='nowrap'><a href='"
+                   + record.path
+                   + "'>"
+                   + name + "</a></td><td width='99%'><small>"
+                   + record.title
+                   + "</small></td></tr>";
+    return row_html;
+}
+//]]>
+</script>
 </head>
+<body onload="render('')">
+<div class="box">
+  <h1 class="t1">CollabIRCate</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">CollabIRCate is a free, open-source collaboration tool</td>
+    </tr>
+  </table>
+</div>
 
-<body>
-  <a href="http://github.com/tardisx/collabircate"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+<div class="box">
+  <h2 class="t2">Search</h2>
+  <table>
+    <tr>
+       <td class="cell"><input type="text" size="60" onkeyup="render(this.value)" /></td>
+    </tr>
+  </table>
+</div>
 
-  <div id="container">
-
-    <div class="download">
-      <a href="http://github.com/tardisx/collabircate/zipball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-      <a href="http://github.com/tardisx/collabircate/tarball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
-    </div>
-
-    <h1><a href="http://github.com/tardisx/collabircate">collabircate</a>
-      <span class="small">by <a href="http://github.com/tardisx">tardisx</a></span></h1>
-
-    <div class="description">
-      Collaboration tool
-    </div>
-
-    <h2>Authors</h2>
-<p>Justin Hawkins (justin@hawkins.id.au)<br/><br/>      </p>
-<h2>Contact</h2>
-<p>Justin Hawkins (justin@hawkins.id.au)<br/>      </p>
+<div id="list">
+</div>
 
 
-    <h2>Download</h2>
-    <p>
-      You can download this project in either
-      <a href="http://github.com/tardisx/collabircate/zipball/master">zip</a> or
-      <a href="http://github.com/tardisx/collabircate/tarball/master">tar</a> formats.
-    </p>
-    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
-      by running:
-      <pre>$ git clone git://github.com/tardisx/collabircate</pre>
-    </p>
-
-    <div class="footer">
-      get the source code on GitHub : <a href="http://github.com/tardisx/collabircate">tardisx/collabircate</a>
-    </div>
-
-  </div>
-
-  
+<div class="footer">generated by <a href="http://search.cpan.org/perldoc?Pod%3A%3AProjectDocs">Pod::ProjectDocs</a></div>
 </body>
 </html>

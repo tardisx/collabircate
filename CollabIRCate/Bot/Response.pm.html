@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>CollabIRCate::Bot::Response</title>
+<link rel="stylesheet" type="text/css" href="../../podstyle.css" /><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <script type="text/javascript">
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  </script></head>
+<body>
+<div class="box">
+  <h1 class="t1">CollabIRCate</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">CollabIRCate is a free, open-source collaboration tool</td>
+    </tr>
+  </table>
+</div>
+<div class="path">
+  <a href="../../index.html">CollabIRCate</a> &gt; Perl Modules &gt;
+  CollabIRCate-Bot-Response
+</div>
+<div>
+<a href="../../src/CollabIRCate/Bot/Response.pm">Source</a>
+</div>
+
+
+<div class="pod">
+<!-- INDEX START -->
+<h3 id="TOP">Index</h3>
+<ul>
+	<li><a href="#NAME">NAME</a></li>
+	<li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+	<li><a href="#DESCRIPTION">DESCRIPTION</a><br />
+<ul>
+	<li><a href="#add_public_response">add_public_response</a></li>
+	<li><a href="#add_private_response">add_private_response</a></li>
+	<li><a href="#merge">merge</a></li>
+	<li><a href="#emit">emit</a></li>
+</ul>
+</li>
+</ul>
+<hr />
+<!-- INDEX END -->
+
+<h1 id="NAME">NAME <a href="#TOP" class="toplink"><img alt="^" src="../../up.gif" /></a></h1>
+
+<p>CollabIRCate::Bot::Response - class for IRC Bot responses.</p>
+
+<h1 id="SYNOPSIS">SYNOPSIS <a href="#TOP" class="toplink"><img alt="^" src="../../up.gif" /></a></h1>
+
+<pre>  my $response = CollabIRCate::Bot::Response-&gt;new();
+
+  $response-&gt;add_public_response({channel =&gt; '#friends', text =&gt; 'hello'});
+  $response-&gt;add_private_response({user =&gt; $user, text =&gt; 'not you'});
+
+  $response-&gt;merge($some_other_response_object);
+
+  $response-&gt;emit($irc);
+
+</pre><h1 id="DESCRIPTION">DESCRIPTION <a href="#TOP" class="toplink"><img alt="^" src="../../up.gif" /></a></h1>
+
+<p>A bot may make multiple responses to a particular query. Some of them may be
+public, some private. A CollabIRCate::Bot::Response object encapsulates them
+in one place.</p>
+
+<h2 id="add_public_response">add_public_response</h2>
+
+<p><a href="#" onclick="toggleCode('method_add_public_response');return false;">[Source]</a></p>
+                                        <div class="method-source-code" id="method_add_public_response">
+                                        <pre>
+
+sub add_public_response {
+    my $self = shift;
+    my $args = shift || {};
+
+    my $channel = $args->{channel};
+    my $text    = $args->{text};
+
+    croak "no channel for public response" unless $channel;
+    croak "no text for public response"    unless $text;
+
+    my $current = $self->public_response || [];
+    $self->public_response( [ ( @{$current}, [ $channel, $text ] ) ] );
+    return $self;
+}
+</pre></div>
+
+<p>Add a public response. Requires a hash ref with channel and text keys.</p>
+
+<h2 id="add_private_response">add_private_response</h2>
+
+<p><a href="#" onclick="toggleCode('method_add_private_response');return false;">[Source]</a></p>
+                                        <div class="method-source-code" id="method_add_private_response">
+                                        <pre>
+
+sub add_private_response {
+    my $self = shift;
+    my $args = shift || {};
+
+    my $user = $args->{user};
+    my $text = $args->{text};
+
+    croak "no user for private response" unless $user;
+    croak "no text for private response" unless $text;
+
+    croak "not a CollabIRCate::Bot::Users object"
+        unless ( ref $user eq 'CollabIRCate::Bot::Users' );
+
+    my $current = $self->private_response || [];
+    $self->private_response( [ ( @{$current}, [ $user, $text ] ) ] );
+    return $self;
+}
+</pre></div>
+
+<p>Add a private response. Requires a hash ref containing a user object and
+the text to send.</p>
+
+<h2 id="merge">merge</h2>
+
+<p><a href="#" onclick="toggleCode('method_merge');return false;">[Source]</a></p>
+                                        <div class="method-source-code" id="method_merge">
+                                        <pre>
+
+sub merge {
+    my $self           = shift;
+    my $other_response = shift;
+
+    croak "not a CollabIRCate::Bot::Response object"
+        unless ( ref $other_response eq 'CollabIRCate::Bot::Response' );
+    $self->private_response(
+        [   @{ $self->private_response || [] },
+            @{ $other_response->private_response || [] }
+        ]
+    );
+    $self->public_response(
+        [   @{ $self->public_response || [] },
+            @{ $other_response->public_response || [] }
+        ]
+    );
+    return $self;
+}
+</pre></div>
+
+<p>Merges this <a href="Response.pm.html">CollabIRCate::Bot::Response</a> object with another.</p>
+
+<h2 id="emit">emit</h2>
+
+<p><a href="#" onclick="toggleCode('method_emit');return false;">[Source]</a></p>
+                                        <div class="method-source-code" id="method_emit">
+                                        <pre>
+
+sub emit {
+    my $self = shift;
+    my $irc  = shift;
+
+    $logger->debug("emit called");
+
+    return unless $self->has_response;
+
+    $logger->debug("has response - continuing");
+
+    if ( $self->private_response ) {
+      $logger->debug("might contain at least one private response");
+        foreach ( @{ $self->private_response } ) {
+            my ( $user, $text ) = @$_;
+            my $nick = $user->nick();
+            $logger->debug("sending privmsg '$text' to nick '$nick'");
+            foreach my $line (split /\n/, $text) {
+                $irc->yield( privmsg => $nick, $line );
+            }
+         }
+    }
+
+    if ( $self->public_response ) {
+      $logger->debug("might contain at least one public response");
+        foreach ( @{ $self->public_response } ) {
+            my ( $channel, $text ) = @$_;
+            $logger->debug("sending privmsg '$text' to channel '$channel'");
+            foreach my $line (split /\n/, $text) {
+                $irc->yield( privmsg => $channel, $line );
+            }
+            add_log( CollabIRCate::Bot::Users->bot_ircuser(),
+                     $channel, 'log', $text );
+        }
+    }
+
+    return;
+
+}
+</pre></div>
+
+<p>Emits the responses, public and private, to an IRC server.</p>
+
+
+</div><div class="footer">generated by <a href="http://search.cpan.org/perldoc?Pod%3A%3AProjectDocs">Pod::ProjectDocs</a></div></body>
+</html>

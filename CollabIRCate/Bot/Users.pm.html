@@ -1,0 +1,319 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>CollabIRCate::Bot::Users</title>
+<link rel="stylesheet" type="text/css" href="../../podstyle.css" /><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <script type="text/javascript">
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  </script></head>
+<body>
+<div class="box">
+  <h1 class="t1">CollabIRCate</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">CollabIRCate is a free, open-source collaboration tool</td>
+    </tr>
+  </table>
+</div>
+<div class="path">
+  <a href="../../index.html">CollabIRCate</a> &gt; Perl Modules &gt;
+  CollabIRCate-Bot-Users
+</div>
+<div>
+<a href="../../src/CollabIRCate/Bot/Users.pm">Source</a>
+</div>
+
+
+<div class="pod">
+<!-- INDEX START -->
+<h3 id="TOP">Index</h3>
+<ul>
+	<li><a href="#NAME">NAME</a></li>
+	<li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+	<li><a href="#DESCRIPTION">DESCRIPTION</a></li>
+	<li><a href="#CAUTIONS">CAUTIONS</a><br />
+<ul>
+	<li><a href="#from_ircuser">from_ircuser</a></li>
+	<li><a href="#link">link</a></li>
+	<li><a href="#add_channel">add_channel</a></li>
+	<li><a href="#remove_channel">remove_channel</a></li>
+	<li><a href="#update_logs">update_logs</a></li>
+	<li><a href="#id">id</a></li>
+	<li><a href="#update_nick">update_nick</a></li>
+</ul>
+</li>
+</ul>
+<hr />
+<!-- INDEX END -->
+
+<h1 id="NAME">NAME <a href="#TOP" class="toplink"><img alt="^" src="../../up.gif" /></a></h1>
+
+<p>CollabIRCate::Bot::Users - User objects for the bot to handle</p>
+
+<h1 id="SYNOPSIS">SYNOPSIS <a href="#TOP" class="toplink"><img alt="^" src="../../up.gif" /></a></h1>
+
+<pre>  # get/create a user from his IRC details
+  my $user = CollabIRCate::Bot::Users-&gt;from_ircuser($nick, $user, $host);
+
+  # return his nickname
+  my $nick = $user-&gt;get_nick();
+
+  # link this IRC user to a real user
+  $user-&gt;link($real_username);
+
+</pre><h1 id="DESCRIPTION">DESCRIPTION <a href="#TOP" class="toplink"><img alt="^" src="../../up.gif" /></a></h1>
+
+<p>This module provides an abstraction for dealing with IRC user instances - a
+particular user logged in at a particular time, who may be identified as as
+real authenticated user at some point.</p>
+
+<p>Instead of trying to enforce the identity of the user at some IRC level, we
+put the onus on the user themselves. Using methods here, the bot can determine
+if we know the use or not based on their IRC nick name and some sort of state,
+and provide a token back to the user to prove their identity (via the web or
+some other means).</p>
+
+<p>During the lifetime of the IRC server, users will come and go. Each user that
+the bot needs to deal with will be one of these objects. It may be linked to
+a real user, if we have some somehow authenticated them.</p>
+
+<h1 id="CAUTIONS">CAUTIONS <a href="#TOP" class="toplink"><img alt="^" src="../../up.gif" /></a></h1>
+
+<p>Since some of the information about the user lives in the database (for access
+by outside processes, and to maintain persistence) we need to take care when
+data may be used by 'the outside world'. For instance an email may arrive which
+links an IRC user instance to a real user, invalidating some of the data on the
+object stored here. Where appropriate, objects should refresh data from the
+database before use.</p>
+
+<h2 id="from_ircuser">from_ircuser</h2>
+
+<p><a href="#" onclick="toggleCode('method_from_ircuser');return false;">[Source]</a></p>
+                                        <div class="method-source-code" id="method_from_ircuser">
+                                        <pre>
+
+sub from_ircuser {
+    my $class    = shift;
+    my $nick     = shift;
+    my $username = shift;
+    my $hostname = shift;
+
+    $logger->debug("from_ircuser for '$username!$hostname' ('$nick')");
+
+    # do we already know about this user?
+    foreach my $a_user (@known_users) {
+        if ($a_user->db_irc_user()->irc_user() eq "$username!$hostname") {
+            $logger->debug("'$username!$hostname' is known to us, updating");
+            $a_user->db_irc_user()->load;
+            $a_user->db_irc_user()->ts(time());
+            $a_user->db_irc_user()->save();
+            $a_user->update_nick($nick);
+            $a_user->db_irc_user()->save();
+
+            return $a_user;
+        }
+    }
+
+    # do we already know this user (in the db but not in memory)?
+    my $users = CollabIRCate::DB::IRCUser::Manager->get_ircusers(
+        query => [
+            irc_user => "$username!$hostname",
+            ts       => { gt => time() - $timeout },
+        ]
+    );
+
+    my $irc_user;
+    if (@$users) {
+        $logger->debug("found in db");
+        croak "more than one user found?" if ( @$users > 1 );
+        $irc_user = $users->[0];
+
+        # update their timestamp and nick
+        $logger->debug("updating db timestamp and saving");
+        $irc_user->ts( time() );
+        $irc_user->save;
+    }
+    else {
+        $logger->debug("not in db - create a new record");
+        $irc_user = CollabIRCate::DB::IRCUser->new(
+            irc_user => "$username!$hostname",
+            ts       => time(),
+            nick     => { nick => $nick, ts => time() },
+        )->save;
+    }
+
+    $logger->debug("creating a new object");
+    my $user = __PACKAGE__->new();
+    $user->db_irc_user($irc_user);
+
+    $logger->debug("setting the nick to '$nick'");
+    $user->update_nick($nick);
+
+    push @known_users, $user;
+
+    return $user;
+}
+</pre></div>
+
+<p>Return a <a href="Users.pm.html">CollabIRCate::Bot::Users</a> object given the 3 parameters:</p>
+
+<dl>
+	<dt>* nickname</dt>
+	<dt>* username</dt>
+	<dt>* hostname</dt>
+</dl>
+<p>This has the side-effect of updating the existing known user's nick and
+last_seen timestamp, if they were already known to us.</p>
+
+<p>This will return the existing user, if they were already known to us, or
+create a new one if not.</p>
+
+<h2 id="link">link</h2>
+
+<p><a href="#" onclick="toggleCode('method_link');return false;">[Source]</a></p>
+                                        <div class="method-source-code" id="method_link">
+                                        <pre>
+
+sub link {
+    my $self     = shift;
+    my $username = shift;
+
+    croak "no ircuser!" if ( !$self->db_irc_user );
+    croak "already linked!" if ( $self->db_irc_user->user_id );
+
+    my $users = CollabIRCate::DB::User::Manager->get_users(
+        query => [ username => $username ] );
+
+    if ( !@$users ) {
+        croak "no user found";
+    }
+    elsif ( !@$users > 1 ) {
+        croak "too many users found";
+    }
+    my $user = $users->[0];
+    $self->db_irc_user->user_id( $user->id );
+    $self->db_irc_user->ts(time);
+    $self->db_irc_user->save;
+    return 1;
+}
+</pre></div>
+
+<p>Link this IRC user to a real user, by username.</p>
+
+<h2 id="add_channel">add_channel</h2>
+
+<p><a href="#" onclick="toggleCode('method_add_channel');return false;">[Source]</a></p>
+                                        <div class="method-source-code" id="method_add_channel">
+                                        <pre>
+
+sub add_channel {
+    my $self     = shift;
+    my $channel  = shift;
+    my @channels = @{ $self->channels };
+    push @channels, $channel;
+    @channels = uniq(@channels);
+    $self->channels( \@channels );
+}
+</pre></div>
+
+<p>Adds one channel to the list of channels that this user is on.</p>
+
+<h2 id="remove_channel">remove_channel</h2>
+
+<p><a href="#" onclick="toggleCode('method_remove_channel');return false;">[Source]</a></p>
+                                        <div class="method-source-code" id="method_remove_channel">
+                                        <pre>
+
+sub remove_channel {
+    my $self     = shift;
+    my $channel  = shift;
+    my @channels = grep { !/^$channel$/ } @{ $self->channels };
+    $self->channels( [@channels] );
+}
+</pre></div>
+
+<p>Removes a channel from the list of channels that this user is on.</p>
+
+<h2 id="update_logs">update_logs</h2>
+
+<p><a href="#" onclick="toggleCode('method_update_logs');return false;">[Source]</a></p>
+                                        <div class="method-source-code" id="method_update_logs">
+                                        <pre>
+
+sub update_logs {
+    my $self = shift;
+    croak "not an identified user!" unless $self->is_identified;
+    croak "unimplemented";
+}
+</pre></div>
+
+<p>Updates the logs for a user, once that user has become identified.</p>
+
+<h2 id="id">id</h2>
+
+<p><a href="#" onclick="toggleCode('method_id');return false;">[Source]</a></p>
+                                        <div class="method-source-code" id="method_id">
+                                        <pre>
+
+sub id {
+    my $self = shift;
+    croak "No db_irc_user" unless $self->db_irc_user;
+
+    return $self->db_irc_user->id;
+}
+</pre></div>
+
+<p>Return the id for this irc user</p>
+
+<h2 id="update_nick">update_nick</h2>
+
+<p><a href="#" onclick="toggleCode('method_update_nick');return false;">[Source]</a></p>
+                                        <div class="method-source-code" id="method_update_nick">
+                                        <pre>
+
+sub update_nick {
+  my $self = shift;
+  my $nick = shift;
+
+  my $irc_user_id = $self->db_irc_user()->id();
+  my $nicks = CollabIRCate::DB::Nick::Manager->get_nicks(
+    query => [ irc_user_id => $irc_user_id ],
+    sort_by => 'ts'
+  );
+
+  if ($nicks && $nicks->[-1]->nick() ne $nick) {
+    my $newnick = CollabIRCate::DB::Nick->new(
+         irc_user_id=>$self->db_irc_user()->id(),
+         ts => time(),
+         nick=>$nick)->save;
+  }
+  $self->nick($nick);
+
+}
+</pre></div>
+
+<p>Update the nick in the database if necessary.</p>
+
+
+</div><div class="footer">generated by <a href="http://search.cpan.org/perldoc?Pod%3A%3AProjectDocs">Pod::ProjectDocs</a></div></body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>CollabIRCate::Bot::Plugin::Hailo</title>
+<link rel="stylesheet" type="text/css" href="../../../podstyle.css" /><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <script type="text/javascript">
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  </script></head>
+<body>
+<div class="box">
+  <h1 class="t1">CollabIRCate</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">CollabIRCate is a free, open-source collaboration tool</td>
+    </tr>
+  </table>
+</div>
+<div class="path">
+  <a href="../../../index.html">CollabIRCate</a> &gt; Perl Modules &gt;
+  CollabIRCate-Bot-Plugin-Hailo
+</div>
+<div>
+<a href="../../../src/CollabIRCate/Bot/Plugin/Hailo.pm">Source</a>
+</div>
+
+
+<div class="pod">
+<!-- INDEX START -->
+<h3 id="TOP">Index</h3>
+<ul>
+	<li><a href="#NAME">NAME</a></li>
+	<li><a href="#DESCRIPTION">DESCRIPTION</a><br />
+<ul>
+	<li><a href="#register">register</a></li>
+	<li><a href="#collect_and_emit">collect_and_emit</a></li>
+	<li><a href="#collect">collect</a></li>
+	<li><a href="#spurt">spurt</a></li>
+</ul>
+</li>
+</ul>
+<hr />
+<!-- INDEX END -->
+
+<h1 id="NAME">NAME <a href="#TOP" class="toplink"><img alt="^" src="../../../up.gif" /></a></h1>
+
+<p>CollabIRCate::Bot::Plugin::Hailo - provide random amusing responses</p>
+
+<h1 id="DESCRIPTION">DESCRIPTION <a href="#TOP" class="toplink"><img alt="^" src="../../../up.gif" /></a></h1>
+
+<p>A plugin using <a href="http://search.cpan.org/perldoc?Hailo">Hailo</a> to give the bot amazing powers of AI. Or at least, amazing
+powers of occasionally saying stupidly funny things.</p>
+
+<h2 id="register">register</h2>
+
+<p><a href="#" onclick="toggleCode('method_register');return false;">[Source]</a></p>
+                                        <div class="method-source-code" id="method_register">
+                                        <pre>
+
+sub register {
+    return {
+        public    => \&collect,
+        addressed => \&collect_and_emit,
+        periodic  => [ 60, \&spurt ],
+    };
+}
+</pre></div>
+
+<p>Register the plugin. The bot collects all public messages, when directly addressed
+it can also emit a message (via Hailo). </p>
+
+<p>Additionally, there is a random chance of the bot saying something each minute, the
+probability of which is determined by how much activity is in the channel.</p>
+
+<h2 id="collect_and_emit">collect_and_emit</h2>
+
+<p><a href="#" onclick="toggleCode('method_collect_and_emit');return false;">[Source]</a></p>
+                                        <div class="method-source-code" id="method_collect_and_emit">
+                                        <pre>
+
+sub collect_and_emit {
+    my $user     = shift;
+    my $channel  = shift;
+    my $text     = shift;
+
+    if ($text =~ /^say something/i) {
+        my $hailo = _get_brain($channel);
+
+        $text =~ /(about|on|regarding|relating to)\s+(.*)/i;
+        my $about = $1;
+
+        my $response = CollabIRCate::Bot::Response->new;
+        my $text;
+        $text = $hailo->reply($about) if ($about);
+        $text = $hailo->reply()       if (! $about);
+        $response->add_public_response(
+            {   channel => $channel,
+                text    => $text,
+            });
+        return $response;
+    }
+    else {
+        # just collect as usual
+        collect($user, $channel, $text);
+    }
+}
+</pre></div>
+
+<p>Collect what the user just said, and say something back, if the right
+thing was said.</p>
+
+<h2 id="collect">collect</h2>
+
+<p><a href="#" onclick="toggleCode('method_collect');return false;">[Source]</a></p>
+                                        <div class="method-source-code" id="method_collect">
+                                        <pre>
+
+sub collect {
+    my $user     = shift;
+    my $channel  = shift;
+    my $text     = shift;
+
+    $last_channel = $channel;
+
+    $channel_noise->{$channel}++;
+
+    my $hailo = _get_brain($channel);
+
+    $logger->debug("collecting '$text' for hailo");
+    $hailo->learn($text);
+    $hailo->save();
+    return;
+}
+</pre></div>
+
+<p>Simply collect the message that was said.</p>
+
+<h2 id="spurt">spurt</h2>
+
+<p><a href="#" onclick="toggleCode('method_spurt');return false;">[Source]</a></p>
+                                        <div class="method-source-code" id="method_spurt">
+                                        <pre>
+
+sub spurt {
+    my $irc = shift;
+
+    foreach my $channel (keys %$channel_noise) {
+        # say stuff every now and then only
+        my $chance = _noise_to_chance($channel_noise->{$channel});
+        $channel_noise->{$channel} = 0;
+        next if (rand(1) > $chance);
+
+        my $hailo = _get_brain($channel);
+
+        my $response = CollabIRCate::Bot::Response->new;
+        $response->add_public_response(
+            {   channel => $channel,
+                text    => $hailo->reply
+            });
+        $response->emit($irc);
+    }
+
+    return;
+}
+</pre></div>
+
+<p>Say something to the channel, randomly.</p>
+
+
+</div><div class="footer">generated by <a href="http://search.cpan.org/perldoc?Pod%3A%3AProjectDocs">Pod::ProjectDocs</a></div></body>
+</html>
