@@ -41,7 +41,6 @@ if ($config->{dsn}) {
   );
   __PACKAGE__->default_domain('test');
   __PACKAGE__->default_type('sqlite');
-  warn "DONE IT! $db";
 }
 
 # Register the data sources
