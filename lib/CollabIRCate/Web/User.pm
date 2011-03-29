@@ -32,6 +32,7 @@ sub login {
 
         croak if (! $username || ! $password);
 
+        # XXX evil this needs to be hashed
         my $users = CollabIRCate::DB::User::Manager->get_users(
             query => [ username => $username, password => $password ]
         );
