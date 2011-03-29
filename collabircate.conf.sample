@@ -49,9 +49,6 @@ file_store_depth 3
 upload_url http://example.org/upload/HASH/
 upload_email uploads+HASH@example.org
 
-# email stuff, must be writable by the mail server user
-email_queue_path ./queue
-
 # plugins
 plugin_banter_enabled 0
 plugin_google_enabled 0
