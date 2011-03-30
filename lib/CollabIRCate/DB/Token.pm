@@ -7,6 +7,9 @@ use Digest::MD5;
 use Time::HiRes qw/time/;
 use Storable;
 
+use CollabIRCate::DB::Channel;
+use CollabIRCate::DB::IRCUser;
+
 use Carp qw/croak/;
 
 use base 'CollabIRCate::DB::Object';
@@ -82,6 +85,24 @@ sub new_upload_token {
     );
 
     return $self;
+}
+
+sub channel {
+    my $self = shift;
+    if ($self->type eq 'upload') {
+        my (@data) = split /|/, $self->data();
+        return CollabIRCate::DB::Channel->new( id => $data[0] )->load();
+    }
+    die "unimplemented";
+}
+
+sub ircuser {
+    my $self = shift;
+    if ($self->type eq 'upload') {
+        my (@data) = split /|/, $self->data();
+        return CollabIRCate::DB::IRCUser->new( id => $data[1] ) ->load();
+    }
+    die "unimplemented";
 }
 
 1;
