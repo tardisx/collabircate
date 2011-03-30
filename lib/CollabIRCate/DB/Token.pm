@@ -1,5 +1,11 @@
 package CollabIRCate::DB::Token;
 
+=head1 NAME 
+
+CollabIRCate::DB::Token - Database abstraction for tokens
+
+=cut
+
 use strict;
 use warnings;
 

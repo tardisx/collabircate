@@ -1,0 +1,11 @@
+=head1 NAME
+
+CollabIRCate - a collaboration system
+
+=head1 SYNOPSIS
+
+CollabIRCate is a free, open-source collaboration tool. It leverages
+existing services and environments, IRC, email, the web, rather than
+trying to force you to learn Yet Another Tool.
+
+=cut

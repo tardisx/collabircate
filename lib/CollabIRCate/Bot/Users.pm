@@ -3,6 +3,7 @@ package CollabIRCate::Bot::Users;
 use strict;
 use warnings;
 
+
 use Moose;
 
 use Carp qw/croak/;
@@ -20,7 +21,7 @@ use List::MoreUtils qw/uniq/;
 
 =head1 NAME
 
-CollabIRCate::Bot::Users
+CollabIRCate::Bot::Users - User objects for the bot to handle
 
 =head1 SYNOPSIS
 
