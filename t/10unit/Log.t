@@ -39,13 +39,13 @@ ok (defined $dbuser, 'made johnny user');
 ok ($dbuser->id() =~ /\d+/, 'has an id');
 ok ($a_new_user->link('johnno'), 'linked him');
 
-
 $logs = CollabIRCate::DB::Log::Manager->get_logs(
     query => [ entry => 'say something '.$unique ], 
 );
+
 ok (@$logs == 1, 'one johnny log');
 my $j_log = $logs->[0];
 ok (defined $j_log->irc_user, 'can get to irc_user');
 ok (defined $j_log->irc_user->user, 'can get to real user');
 ok ($j_log->irc_user->user->id() =~ /\d+/, 'has an id');
-ok ($j_log->irc_user->user->id() == $a_new_user->id(), 'heeeeeeeeeres johnny');
+ok ($j_log->irc_user->user->id() == $dbuser->id(), 'heeeeeeeeeres johnny');
