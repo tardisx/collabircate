@@ -1,4 +1,4 @@
-use Test::More tests => 11;
+use Test::More tests => 15;
 
 BEGIN {
 use_ok 'CollabIRCate::Bot::Users';
@@ -41,3 +41,10 @@ ok ($user_again eq $user, 'identical user');
 # let's change his nick though and make sure he's still the same guy
 my $user_again_new_nick = CollabIRCate::Bot::Users->from_ircuser('brandnewfred', 'freddofrog', 'localhost');
 ok ($user_again_new_nick eq $user, 'identical user');
+
+# test we can navigate from the bot user, to the irc_user (db) through to the real user.
+ok (defined $user->db_irc_user, 'there is a db_irc_user');
+ok ($user->db_irc_user->id() =~ /\d+/, 'has an id');
+ok (defined $user->db_irc_user->user(), 'can get to user');
+ok (defined $user->db_irc_user->user()->id() =~ /\d+/, 'has a user id');
+
