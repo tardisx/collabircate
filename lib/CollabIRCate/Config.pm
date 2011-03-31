@@ -1,9 +1,34 @@
 package CollabIRCate::Config;
 
+=head1 NAME
+
+CollabIRCate::Config - fetch configuraton for the CollabIRCate system
+
+=head2 SYNOPSIS
+
+  use CollabIRCate::Config;
+
+  my $config = CollabIRCate::Config->config();
+  my $name   = $config->{irc_server_name};
+
+=cut
+
 use strict;
 use warnings;
 
 use Config::Any;
+
+=head2 config
+
+Returns a hashref containing the configuration data for the CollabIRCate system. Reads the 
+C<collabircate.conf> file. If the environment variable C<COLLABIRCATE_CONFIG_SUFFIX> is
+set, then that suffix is appended to the config name (generally used only for testing).
+
+You can override any config key by setting an appropriate environment variable. For instance,
+to override the key C<server_name>, set the environment variable C<COLLABIRCATE_CONFIG_SERVER_NAME>
+to the desired value.
+
+=cut
 
 sub config {
     my $filename = "collabircate.conf";
@@ -25,6 +50,16 @@ sub config {
     return $config;
 }
 
+=head2 plugin_enabled
+
+Determine if a plugin is enabled.
+
+  if (CollabIRCate::Config->plugin_enabled('hailo')) {
+    warn "Hailo plugin is enabled!";
+  }
+
+=cut
+
 sub plugin_enabled {
     my $class       = shift;
     my $plugin_name = shift;
@@ -39,6 +74,15 @@ sub plugin_enabled {
     }
     return 1;    # assume enabled
 }
+
+=head2 http_root 
+
+Convenience method to assemble the full base http address of the web interface from
+various config variables.
+
+  my $url = CollabIRCate::Config->http_root(); # http://localhost:3000 
+
+=cut
 
 sub http_root {
     my $output = "http://";
