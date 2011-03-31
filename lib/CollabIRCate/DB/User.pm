@@ -1,5 +1,16 @@
 package CollabIRCate::DB::User;
 
+=head1 NAME
+
+CollabIRCate::DB::User - database abstraction for users
+
+=head1 DESCRIPTION
+
+L<CollabIRCate::DB::User>s represent actual authenticated users of the system (as opposed
+to transient users visiting an IRC channel).
+
+=cut
+
 use strict;
 use warnings;
 
