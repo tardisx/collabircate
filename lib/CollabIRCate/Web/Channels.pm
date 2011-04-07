@@ -5,7 +5,7 @@ use warnings;
 
 use Carp qw/croak/;
 
-use CollabIRCate::DB::Log::Manager;
+use CollabIRCate::DB::LogCombined::Manager;
 use CollabIRCate::DB::Channel::Manager;
 use CollabIRCate::DB::Channel;
 use CollabIRCate::Logger;
@@ -84,10 +84,10 @@ sub show {
     ];
 
     $pager->total_entries(
-        CollabIRCate::DB::Log::Manager->get_logs_count( query => $query ) );
+        CollabIRCate::DB::LogCombined::Manager->get_logs_count( query => $query ) );
     $pager->entries_per_page(100);
 
-    my $logs = CollabIRCate::DB::Log::Manager->get_logs(
+    my $logs = CollabIRCate::DB::LogCombined::Manager->get_logs(
         query   => $query,
         sort_by => 'ts',
         offset => $pager->skipped,
