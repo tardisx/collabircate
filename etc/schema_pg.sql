@@ -68,3 +68,31 @@ CREATE TABLE file (
   mime_type TEXT NOT NULL,
   size      INT NOT NULL
 );
+
+-- Create a view that shows all log entries, be they regular or files.
+CREATE VIEW log_combined
+AS  SELECT id,
+         ts,
+         'log' AS entry_type,
+         channel_id,
+         irc_user_id,
+         TYPE,
+         entry,
+         NULL  AS filename,
+         NULL  AS mime_type,
+         NULL  AS size
+  FROM   LOG
+  UNION
+  SELECT id,
+         ts,
+         'file' AS entry_type,
+         channel_id,
+         irc_user_id,
+         NULL   AS TYPE,
+         NULL   AS entry,
+         filename,
+         mime_type,
+         size
+  FROM   FILE
+  ORDER  BY ts;
+

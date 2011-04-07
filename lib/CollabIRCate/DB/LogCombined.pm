@@ -1,4 +1,4 @@
-package CollabIRCate::DB::Log;
+package CollabIRCate::DB::LogCombined;
 
 use strict;
 use warnings;
@@ -8,15 +8,20 @@ use Carp qw/croak/;
 use base 'CollabIRCate::DB::Object';
 
 __PACKAGE__->meta->setup(
-    table => 'log',
+    table => 'log_combined',
 
     columns => [
         id => { type => 'serial',    not_null => 1, primary_key => 1 },
         ts => { type => 'timestamp', not_null => 1 },
+        entry_type  => { type => 'text', not_null => 1 },
         channel_id  => { type => 'integer', not_null => 1 },
         irc_user_id => { type => 'integer', not_null => 1 },
-        type        => { type => 'text',    not_null => 1 },
-        entry       => { type => 'text',    not_null => 1 },
+        type        => { type => 'text',    not_null => 0 }, # entry_type = log
+        entry       => { type => 'text',    not_null => 0 }, # entry_type = log
+        filename    => { type => 'text',    not_null => 0 }, # entry_type = file
+        mime_type   => { type => 'text',    not_null => 0 }, # entry_type = file
+        size        => { type => 'integer', not_null => 0 }, # entry_type = file
+        
     ],
 
     foreign_keys => [
@@ -32,8 +37,6 @@ __PACKAGE__->meta->setup(
 
     
 );
-
-# XXX these methods should probably go, all users should be using LogCombined (probably)
 
 =head2 nick
 
