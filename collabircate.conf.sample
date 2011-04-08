@@ -31,6 +31,10 @@ irc_bot_nickname undefBOT
 http_server_host localhost
 http_server_port 3000
 
+# use thumboo for web thumbnails?
+# uncomment and supply your API key here
+# http_thumboo_api ABCDEF1234567890
+
 # tag matching
 # [] tags
 irc_log_tag_regexp \[([\w\S]+?)\]
