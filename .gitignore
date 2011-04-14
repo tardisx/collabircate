@@ -13,3 +13,4 @@ log/collabircate.log
 log/development.log
 store
 hailo*.db
+*.swp
