@@ -36,10 +36,10 @@ it under the same terms as Perl itself.
 use Moose;
 
 my @plugins = plugins();
-{ 
+{
   my @tmp;
   foreach my $plugin (@plugins) {
-    if ($plugin->enabled) {
+    if ($plugin->enabled && $plugin->register) {
       push @tmp, $plugin;
     }
   }

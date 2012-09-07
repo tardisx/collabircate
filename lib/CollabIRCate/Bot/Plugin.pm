@@ -26,7 +26,7 @@ keys:
   periodic  => [ 60, $coderef ],
 
 The C<public> value is a reference to a subroutine to run when the Bot
-sees any message in any channel it is on. 
+sees any message in any channel it is on.
 
 The C<addressed> value is a reference to a subroutine to run when the Bot
 is specifically addressed, either publically or privately.
@@ -38,6 +38,9 @@ run.
 As an example using all three of these, a plugin to collect per-channel
 statistics would need to register a C<public> method to collect line by
 line stats, and an C<addressed> method to answer questions about stats.
+
+You may also return C<undef> from 'register', if your plugin cannot be loaded
+(for example, if a perl module is not available).
 
 =cut
 
