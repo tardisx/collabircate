@@ -9,7 +9,7 @@ use Test::Mojo;
 use_ok('CollabIRCate::Web');
 
 # Test /
-my $t = Test::Mojo->new(app => 'CollabIRCate::Web');
+my $t = Test::Mojo->new('CollabIRCate::Web');
 $t->post_form_ok('/user/login', {username => 'foo', password => 'bar', submit => 1})
   ->status_is(200)
   ->content_type_like(qr/text\/html/)

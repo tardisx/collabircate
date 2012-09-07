@@ -23,7 +23,7 @@ my $url =  $response->private_response->[0]->[1];
 $url =~ s/.*http:/http:/;
 $url =~ s{^http://.*?/}{/};
 
-my $t = Test::Mojo->new(app => 'CollabIRCate::Web');
+my $t = Test::Mojo->new('CollabIRCate::Web');
 $t->get_ok($url)
   ->status_is(200)
   ->content_type_like(qr/text\/html/)

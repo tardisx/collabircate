@@ -23,7 +23,7 @@ ok (add_log( $user, $channel, 'join', 'joined'), "added join log");
 use_ok('CollabIRCate::Web');
 
 # Test channel list
-my $t = Test::Mojo->new(app => 'CollabIRCate::Web');
+my $t = Test::Mojo->new('CollabIRCate::Web');
 $t->get_ok('/channels/')
   ->status_is(200)
   ->content_type_like(qr/text\/html/)

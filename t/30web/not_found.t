@@ -9,7 +9,7 @@ use Test::Mojo;
 use_ok('CollabIRCate::Web');
 
 # Test bad urls 404
-my $t = Test::Mojo->new(app => 'CollabIRCate::Web');
+my $t = Test::Mojo->new('CollabIRCate::Web');
 $t->get_ok('/bad_url_here')
   ->status_is(404)->content_type_like(qr/text\/html/)
   ->content_like(qr/not found/i)
