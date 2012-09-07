@@ -55,7 +55,6 @@ upload_email uploads+HASH@example.org
 
 # plugins
 plugin_banter_enabled 0
-plugin_google_enabled 0
 plugin_help_enabled 0
 plugin_version_enabled 0
 

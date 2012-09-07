@@ -20,9 +20,6 @@ ok (! $ret, 'bot can do maths');
 
 =pod 
 
-$ret = system("bin/irc_test.pl", '-s', 'localhost', '-p', '6668', 'join=#people', 'privmsg=#people,undefBOT: google google', 'waitfor=google,19');
-ok (! $ret, 'google command to bot works');
-
 $ret = system("bin/irc_test.pl", '-s', 'localhost', '-p', '6668', 'join=#people', 'privmsg=#people,undefBOT: version', 'waitfor=I am version,19');
 ok (! $ret, 'bot knows what version he is');
 
